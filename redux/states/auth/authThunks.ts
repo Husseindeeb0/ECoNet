@@ -3,25 +3,6 @@ import { LoginCredentials, SignupData } from "@/types/auth";
 import { signupUser, loginUser, logoutUser, refreshToken } from "./authAPI";
 import { setUser, clearUser, setLoading, setError } from "./authSlice";
 
-/**
- * Authentication Async Thunks
- *
- * Handles asynchronous authentication operations
- * Each thunk dispatches appropriate actions to update the Redux state
- *
- * Thunks automatically handle:
- * - Loading states
- * - Error handling
- * - Success/failure state updates
- */
-
-/**
- * Signup Thunk
- * Registers a new user and handles the response
- *
- * @param data - Signup form data
- * @returns Promise with signup result
- */
 export const signupThunk = createAsyncThunk(
   "auth/signup",
   async (data: SignupData, { dispatch, rejectWithValue }) => {
@@ -49,14 +30,6 @@ export const signupThunk = createAsyncThunk(
   }
 );
 
-/**
- * Login Thunk
- * Authenticates user and stores user data in Redux state
- * Cookies are automatically set by the backend
- *
- * @param credentials - Login credentials (email and password)
- * @returns Promise with login result
- */
 export const loginThunk = createAsyncThunk(
   "auth/login",
   async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
@@ -85,12 +58,6 @@ export const loginThunk = createAsyncThunk(
   }
 );
 
-/**
- * Logout Thunk
- * Logs out user and clears authentication state
- *
- * @returns Promise with logout result
- */
 export const logoutThunk = createAsyncThunk(
   "auth/logout",
   async (_, { dispatch, rejectWithValue }) => {
@@ -118,13 +85,6 @@ export const logoutThunk = createAsyncThunk(
   }
 );
 
-/**
- * Refresh Token Thunk
- * Silently refreshes the access token using the refresh token
- * This is typically called when an API request fails with 401 Unauthorized
- *
- * @returns Promise with refresh result
- */
 export const refreshTokenThunk = createAsyncThunk(
   "auth/refreshToken",
   async (_, { rejectWithValue }) => {

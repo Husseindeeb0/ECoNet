@@ -8,19 +8,6 @@ import { Mail, Lock, User, FileText, UserCircle, Loader2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { signupThunk } from "@/redux/states/auth/authThunks";
 
-/**
- * Signup Page Component
- *
- * Allows users to register as either a Normal User or Organizer
- * Features:
- * - Form validation (email format, password match, required fields)
- * - Role selection (user/organizer)
- * - Optional description field
- * - Animated UI with Framer Motion
- * - Redux integration for state management
- * - Error handling and user feedback
- */
-
 export default function SignupPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -41,9 +28,6 @@ export default function SignupPage() {
     [key: string]: string;
   }>({});
 
-  /**
-   * Handle input changes
-   */
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -57,20 +41,15 @@ export default function SignupPage() {
     }
   };
 
-  /**
-   * Validate form before submission
-   */
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       errors.name = "Name is required";
     } else if (formData.name.trim().length < 2) {
       errors.name = "Name must be at least 2 characters";
     }
 
-    // Email validation
     if (!formData.email.trim()) {
       errors.email = "Email is required";
     } else if (
@@ -79,14 +58,12 @@ export default function SignupPage() {
       errors.email = "Please enter a valid email address";
     }
 
-    // Password validation
     if (!formData.password) {
       errors.password = "Password is required";
     } else if (formData.password.length < 6) {
       errors.password = "Password must be at least 6 characters";
     }
 
-    // Confirm password validation
     if (!formData.confirmPassword) {
       errors.confirmPassword = "Please confirm your password";
     } else if (formData.password !== formData.confirmPassword) {
@@ -97,9 +74,7 @@ export default function SignupPage() {
     return Object.keys(errors).length === 0;
   };
 
-  /**
-   * Handle form submission
-   */
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

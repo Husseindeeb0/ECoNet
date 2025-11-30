@@ -1,19 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AuthState, User } from "@/types/auth";
 
-/**
- * Authentication Redux Slice
- *
- * Manages authentication state across the application
- * Includes user data, authentication status, loading state, and errors
- *
- * State Structure:
- * - user: Current authenticated user object (null if not authenticated)
- * - isAuthenticated: Boolean indicating if user is logged in
- * - loading: Boolean indicating if an auth operation is in progress
- * - error: Error message string (null if no error)
- */
-
 // Initial state
 const initialState: AuthState = {
   user: null,
@@ -27,7 +14,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    /**
+    /*
      * Set the authenticated user
      * Called after successful login or when restoring session
      */

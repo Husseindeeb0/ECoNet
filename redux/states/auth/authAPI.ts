@@ -1,15 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { LoginCredentials, SignupData, AuthResponse } from "@/types/auth";
 
-/**
- * Authentication API Layer
- *
- * Centralized API calls for authentication operations
- * Uses Axios with credentials enabled for cookie handling
- *
- * All functions return promises that resolve to AuthResponse
- */
-
 // Create axios instance with default configuration
 const apiClient: AxiosInstance = axios.create({
   baseURL: "/api/auth", // Base URL for all auth endpoints
@@ -19,12 +10,6 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-/**
- * Register a new user
- *
- * @param data - Signup form data
- * @returns Promise resolving to authentication response
- */
 export const signupUser = async (data: SignupData): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>("/signup", {
     name: data.name,
@@ -36,13 +21,6 @@ export const signupUser = async (data: SignupData): Promise<AuthResponse> => {
   return response.data;
 };
 
-/**
- * Authenticate a user
- * Sets access and refresh tokens as HTTP-only cookies
- *
- * @param credentials - Login credentials (email and password)
- * @returns Promise resolving to authentication response with user data
- */
 export const loginUser = async (
   credentials: LoginCredentials
 ): Promise<AuthResponse> => {
@@ -50,23 +28,11 @@ export const loginUser = async (
   return response.data;
 };
 
-/**
- * Log out the current user
- * Clears authentication cookies and revokes refresh token
- *
- * @returns Promise resolving to authentication response
- */
 export const logoutUser = async (): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>("/logout");
   return response.data;
 };
 
-/**
- * Refresh the access token
- * Uses refresh token from cookies to obtain a new access token
- *
- * @returns Promise resolving to authentication response
- */
 export const refreshToken = async (): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>("/refresh");
   return response.data;

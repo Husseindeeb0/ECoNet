@@ -3,33 +3,12 @@ import connectDb from "@/lib/connectDb";
 import User from "@/models/User";
 import { hashPassword } from "@/lib/auth";
 
-/**
- * POST /api/auth/signup
- *
- * Handles user registration for both Normal Users and Organizers
- * Creates a new user account with hashed password
- *
- * Request Body:
- * - name: User's full name
- * - email: User's email address (must be unique)
- * - password: User's password (will be hashed)
- * - role: 'user' or 'organizer'
- * - description: Optional user bio/description
- *
- * Returns:
- * - 201: User created successfully
- * - 400: Validation error or user already exists
- * - 500: Server error
- */
 export async function POST(req: NextRequest) {
   try {
-    // Connect to database
     await connectDb();
 
-    // Parse request body
     const { name, email, password, role, description } = await req.json();
 
-    // Validate required fields
     if (!name || !email || !password) {
       return NextResponse.json(
         { success: false, message: "Name, email, and password are required" },
@@ -37,7 +16,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate email format
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -46,7 +24,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate password length
     if (password.length < 6) {
       return NextResponse.json(
         {
@@ -57,7 +34,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate role if provided
     if (role && !["user", "organizer"].includes(role)) {
       return NextResponse.json(
         {
@@ -68,7 +44,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return NextResponse.json(
@@ -77,20 +52,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hash password before storing
     const hashedPassword = await hashPassword(password);
 
-    // Create new user
     const newUser = await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: role || "user", // Default to 'user' if not specified
+      role: role || "user",
       description: description || "",
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "User registered successfully",
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          description: newUser.description,
+          bookedEvents: newUser.bookedEvents,
+          attendedEvents: newUser.attendedEvents,
+          createdEvents: newUser.createdEvents,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error("Signup error:", error);
 
-    // Handle mongoose validation errors
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map(
         (err: any) => err.message
@@ -101,7 +94,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generic error response
     return NextResponse.json(
       { success: false, message: "An error occurred during registration" },
       { status: 500 }

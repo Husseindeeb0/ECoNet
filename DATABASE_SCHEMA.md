@@ -1,103 +1,96 @@
-# EventHub Database Schema - Event & User Models
+# EventHub Database Schema - Improved Architecture
 
-## 📋 Overview
+## 🎯 Problem Solved
 
-This document explains the relationship between the Event and User models, and how booking-related schemas are shared between them to avoid duplication.
+**Previous Issue:** Data duplication - booking details were stored in both Event model AND User model's `myEvents` field.
 
-## 🏗️ Architecture
+**Solution:** Store booking data **only once** in the Event model. User model now only stores **references** (event IDs).
 
-### Single Source of Truth
+## 📊 Current Architecture
 
-All event and booking-related schemas are defined in **`Event.ts`** and imported by **`User.ts`** to maintain consistency and avoid duplication.
-
-```
-Event.ts (Source)
-├── IBookingDetails (interface)
-├── BookingDetailsSchema (schema)
-├── IOrganizerEvent (interface)
-├── OrganizerEventSchema (schema)
-└── IEvent (interface)
-
-User.ts (Consumer)
-└── Imports: IOrganizerEvent, OrganizerEventSchema
-```
-
-## 📦 Event Model (`models/Event.ts`)
-
-### Exported Schemas & Interfaces
-
-#### 1. **IBookingDetails** & **BookingDetailsSchema**
-
-Stores information about individual bookings:
-
-- `userId`: Reference to the User who booked
-- `userName`: User's name (for quick access)
-- `userEmail`: User's email (for contact)
-- `seatsBooked`: Number of seats booked
-- `bookedAt`: Timestamp of booking
-
-**Used in:**
-
-- Event model's `bookings` array
-- User model's `myEvents.bookings` array
-
-#### 2. **IOrganizerEvent** & **OrganizerEventSchema**
-
-Stores event reference with booking tracking for organizers:
-
-- `eventId`: Reference to Event document
-- `bookings`: Array of IBookingDetails
-- `totalSeatsBooked`: Quick count of total booked seats
-
-**Used in:**
-
-- User model's `myEvents` field (organizer-specific)
-
-#### 3. **IEvent** (Main Event Interface)
-
-Complete event document structure:
-
-- Basic info: title, description, date, time, location, capacity, posterImage
-- `organizerId`: Reference to User who created the event
-- `bookings`: Array of all bookings for this event
-- `availableSeats`: Calculated available capacity
-
-## 👤 User Model (`models/User.ts`)
-
-### Fields Using Event Schemas
-
-#### Normal User Fields (All Users)
+### Event Model (Single Source of Truth)
 
 ```typescript
-bookedEvents: ObjectId[]        // References to Event documents
-attendedEvents: ObjectId[]      // References to Event documents
+{
+  _id: ObjectId,
+  title: string,
+  organizerId: ObjectId,  // Who created this event
+  bookings: [             // ALL booking data stored HERE
+    {
+      userId: ObjectId,
+      userName: string,
+      userEmail: string,
+      seatsBooked: number,
+      bookedAt: Date
+    }
+  ],
+  availableSeats: number,
+  // ... other event fields
+}
 ```
 
-#### Organizer-Specific Fields
+### User Model (References Only)
 
 ```typescript
-myEvents: IOrganizerEvent[]     // Imported from Event.ts
+{
+  _id: ObjectId,
+  name: string,
+  email: string,
+  role: 'user' | 'organizer',
+
+  // Normal user fields
+  bookedEvents: [ObjectId],    // Events this user booked
+  attendedEvents: [ObjectId],  // Past events
+
+  // Organizer field
+  createdEvents: [ObjectId],   // Events this organizer created (IDs only!)
+}
 ```
 
-### Data Flow Example
+## ✅ Benefits
 
-**When a user books an event:**
+### 1. No Data Duplication
 
-1. Event document: Add booking to `event.bookings[]` (uses BookingDetailsSchema)
-2. User document: Add event ID to `user.bookedEvents[]`
-3. Organizer's document: Booking automatically appears in `organizer.myEvents[].bookings[]`
+- Booking details stored **once** in Event model
+- User model only stores event IDs
+- Reduces storage and prevents sync issues
 
-**When an event finishes:**
+### 2. Single Source of Truth
 
-1. Move event ID from `user.bookedEvents[]` to `user.attendedEvents[]`
-2. Event document remains unchanged (historical record)
+- Event model is authoritative for all event data
+- No risk of conflicting data between models
+- Easier to maintain and update
 
-## 🔄 Booking Lifecycle
+### 3. Simplified Queries
 
-### 1. User Books Event
+**Get organizer's events with bookings:**
 
 ```javascript
-// Event document updated
+// Simple query - no duplication
+const events = await Event.find({
+  organizerId: user._id,
+});
+
+// Each event has complete booking data
+events.forEach((event) => {
+  console.log(`${event.title}: ${event.bookings.length} bookings`);
+});
+```
+
+**Get user's booked events:**
+
+```javascript
+const events = await Event.find({
+  _id: { $in: user.bookedEvents },
+});
+```
+
+## 🔄 Data Flow Examples
+
+### When User Books Event
+
+```javascript
+// 1. Add booking to Event
 event.bookings.push({
   userId: user._id,
   userName: user.name,
@@ -105,83 +98,131 @@ event.bookings.push({
   seatsBooked: 2,
   bookedAt: new Date(),
 });
+event.availableSeats -= 2;
+await event.save();
 
-// User document updated
+// 2. Add event reference to User
 user.bookedEvents.push(event._id);
+await user.save();
 
-// Organizer's myEvents automatically reflects this
-// (populated from Event.bookings)
+// 3. Organizer automatically sees booking (it's in Event.bookings)
+// No need to update organizer's document!
 ```
 
-### 2. Event Finishes (Date Passes)
+### When Organizer Views Their Events
 
 ```javascript
-// Move from booked to attended
-user.attendedEvents.push(eventId);
-user.bookedEvents = user.bookedEvents.filter((id) => id !== eventId);
-```
+// Query events by organizerId
+const myEvents = await Event.find({
+  organizerId: organizer._id,
+}).populate("bookings.userId");
 
-### 3. Organizer Views Bookings
-
-```javascript
-// Organizer can see all bookings for their events
-organizer.myEvents.forEach((event) => {
-  console.log(`Event: ${event.eventId}`);
-  console.log(`Total Seats Booked: ${event.totalSeatsBooked}`);
+// All booking data is right there!
+myEvents.forEach((event) => {
+  console.log(`Event: ${event.title}`);
+  console.log(`Bookings: ${event.bookings.length}`);
   event.bookings.forEach((booking) => {
-    console.log(`- ${booking.userName} (${booking.seatsBooked} seats)`);
+    console.log(`  - ${booking.userName}: ${booking.seatsBooked} seats`);
   });
 });
 ```
 
-## 📊 Data Relationships
+### When Event Finishes
 
-```mermaid
-graph TD
-    A[User - Normal] -->|bookedEvents| E[Event]
-    A -->|attendedEvents| E
-    B[User - Organizer] -->|organizerId| E
-    B -->|myEvents.eventId| E
-    E -->|bookings| C[BookingDetails]
-    B -->|myEvents.bookings| C
+```javascript
+// Move from booked to attended for all users
+const event = await Event.findById(eventId);
+
+for (const booking of event.bookings) {
+  const user = await User.findById(booking.userId);
+
+  // Move event from booked to attended
+  user.bookedEvents = user.bookedEvents.filter((id) => !id.equals(eventId));
+  user.attendedEvents.push(eventId);
+
+  await user.save();
+}
+
+// Event data stays unchanged (historical record)
 ```
 
-## 🎯 Benefits of This Structure
+## 📁 File Structure
 
-1. **No Duplication**: Booking schemas defined once in Event.ts
-2. **Consistency**: Same structure used everywhere
-3. **Maintainability**: Update in one place affects all uses
-4. **Type Safety**: TypeScript interfaces ensure correctness
-5. **Team Collaboration**: Clear separation of concerns
-   - Auth team: User model (references only)
-   - Events team: Event model (full implementation)
+```
+models/
+├── Event.ts
+│   ├── IBookingDetails (interface)
+│   ├── BookingDetailsSchema (schema)
+│   └── IEvent (main event interface)
+│
+└── User.ts
+    └── IUser (references Event IDs only)
+```
 
-## 🔧 For Events Team
+## 🎨 Comparison
 
-When implementing the Events module, you can:
+### ❌ Old Approach (Duplicated Data)
 
-1. **Extend IEvent** with additional fields
-2. **Add validation** to EventSchema
-3. **Create event management APIs** that update both Event and User documents
-4. **Implement booking logic** that:
-   - Checks `availableSeats`
-   - Updates `event.bookings[]`
-   - Updates `user.bookedEvents[]`
-   - Updates `organizer.myEvents[]`
+```typescript
+// User model
+{
+  myEvents: [
+    {
+      eventId: "123",
+      bookings: [...],        // DUPLICATED!
+      totalSeatsBooked: 10    // DUPLICATED!
+    }
+  ]
+}
 
-## 📝 Important Notes
+// Event model
+{
+  _id: "123",
+  bookings: [...],            // DUPLICATED!
+  availableSeats: 40          // DUPLICATED!
+}
+```
 
-- **Don't modify** BookingDetailsSchema or OrganizerEventSchema in User.ts
-- **All booking-related changes** should be made in Event.ts
-- **User.ts imports** these schemas to maintain consistency
-- **TypeScript types** in `types/auth.ts` mirror these structures for frontend use
+### ✅ New Approach (References Only)
 
-## ✅ Summary
+```typescript
+// User model
+{
+  createdEvents: ["123"]      // Just IDs!
+}
 
-This architecture ensures:
+// Event model
+{
+  _id: "123",
+  organizerId: "user123",
+  bookings: [...],            // SINGLE SOURCE!
+  availableSeats: 40          // SINGLE SOURCE!
+}
+```
 
-- ✅ Single source of truth for booking schemas
-- ✅ No code duplication
-- ✅ Easy maintenance and updates
-- ✅ Clear team boundaries
-- ✅ Type-safe implementation
+## 💡 Key Insights
+
+1. **Event model owns all event data** - including bookings
+2. **User model only tracks relationships** - which events they're involved with
+3. **Organizer sees bookings** by querying Event model with their organizerId
+4. **No synchronization needed** - data exists in one place
+5. **Simpler code** - fewer updates, less complexity
+
+## 🚀 For Events Team
+
+When implementing event management:
+
+1. **Create Event**: Set `organizerId` and add to `user.createdEvents[]`
+2. **Book Event**: Add to `event.bookings[]` and `user.bookedEvents[]`
+3. **View Organizer's Events**: Query `Event.find({ organizerId })`
+4. **Get Booking Details**: Already in `event.bookings[]`
+5. **Update Event**: Only update Event model
+6. **Delete Event**: Remove from both Event collection and user arrays
+
+## ✨ Summary
+
+- ✅ **Zero duplication** - booking data stored once
+- ✅ **Simpler queries** - direct Event model queries
+- ✅ **Better performance** - less data to store/transfer
+- ✅ **Easier maintenance** - single source of truth
+- ✅ **Scalable** - works for any number of events/bookings

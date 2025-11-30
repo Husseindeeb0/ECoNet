@@ -6,17 +6,17 @@ import mongoose from "mongoose";
  * This prevents creating multiple connections during Next.js fast refresh
  */
 declare global {
-  var mongoose: {
+  var mongooseCache: {
     conn: typeof mongoose | null;
     promise: Promise<typeof mongoose> | null;
   };
 }
 
 // Initialize global mongoose object if it doesn't exist
-let cached = global.mongoose;
+let cached = global.mongooseCache;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = global.mongooseCache = { conn: null, promise: null };
 }
 
 /**

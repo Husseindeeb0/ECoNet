@@ -8,18 +8,6 @@ import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { loginThunk } from "@/redux/states/auth/authThunks";
 
-/**
- * Login Page Component
- *
- * Authenticates users and redirects to home page on success
- * Features:
- * - Email and password validation
- * - Redux integration for authentication
- * - Animated UI with Framer Motion
- * - Error handling and user feedback
- * - Automatic cookie-based session management
- */
-
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -36,9 +24,6 @@ export default function LoginPage() {
     [key: string]: string;
   }>({});
 
-  /**
-   * Handle input changes
-   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -48,9 +33,7 @@ export default function LoginPage() {
     }
   };
 
-  /**
-   * Validate form before submission
-   */
+  // Validate form before submission
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
@@ -72,9 +55,7 @@ export default function LoginPage() {
     return Object.keys(errors).length === 0;
   };
 
-  /**
-   * Handle form submission
-   */
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -88,8 +69,6 @@ export default function LoginPage() {
       const result = await dispatch(loginThunk(formData)).unwrap();
 
       if (result.success) {
-        // Redirect to home page on success
-        // Note: Cookies are automatically set by the backend
         router.push("/");
       }
     } catch (err) {
