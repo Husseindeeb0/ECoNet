@@ -30,8 +30,10 @@ function SubmitButton() {
 
 export default function CreateEventPage() {
     return (
-        <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 sm:p-8">
-            <div className="w-full max-w-xl">
+        <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-100 via-blue-100 to-cyan-100 p-4 sm:p-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.15),transparent_50%)] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.15),transparent_50%)] pointer-events-none"></div>
+            <div className="w-full max-w-xl relative z-10">
                 <div className="mb-8 text-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 mb-4 shadow-lg shadow-purple-500/30">
                         <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,7 +59,7 @@ export default function CreateEventPage() {
                                 name="title"
                                 required
                                 className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                placeholder="e.g. Annual Developer Conference"
+                                placeholder="e.g. Deployment Masterclass"
                             />
                         </div>
 
@@ -71,7 +73,7 @@ export default function CreateEventPage() {
                                 name="location"
                                 required
                                 className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                placeholder="e.g. San Francisco, CA"
+                                placeholder="e.g. Beirut, Lebanon"
                             />
                         </div>
 
@@ -103,6 +105,22 @@ export default function CreateEventPage() {
                             />
                             <p className="mt-2 text-xs text-slate-500">
                                 Leave empty if you want unlimited seats for this event.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label htmlFor="coverImageUrl" className="block text-sm font-semibold text-slate-700 mb-2">
+                                Cover Image URL <span className="text-slate-400 font-normal">(Optional)</span>
+                            </label>
+                            <input
+                                type="url"
+                                id="coverImageUrl"
+                                name="coverImageUrl"
+                                className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                placeholder="https://example.com/image.jpg"
+                            />
+                            <p className="mt-2 text-xs text-slate-500">
+                                Add a cover image URL for your event. If left empty, a clean gradient background will be displayed.
                             </p>
                         </div>
 

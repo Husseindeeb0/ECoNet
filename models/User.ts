@@ -7,11 +7,11 @@ const UserSchema = new Schema(
       ref: "Event",
       required: true,
     },
-    attendeeName: {
+    firstName: {
       type: String,
       required: true,
     },
-    attendeeEmail: {
+    lastName: {
       type: String,
       required: true,
     },

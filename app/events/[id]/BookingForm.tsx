@@ -2,7 +2,6 @@
 
 import { bookEventAction } from "@/app/actions";
 import { useFormStatus } from "react-dom";
-import { useState } from "react";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -34,30 +33,30 @@ export default function BookingForm({ eventId }: { eventId: string }) {
             <input type="hidden" name="eventId" value={eventId} />
             
             <div>
-                <label htmlFor="attendeeName" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Your Name
+                <label htmlFor="firstName" className="block text-sm font-semibold text-slate-700 mb-2">
+                    First Name
                 </label>
                 <input
                     type="text"
-                    id="attendeeName"
-                    name="attendeeName"
+                    id="firstName"
+                    name="firstName"
                     required
                     className="w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-2.5 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    placeholder="Enter your full name"
+                    placeholder="Enter your first name"
                 />
             </div>
 
             <div>
-                <label htmlFor="attendeeEmail" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Your Email
+                <label htmlFor="lastName" className="block text-sm font-semibold text-slate-700 mb-2">
+                    Last Name
                 </label>
                 <input
-                    type="email"
-                    id="attendeeEmail"
-                    name="attendeeEmail"
+                    type="text"
+                    id="lastName"
+                    name="lastName"
                     required
                     className="w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-2.5 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    placeholder="Enter your email address"
+                    placeholder="Enter your last name"
                 />
             </div>
 

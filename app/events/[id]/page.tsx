@@ -52,9 +52,10 @@ export default async function EventDetailsPage({
     searchParams 
 }: { 
     params: Promise<{ id: string }> | { id: string };
-    searchParams: { booked?: string };
+    searchParams: Promise<{ booked?: string }> | { booked?: string };
 }) {
     const resolvedParams = await Promise.resolve(params);
+    const resolvedSearchParams = await Promise.resolve(searchParams);
     const event = await getEvent(resolvedParams.id);
 
     if (!event) {
@@ -66,19 +67,37 @@ export default async function EventDetailsPage({
     const isFull = event.capacity ? bookedCount >= event.capacity : false;
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+        <main className="min-h-screen bg-gradient-to-br from-indigo-100/70 via-purple-100/80 via-blue-100/90 to-cyan-100/60 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.15),transparent_70%)] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.15),transparent_70%)] pointer-events-none"></div>
             {/* Hero Section */}
-            <div className="relative h-[500px] w-full overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={
-                        event.coverImageUrl ||
-                        "https://images.unsplash.com/photo-1520975682031-a5f2f68e3d99?w=1600&auto=format&fit=crop"
-                    }
-                    alt={event.title}
-                    className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-800/70 to-transparent"></div>
+            <div className="relative h-[500px] w-full overflow-hidden bg-gradient-to-br from-purple-200 via-blue-200 to-indigo-200">
+                {event.coverImageUrl ? (
+                    <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={event.coverImageUrl}
+                            alt={event.title}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                                // Hide image on error to show clean gradient background
+                                e.currentTarget.style.display = 'none';
+                            }}
+                        />
+                    </>
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                            <svg className="h-20 w-20 mx-auto text-purple-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p className="text-lg font-semibold text-purple-700">No Cover Image</p>
+                        </div>
+                    </div>
+                )}
+                {event.coverImageUrl && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-800/70 to-transparent"></div>
+                )}
                 <div className="absolute inset-0 flex items-end p-8 sm:p-12">
                     <div className="mx-auto w-full max-w-5xl">
                         <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg">
@@ -105,9 +124,9 @@ export default async function EventDetailsPage({
                 </div>
             </div>
 
-            <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 relative z-10">
                 {/* Success Message */}
-                {searchParams?.booked === "true" && (
+                {resolvedSearchParams?.booked === "true" && (
                     <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white shadow-lg">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
@@ -194,14 +213,12 @@ export default async function EventDetailsPage({
                                     <span className="text-sm font-medium text-slate-600">Price</span>
                                     <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Free</span>
                                 </div>
-                                <div className="flex justify-between items-center pb-3 border-b border-purple-100">
-                                    <span className="text-sm font-medium text-slate-600">Booked</span>
-                                    <span className="text-lg font-bold text-slate-900">{bookedCount}</span>
-                                </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm font-medium text-slate-600">Available</span>
-                                    <span className={`text-lg font-bold ${isFull ? 'text-red-600' : 'text-green-600'}`}>
-                                        {remainingSeats !== null ? remainingSeats : "Unlimited"}
+                                    <span className="text-sm font-medium text-slate-600">Bookings</span>
+                                    <span className={`text-lg font-bold ${isFull ? 'text-red-600' : 'text-slate-900'}`}>
+                                        {event.capacity != null 
+                                            ? `${bookedCount} / ${event.capacity}` 
+                                            : `${bookedCount}`}
                                     </span>
                                 </div>
                             </div>
@@ -225,4 +242,5 @@ export default async function EventDetailsPage({
         </main>
     );
 }
+
 

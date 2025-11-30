@@ -30,8 +30,10 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     const defaultDate = new Date(event.startsAt).toISOString().slice(0, 16);
 
     return (
-        <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 sm:p-8">
-            <div className="w-full max-w-xl">
+        <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-gradient-to-br from-violet-100 via-purple-100 via-indigo-100 to-blue-100 p-4 sm:p-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(124,58,237,0.15),transparent_50%)] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(37,99,235,0.15),transparent_50%)] pointer-events-none"></div>
+            <div className="w-full max-w-xl relative z-10">
                 <div className="mb-8 text-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 mb-4 shadow-lg shadow-purple-500/30">
                         <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,6 +112,23 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
                         </div>
 
                         <div>
+                            <label htmlFor="coverImageUrl" className="block text-sm font-semibold text-slate-700 mb-2">
+                                Cover Image URL <span className="text-slate-400 font-normal">(Optional)</span>
+                            </label>
+                            <input
+                                type="url"
+                                id="coverImageUrl"
+                                name="coverImageUrl"
+                                defaultValue={event.coverImageUrl || ""}
+                                className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                placeholder="https://example.com/image.jpg"
+                            />
+                            <p className="mt-2 text-xs text-slate-500">
+                                Add a cover image URL for your event. If left empty, a clean gradient background will be displayed.
+                            </p>
+                        </div>
+
+                        <div>
                             <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">
                                 Event Description <span className="text-slate-400 font-normal">(Optional)</span>
                             </label>
@@ -142,16 +161,13 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
                         </div>
                     </form>
 
-                    <div className="border-t border-purple-100 bg-gradient-to-r from-red-50/50 to-pink-50/50 p-6">
-                        <div className="flex items-center justify-between">
-                            <div className="text-sm font-semibold text-red-700">
-                                Danger Zone
-                            </div>
+                    <div className="border-t border-purple-200 bg-gradient-to-br from-slate-100 via-purple-100/50 to-blue-100/50 p-6">
+                        <div className="flex items-center justify-end">
                             <form action={deleteEventAction}>
                                 <input type="hidden" name="eventId" value={eventId} />
                                 <button
                                     type="submit"
-                                    className="rounded-lg bg-gradient-to-r from-red-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-500/30 transition-all hover:from-red-600 hover:to-pink-600 hover:shadow-lg hover:shadow-red-500/40"
+                                    className="rounded-xl bg-gradient-to-r from-red-500 to-rose-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/30 transition-all hover:from-red-600 hover:to-rose-600 hover:shadow-xl hover:shadow-red-500/40 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 >
                                     Delete Event
                                 </button>

@@ -28,16 +28,19 @@ async function fetchAllEvents(): Promise<EventVM[]> {
         .sort({ startsAt: 1 }) // Ascending order for upcoming events
         .lean();
 
-    const ids = rawEvents.map((e) => String(e._id));
+    const ids = rawEvents.map((e) => e._id);
 
-    // Assuming User model is used for bookings/attendees as per MyEventsPage logic
+    // Get booking counts for all events - using ObjectId matching
     const counts: Array<{ _id: any; count: number }> = await User.aggregate([
         { $match: { eventId: { $in: ids } } },
         { $group: { _id: "$eventId", count: { $sum: 1 } } },
     ]);
 
     const map = new Map<string, number>();
-    for (const c of counts) map.set(String(c._id), c.count);
+    for (const c of counts) {
+        // Convert ObjectId to string for matching
+        map.set(String(c._id), c.count);
+    }
 
     return rawEvents.map((e) => {
         const title = e.title ?? e.name ?? "Untitled event";
@@ -61,17 +64,31 @@ function EventCard({ e }: { e: EventVM }) {
         <div className="group relative flex flex-col overflow-hidden rounded-3xl border border-purple-100 bg-white shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/20">
             <Link href={`/events/${e.id}`} className="flex-1">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-purple-100 via-blue-100 to-indigo-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={
-                            e.coverImageUrl ||
-                            "https://images.unsplash.com/photo-1520975682031-a5f2f68e3d99?w=1600&auto=format&fit=crop"
-                        }
-                        alt={e.title}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    {e.coverImageUrl ? (
+                        <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={e.coverImageUrl}
+                                alt={e.title}
+                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                loading="lazy"
+                                onError={(e) => {
+                                    // Hide image on error to show clean gradient background
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                        </>
+                    ) : (
+                        <div className="h-full w-full flex items-center justify-center">
+                            <div className="text-center p-6">
+                                <svg className="h-12 w-12 mx-auto text-purple-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p className="text-sm font-medium text-purple-600">No Image</p>
+                            </div>
+                        </div>
+                    )}
                     <div className="absolute top-4 right-4">
                         <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold shadow-lg ${
                             isFull 
@@ -125,7 +142,11 @@ function EventCard({ e }: { e: EventVM }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <span>{seatsText} booked</span>
+                        <span>
+                            {e.capacity != null 
+                                ? `${e.bookedCount} / ${e.capacity} bookings` 
+                                : `${e.bookedCount} bookings`}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -137,8 +158,10 @@ export default async function Home() {
     const events = await fetchAllEvents();
 
     return (
-        <main className="min-h-[calc(100vh-56px)] bg-gradient-to-br from-purple-50 via-white to-blue-50">
-            <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <main className="min-h-[calc(100vh-56px)] bg-gradient-to-br from-slate-100 via-indigo-100/60 via-purple-100/70 to-blue-100/80 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(139,92,246,0.2),transparent_60%)] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.2),transparent_60%)] pointer-events-none"></div>
+            <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 relative z-10">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-12">
                     <div>
                         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent sm:text-5xl">

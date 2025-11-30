@@ -30,7 +30,7 @@ export default function Navbar() {
                         <Link
                             href="/"
                             className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                                isActive("/") && !isActive("/myEvents") && !isActive("/createEvent")
+                                isActive("/") && !isActive("/myEvents")
                                     ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30"
                                     : "text-slate-700 hover:bg-purple-50 hover:text-purple-700"
                             }`}
@@ -46,16 +46,6 @@ export default function Navbar() {
                             }`}
                         >
                             My Events
-                        </Link>
-                        <Link
-                            href="/createEvent"
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                                isActive("/createEvent")
-                                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "text-slate-700 hover:bg-purple-50 hover:text-purple-700"
-                            }`}
-                        >
-                            Create Event
                         </Link>
                     </div>
                 </div>
