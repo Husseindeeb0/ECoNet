@@ -1,11 +1,13 @@
 import Link from "next/link";
 import connectDb from "@/lib/connectDb";
+
+// ✅ Adjust these imports to match your actual model filenames/exports
 import Event from "@/models/Event";
 import User from "@/models/User";
 
 export const dynamic = "force-dynamic";
 
-type EventVM = {
+type MyEventVM = {
     id: string;
     title: string;
     location: string;
@@ -21,17 +23,36 @@ function toISO(d: any) {
     return (d as Date).toISOString();
 }
 
-async function fetchAllEvents(): Promise<EventVM[]> {
+/**
+ * ✅ IMPORTANT: Replace this with your real auth.
+ * For now, it’s a safe stub so the page runs.
+ */
+async function getOrganizerId() {
+    // TODO: replace with session user id
+    return "user_organizer_1";
+}
+
+/**
+ * ✅ IMPORTANT: You may need to adjust:
+ * - event ownership field (organizerId / ownerId / createdBy)
+ * - booking eventId field (eventId / event / event_id)
+ * - event datetime field (startsAt / date / startDate)
+ */
+async function fetchMyEvents(organizerId: string): Promise<MyEventVM[]> {
     await connectDb();
 
-    const rawEvents: any[] = await Event.find({})
-        .sort({ startsAt: 1 }) // Ascending order for upcoming events
+    // 🔧 CHANGE THIS FIELD to match your Event model:
+    // organizerId | ownerId | createdBy
+    const rawEvents: any[] = await Event.find({ organizerId })
+        .sort({ startsAt: -1, createdAt: -1 })
         .lean();
 
     const ids = rawEvents.map((e) => String(e._id));
 
-    // Assuming User model is used for bookings/attendees as per MyEventsPage logic
+    // If you don’t have Booking model yet, comment this block and set bookedCount = 0 below.
     const counts: Array<{ _id: any; count: number }> = await User.aggregate([
+        // 🔧 CHANGE THIS FIELD to match your Booking model:
+        // eventId | event | event_id
         { $match: { eventId: { $in: ids } } },
         { $group: { _id: "$eventId", count: { $sum: 1 } } },
     ]);
@@ -40,6 +61,7 @@ async function fetchAllEvents(): Promise<EventVM[]> {
     for (const c of counts) map.set(String(c._id), c.count);
 
     return rawEvents.map((e) => {
+        // 🔧 CHANGE these fields if your schema uses different names:
         const title = e.title ?? e.name ?? "Untitled event";
         const location = e.location ?? e.venue ?? "TBA";
         const startsAt = toISO(e.startsAt ?? e.date ?? e.startDate);
@@ -53,7 +75,7 @@ async function fetchAllEvents(): Promise<EventVM[]> {
     });
 }
 
-function EventCard({ e }: { e: EventVM }) {
+function EventCard({ e }: { e: MyEventVM }) {
     const seatsText = e.capacity != null ? `${e.bookedCount} / ${e.capacity}` : `${e.bookedCount}`;
     const isFull = e.capacity != null && e.bookedCount >= e.capacity;
 
@@ -127,14 +149,25 @@ function EventCard({ e }: { e: EventVM }) {
                         </div>
                         <span>{seatsText} booked</span>
                     </div>
+
+                    <Link
+                        href={`/events/${e.id}/edit`}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-lg hover:shadow-purple-500/40"
+                    >
+                        Manage
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </Link>
                 </div>
             </div>
         </div>
     );
 }
 
-export default async function Home() {
-    const events = await fetchAllEvents();
+export default async function MyEventsPage() {
+    const organizerId = await getOrganizerId();
+    const events = await fetchMyEvents(organizerId);
 
     return (
         <main className="min-h-[calc(100vh-56px)] bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -142,12 +175,19 @@ export default async function Home() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-12">
                     <div>
                         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent sm:text-5xl">
-                            Explore Events
+                            My Events
                         </h1>
                         <p className="mt-3 text-lg text-slate-600">
-                            Discover and book amazing events happening around you.
+                            Manage your events and track attendee bookings.
                         </p>
                     </div>
+
+                    <Link
+                        href="/createEvent"
+                        className="group inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                    >
+                        <span className="mr-2 text-lg leading-none">+</span> Create Event
+                    </Link>
                 </div>
 
                 <div className="mt-10">
@@ -160,8 +200,14 @@ export default async function Home() {
                             </div>
                             <h2 className="mt-6 text-2xl font-bold text-slate-900">No events found</h2>
                             <p className="mt-2 text-base text-slate-600 max-w-sm">
-                                Check back later for exciting new events.
+                                Get started by creating your first event. It only takes a few minutes.
                             </p>
+                            <Link
+                                href="/createEvent"
+                                className="mt-8 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40"
+                            >
+                                Create your first event
+                            </Link>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -175,3 +221,4 @@ export default async function Home() {
         </main>
     );
 }
+

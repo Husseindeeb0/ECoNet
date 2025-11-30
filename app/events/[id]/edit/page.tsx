@@ -1,52 +1,53 @@
-"use client";
-
+import connectDb from "@/lib/connectDb";
+import Event from "@/models/Event";
+import { notFound } from "next/navigation";
+import { updateEventAction, deleteEventAction } from "@/app/actions";
 import Link from "next/link";
-import { createEventAction } from "@/app/actions";
-import { useFormStatus } from "react-dom";
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
-
-    return (
-        <button
-            type="submit"
-            disabled={pending}
-            className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
-        >
-            {pending ? (
-                <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Creating...
-                </>
-            ) : (
-                "Create Event"
-            )}
-        </button>
-    );
+async function getEvent(id: string) {
+    await connectDb();
+    try {
+        const event = await Event.findById(id).lean();
+        if (!event) return null;
+        return { ...event, _id: event._id.toString() };
+    } catch (error) {
+        return null;
+    }
 }
 
-export default function CreateEventPage() {
+export default async function EditEventPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+    // Handle params as either Promise or object (Next.js 16 compatibility)
+    const resolvedParams = await Promise.resolve(params);
+    const eventId = resolvedParams.id;
+    
+    const event = await getEvent(eventId);
+
+    if (!event) {
+        notFound();
+    }
+
+    // Format date for datetime-local input (YYYY-MM-DDThh:mm)
+    const defaultDate = new Date(event.startsAt).toISOString().slice(0, 16);
+
     return (
         <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 sm:p-8">
             <div className="w-full max-w-xl">
                 <div className="mb-8 text-center">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 mb-4 shadow-lg shadow-purple-500/30">
                         <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                     </div>
                     <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                        Create Event
+                        Edit Event
                     </h1>
-                    <p className="mt-3 text-lg text-slate-600">Fill in the details to publish your new event.</p>
+                    <p className="mt-3 text-lg text-slate-600">Update your event details or delete it.</p>
                 </div>
 
                 <div className="overflow-hidden rounded-3xl border border-purple-100 bg-white shadow-2xl shadow-purple-500/10">
                     <div className="h-2 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
-                    <form action={createEventAction} className="flex flex-col gap-6 p-8">
+                    <form action={updateEventAction} className="flex flex-col gap-6 p-8">
+                        <input type="hidden" name="eventId" value={eventId} />
                         <div>
                             <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
                                 Event Title
@@ -55,9 +56,9 @@ export default function CreateEventPage() {
                                 type="text"
                                 id="title"
                                 name="title"
+                                defaultValue={event.title}
                                 required
                                 className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                placeholder="e.g. Annual Developer Conference"
                             />
                         </div>
 
@@ -69,9 +70,9 @@ export default function CreateEventPage() {
                                 type="text"
                                 id="location"
                                 name="location"
+                                defaultValue={event.location}
                                 required
                                 className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                placeholder="e.g. San Francisco, CA"
                             />
                         </div>
 
@@ -83,6 +84,7 @@ export default function CreateEventPage() {
                                 type="datetime-local"
                                 id="startsAt"
                                 name="startsAt"
+                                defaultValue={defaultDate}
                                 required
                                 className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                             />
@@ -98,6 +100,7 @@ export default function CreateEventPage() {
                                 name="capacity"
                                 min="1"
                                 step="1"
+                                defaultValue={event.capacity || ""}
                                 className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                                 placeholder="e.g. 100 (leave empty for unlimited)"
                             />
@@ -107,7 +110,12 @@ export default function CreateEventPage() {
                         </div>
 
                         <div className="mt-4 flex flex-col gap-3 sm:flex-row-reverse">
-                            <SubmitButton />
+                            <button
+                                type="submit"
+                                className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:w-auto"
+                            >
+                                Save Changes
+                            </button>
                             <Link
                                 href="/myEvents"
                                 className="inline-flex w-full items-center justify-center rounded-xl border-2 border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 sm:w-auto"
@@ -116,6 +124,23 @@ export default function CreateEventPage() {
                             </Link>
                         </div>
                     </form>
+
+                    <div className="border-t border-purple-100 bg-gradient-to-r from-red-50/50 to-pink-50/50 p-6">
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm font-semibold text-red-700">
+                                Danger Zone
+                            </div>
+                            <form action={deleteEventAction}>
+                                <input type="hidden" name="eventId" value={eventId} />
+                                <button
+                                    type="submit"
+                                    className="rounded-lg bg-gradient-to-r from-red-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-500/30 transition-all hover:from-red-600 hover:to-pink-600 hover:shadow-lg hover:shadow-red-500/40"
+                                >
+                                    Delete Event
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
