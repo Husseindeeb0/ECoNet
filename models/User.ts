@@ -7,7 +7,14 @@ const UserSchema = new Schema(
       ref: "Event",
       required: true,
     },
-    // Add other fields as needed, e.g., userId, status, etc.
+    attendeeName: {
+      type: String,
+      required: true,
+    },
+    attendeeEmail: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

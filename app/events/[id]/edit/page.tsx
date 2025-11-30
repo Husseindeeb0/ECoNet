@@ -109,6 +109,23 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
                             </p>
                         </div>
 
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">
+                                Event Description <span className="text-slate-400 font-normal">(Optional)</span>
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows={5}
+                                defaultValue={event.description || ""}
+                                className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none"
+                                placeholder="Describe your event... What will attendees experience? What should they expect?"
+                            />
+                            <p className="mt-2 text-xs text-slate-500">
+                                Provide details about your event to help attendees understand what to expect.
+                            </p>
+                        </div>
+
                         <div className="mt-4 flex flex-col gap-3 sm:flex-row-reverse">
                             <button
                                 type="submit"

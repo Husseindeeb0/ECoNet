@@ -22,6 +22,9 @@ const EventSchema = new Schema(
         capacity: {
             type: Number,
         },
+        description: {
+            type: String,
+        },
     },
     {
         timestamps: true,

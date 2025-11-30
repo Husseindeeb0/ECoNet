@@ -1,7 +1,11 @@
 import connectDb from "@/lib/connectDb";
 import Event from "@/models/Event";
+import User from "@/models/User";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { bookEventAction } from "@/app/actions";
+import BookingForm from "./BookingForm";
+import CopyButton from "./CopyButton";
 
 async function getEvent(id: string) {
     await connectDb();
@@ -14,7 +18,42 @@ async function getEvent(id: string) {
     }
 }
 
-export default async function EventDetailsPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+async function getBookedCount(eventId: string) {
+    await connectDb();
+    try {
+        return await User.countDocuments({ eventId });
+    } catch (error) {
+        return 0;
+    }
+}
+
+function formatEventDate(date: any): string {
+    if (!date) return "Date TBA";
+    
+    try {
+        const dateObj = date instanceof Date ? date : new Date(date);
+        if (isNaN(dateObj.getTime())) {
+            return "Date TBA";
+        }
+        return new Intl.DateTimeFormat("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+        }).format(dateObj);
+    } catch (error) {
+        return "Date TBA";
+    }
+}
+
+export default async function EventDetailsPage({ 
+    params,
+    searchParams 
+}: { 
+    params: Promise<{ id: string }> | { id: string };
+    searchParams: { booked?: string };
+}) {
     const resolvedParams = await Promise.resolve(params);
     const event = await getEvent(resolvedParams.id);
 
@@ -22,9 +61,14 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ i
         notFound();
     }
 
+    const bookedCount = await getBookedCount(resolvedParams.id);
+    const remainingSeats = event.capacity ? event.capacity - bookedCount : null;
+    const isFull = event.capacity ? bookedCount >= event.capacity : false;
+
     return (
-        <main className="min-h-screen bg-zinc-50">
-            <div className="relative h-96 w-full bg-zinc-900">
+        <main className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+            {/* Hero Section */}
+            <div className="relative h-[500px] w-full overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     src={
@@ -32,32 +76,29 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ i
                         "https://images.unsplash.com/photo-1520975682031-a5f2f68e3d99?w=1600&auto=format&fit=crop"
                     }
                     alt={event.title}
-                    className="h-full w-full object-cover opacity-60"
+                    className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-zinc-900/90 to-transparent p-8 sm:p-12">
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-800/70 to-transparent"></div>
+                <div className="absolute inset-0 flex items-end p-8 sm:p-12">
                     <div className="mx-auto w-full max-w-5xl">
-                        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">{event.title}</h1>
-                        <div className="mt-4 flex flex-wrap items-center gap-6 text-zinc-300">
-                            <div className="flex items-center gap-2">
+                        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg">
+                            {event.title}
+                        </h1>
+                        <div className="mt-6 flex flex-wrap items-center gap-6 text-white/90">
+                            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span>
-                                    {new Intl.DateTimeFormat("en-US", {
-                                        weekday: "long",
-                                        month: "long",
-                                        day: "numeric",
-                                        hour: "numeric",
-                                        minute: "2-digit",
-                                    }).format(new Date(event.startsAt))}
+                                <span className="font-medium">
+                                    {formatEventDate(event.startsAt)}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span>{event.location}</span>
+                                <span className="font-medium">{event.location}</span>
                             </div>
                         </div>
                     </div>
@@ -65,33 +106,118 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ i
             </div>
 
             <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+                {/* Success Message */}
+                {searchParams?.booked === "true" && (
+                    <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white shadow-lg">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold">Booking Confirmed!</h3>
+                                <p className="text-sm text-white/90">You've successfully booked a spot for this event.</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid gap-12 lg:grid-cols-3">
-                    <div className="lg:col-span-2">
-                        <h2 className="text-2xl font-bold text-zinc-900">About this event</h2>
-                        <p className="mt-4 text-lg leading-relaxed text-zinc-600">
-                            {/* Placeholder description since it's not in the model yet */}
-                            Join us for an unforgettable experience at {event.location}. This event brings together people from all walks of life to celebrate, learn, and connect. Don't miss out on this opportunity to be part of something special.
-                        </p>
+                    {/* Main Content */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Description */}
+                        <div className="rounded-3xl border border-purple-100 bg-white p-8 shadow-lg">
+                            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                                About this event
+                            </h2>
+                            {event.description ? (
+                                <p className="text-lg leading-relaxed text-slate-700 whitespace-pre-line">
+                                    {event.description}
+                                </p>
+                            ) : (
+                                <p className="text-lg leading-relaxed text-slate-500 italic">
+                                    No description provided for this event.
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Invite Section */}
+                        <div className="rounded-3xl border border-purple-100 bg-gradient-to-br from-purple-50 to-blue-50 p-8 shadow-lg">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 text-white">
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900">Share this event</h3>
+                            </div>
+                            <p className="text-slate-600 mb-4">Invite others to join this event by sharing the link or event ID.</p>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Event Link</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={`/events/${resolvedParams.id}`}
+                                            className="flex-1 rounded-xl border-2 border-purple-100 bg-white px-4 py-2 text-sm font-mono text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                        />
+                                        <CopyButton text={`/events/${resolvedParams.id}`} />
+                                    </div>
+                                    <p className="mt-1 text-xs text-slate-500">Share this relative path or the full URL</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Event ID</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={resolvedParams.id}
+                                            className="flex-1 rounded-xl border-2 border-purple-100 bg-white px-4 py-2 text-sm font-mono text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                        />
+                                        <CopyButton text={resolvedParams.id} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Booking Sidebar */}
                     <div className="lg:col-span-1">
-                        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-lg">
-                            <h3 className="text-lg font-semibold text-zinc-900">Registration</h3>
-                            <div className="mt-4 space-y-4">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-zinc-500">Price</span>
-                                    <span className="font-medium text-zinc-900">Free</span>
+                        <div className="sticky top-24 rounded-3xl border border-purple-100 bg-white p-6 shadow-xl">
+                            <h3 className="text-xl font-bold text-slate-900 mb-6">Book Your Spot</h3>
+                            
+                            <div className="space-y-4 mb-6">
+                                <div className="flex justify-between items-center pb-3 border-b border-purple-100">
+                                    <span className="text-sm font-medium text-slate-600">Price</span>
+                                    <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Free</span>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-zinc-500">Spots remaining</span>
-                                    <span className="font-medium text-zinc-900">
-                                        {event.capacity ? event.capacity - (event.bookedCount || 0) : "Unlimited"}
+                                <div className="flex justify-between items-center pb-3 border-b border-purple-100">
+                                    <span className="text-sm font-medium text-slate-600">Booked</span>
+                                    <span className="text-lg font-bold text-slate-900">{bookedCount}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-medium text-slate-600">Available</span>
+                                    <span className={`text-lg font-bold ${isFull ? 'text-red-600' : 'text-green-600'}`}>
+                                        {remainingSeats !== null ? remainingSeats : "Unlimited"}
                                     </span>
                                 </div>
-                                <button className="w-full rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md">
-                                    Reserve a Spot
-                                </button>
                             </div>
+
+                            {isFull ? (
+                                <div className="rounded-xl bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 p-4 text-center">
+                                    <div className="flex items-center justify-center gap-2 text-red-700 font-semibold">
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        <span>Event is Full</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <BookingForm eventId={resolvedParams.id} />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -99,3 +225,4 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ i
         </main>
     );
 }
+
