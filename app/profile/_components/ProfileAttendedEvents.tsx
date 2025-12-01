@@ -29,8 +29,8 @@ const MOCK_EVENTS = [
 
 export default function ProfileAttendedEvents() {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-gray-900">
         Attended Events
       </h2>
 
@@ -38,7 +38,7 @@ export default function ProfileAttendedEvents() {
         {MOCK_EVENTS.map((event) => (
           <div
             key={event.id}
-            className="group relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+            className="group relative overflow-hidden rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
           >
             <div className="relative h-32 w-full">
               <Image
@@ -49,10 +49,10 @@ export default function ProfileAttendedEvents() {
               />
             </div>
             <div className="p-3">
-              <h3 className="font-medium text-gray-900 dark:text-white truncate">
+              <h3 className="font-medium text-gray-900 truncate">
                 {event.title}
               </h3>
-              <div className="flex justify-between items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
                 <span>{event.date}</span>
                 <span>{event.location}</span>
               </div>

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
 import StoreProvider from "@/redux/StoreProvider";
 
 export const metadata: Metadata = {
-  title: "EventHub - Event Booking Platform",
-  description: "Book and manage events with EventHub",
+  title: "EventHub - Discover and Manage Events",
+  description: "Discover and book events happening around you",
 };
 
 export default function RootLayout({
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="">
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <Navbar />
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );
