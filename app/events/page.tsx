@@ -2,9 +2,6 @@ import Link from "next/link";
 import connectDb from "@/lib/connectDb";
 import Event from "@/models/Event";
 import User from "@/models/User";
-import AnimatedPageHeader from "@/components/animations/AnimatedPageHeader";
-import AnimatedGrid from "@/components/animations/AnimatedGrid";
-import AnimatedEventCard from "@/components/events/AnimatedEventCard";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +57,6 @@ async function fetchAllEvents(): Promise<EventVM[]> {
 }
 
 function EventCard({ e }: { e: EventVM }) {
-    const seatsText = e.capacity != null ? `${e.bookedCount} / ${e.capacity}` : `${e.bookedCount}`;
     const isFull = e.capacity != null && e.bookedCount >= e.capacity;
 
     return (
@@ -157,7 +153,7 @@ function EventCard({ e }: { e: EventVM }) {
     );
 }
 
-export default async function Home() {
+export default async function EventsPage() {
     const events = await fetchAllEvents();
 
     return (
@@ -165,40 +161,34 @@ export default async function Home() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(139,92,246,0.2),transparent_60%)] pointer-events-none"></div>
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.2),transparent_60%)] pointer-events-none"></div>
             <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 relative z-10">
-                <AnimatedPageHeader>
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-12">
-                        <div>
-                            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent sm:text-5xl">
-                                Explore Events
-                            </h1>
-                            <p className="mt-3 text-lg text-slate-600">
-                                Discover and book amazing events happening around you.
-                            </p>
-                        </div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">Explore Events</h1>
+                        <p className="mt-2 text-base text-zinc-600">
+                            Discover and book events happening around you.
+                        </p>
                     </div>
-                </AnimatedPageHeader>
+                </div>
 
                 <div className="mt-10">
                     {events.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50 py-24 text-center">
-                            <div className="rounded-full bg-gradient-to-br from-purple-100 to-blue-100 p-6 shadow-lg">
-                                <svg className="h-12 w-12 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-zinc-300 bg-zinc-50 py-24 text-center">
+                            <div className="rounded-full bg-zinc-100 p-4">
+                                <svg className="h-8 w-8 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <h2 className="mt-6 text-2xl font-bold text-slate-900">No events found</h2>
-                            <p className="mt-2 text-base text-slate-600 max-w-sm">
-                                Check back later for exciting new events.
+                            <h2 className="mt-4 text-lg font-semibold text-zinc-900">No events found</h2>
+                            <p className="mt-2 text-sm text-zinc-500 max-w-sm">
+                                Check back later for new events.
                             </p>
                         </div>
                     ) : (
-                        <AnimatedGrid>
-                            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                                {events.map((e, index) => (
-                                    <AnimatedEventCard key={e.id} e={e} index={index} />
-                                ))}
-                            </div>
-                        </AnimatedGrid>
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
+                            {events.map((e) => (
+                                <EventCard key={e.id} e={e} />
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
