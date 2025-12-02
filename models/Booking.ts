@@ -7,8 +7,9 @@ export interface IBooking extends Document {
   totalPrice?: number;
   status: "confirmed" | "cancelled" | "attended";
   bookingDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  name: string;
+  email: string;
+  phone: string;
 }
 
 const BookingSchema = new Schema<IBooking>(
@@ -23,6 +24,9 @@ const BookingSchema = new Schema<IBooking>(
       default: "confirmed",
     },
     bookingDate: { type: Date, default: Date.now },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
   },
   { timestamps: true }
 );
