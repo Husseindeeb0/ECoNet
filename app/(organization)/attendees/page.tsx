@@ -5,7 +5,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/serverAuth";
 
-export const dynamic = "force-dynamic";
+'use client';
+
+async function getOrganizerId() {
+  // TODO: replace with session user id
+  return "user_organizer_1";
+}
 
 async function getOrganizerEvents(organizerId: string) {
   await connectDb();
@@ -26,21 +31,19 @@ async function getOrganizerEvents(organizerId: string) {
 async function getEventAttendees(eventId: string) {
   await connectDb();
   try {
-    const bookings = await Booking.find({
-      event: eventId,
-      status: { $ne: "cancelled" },
-    })
-      .populate("user")
+    const attendees = await Booking.find({ eventId })
       .sort({ createdAt: -1 })
       .lean();
-
-    return bookings.map((booking: any) => {
-      const user = booking.user;
-      const name = user?.name || "Unknown User";
+    return attendees.map((a: any) => {
+      // firstName and lastName are required, so they should always be present
+      const firstName = a.firstName || "";
+      const lastName = a.lastName || "";
+      const fullName =
+        `${firstName} ${lastName}`.trim() || a.attendeeName || ""; // Fallback for old records
       return {
-        id: booking._id.toString(),
-        name: name,
-        bookedAt: booking.createdAt,
+        id: a._id.toString(),
+        name: fullName,
+        bookedAt: a.createdAt,
       };
     });
   } catch (error) {
@@ -51,17 +54,11 @@ async function getEventAttendees(eventId: string) {
 export default async function AttendeesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ eventId?: string }>;
+  searchParams: { eventId?: string };
 }) {
-  const currentUser = await getCurrentUser();
-
-  if (!currentUser || currentUser.role !== "organizer") {
-    redirect("/login");
-  }
-
-  const events = await getOrganizerEvents(currentUser.userId);
-  const resolvedSearchParams = await searchParams;
-  const selectedEventId = resolvedSearchParams.eventId || events[0]?.id;
+  const organizerId = await getOrganizerId();
+  const events = await getOrganizerEvents(organizerId);
+  const selectedEventId = searchParams.eventId || events[0]?.id;
 
   let selectedEvent = null;
   let attendees: Array<{ id: string; name: string; bookedAt: any }> = [];
