@@ -129,3 +129,57 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    // Authenticate user
+    const authResult = await authMiddleware(req);
+    if (authResult.error) {
+      return authResult.response;
+    }
+
+    const { userId } = authResult.user!;
+
+    await connectDb();
+
+    // Find bookings for user and populate event details
+    const bookings = await Booking.find({
+      user: userId,
+      status: { $ne: "cancelled" },
+    })
+      .populate("event")
+      .sort({ bookingDate: -1 })
+      .lean();
+
+    // Map to expected format
+    const formattedBookings = bookings
+      .map((booking: any) => {
+        if (!booking.event) return null; // Skip if event was deleted
+
+        return {
+          _id: booking._id,
+          eventId: booking.event._id,
+          title: booking.event.title,
+          location: booking.event.location,
+          startsAt: booking.event.startsAt,
+          coverImageUrl: booking.event.coverImageUrl,
+          capacity: booking.event.capacity,
+          description: booking.event.description,
+          numberOfSeats: booking.seats,
+          bookedAt: booking.bookingDate,
+        };
+      })
+      .filter(Boolean);
+
+    return NextResponse.json({
+      success: true,
+      bookings: formattedBookings,
+    });
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch bookings" },
+      { status: 500 }
+    );
+  }
+}
