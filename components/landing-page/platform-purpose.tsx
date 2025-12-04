@@ -40,7 +40,7 @@ export function PlatformPurpose() {
                         <div className="grid grid-cols-2 gap-8 pt-6">
                             <div className="space-y-2 p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
                                 <h4 className="text-3xl font-bold text-gray-900">100%</h4>
-                                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Secure Payments</p>
+                                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Free to Use</p>
                             </div>
                             <div className="space-y-2 p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
                                 <h4 className="text-3xl font-bold text-gray-900">24/7</h4>
@@ -65,21 +65,14 @@ export function PlatformPurpose() {
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-                                    <div className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20 shadow-xl max-w-sm">
-                                        <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mb-8 mx-auto shadow-lg text-4xl">
-                                            ✨
+                                    <div className="relative z-10 space-y-8">
+                                        <div className="w-32 h-32 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto border border-white/20 shadow-xl">
+                                            <div className="text-7xl">🎉</div>
                                         </div>
-                                        <h3 className="text-3xl font-bold mb-4">EventHub Experience</h3>
-                                        <p className="text-white/90 text-lg font-light leading-relaxed">
-                                            "The most intuitive platform we've ever used for our community events."
+                                        <h3 className="text-5xl font-bold">Your Events,<br />Simplified</h3>
+                                        <p className="text-white/90 text-xl font-light leading-relaxed max-w-md mx-auto">
+                                            Create, manage, and discover amazing events all in one place.
                                         </p>
-                                        <div className="mt-6 pt-6 border-t border-white/20 flex items-center justify-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-white/20" />
-                                            <div className="text-left">
-                                                <div className="font-bold text-sm">Sarah Johnson</div>
-                                                <div className="text-xs text-white/70">Community Lead</div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </AspectRatio>

@@ -1,56 +1,56 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { QrCode, BarChart3, Mail, Palette, Shield, Smartphone, CreditCard, Bell } from "lucide-react"
+import { Calendar, Ticket, UserCircle, PlusCircle, User, Search, FileText, Smartphone } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 const features = [
     {
-        icon: QrCode,
-        title: "QR Code Tickets",
-        description: "Secure, scannable tickets delivered instantly to attendees.",
+        icon: Calendar,
+        title: "Browse Events",
+        description: "Discover and explore a wide variety of events happening around you.",
         gradient: "from-blue-500 to-cyan-500"
     },
     {
-        icon: BarChart3,
-        title: "Analytics Dashboard",
-        description: "Real-time insights into ticket sales, attendance, and revenue.",
+        icon: Ticket,
+        title: "Easy Booking",
+        description: "Book tickets seamlessly with a simple and intuitive interface.",
         gradient: "from-purple-500 to-pink-500"
     },
     {
-        icon: Mail,
-        title: "Email Automation",
-        description: "Automated confirmations, reminders, and follow-ups.",
+        icon: UserCircle,
+        title: "User Authentication",
+        description: "Secure login and registration to manage your event experience.",
         gradient: "from-indigo-500 to-purple-500"
     },
     {
-        icon: Palette,
-        title: "Custom Branding",
-        description: "White-label your event pages with your brand colors and logo.",
+        icon: PlusCircle,
+        title: "Create Events",
+        description: "Organizers can easily create and publish their own events.",
         gradient: "from-pink-500 to-rose-500"
     },
     {
-        icon: Shield,
-        title: "Secure Payments",
-        description: "PCI-compliant payment processing with fraud protection.",
+        icon: User,
+        title: "Profile Management",
+        description: "Manage your personal information and event preferences.",
         gradient: "from-green-500 to-emerald-500"
     },
     {
-        icon: Smartphone,
-        title: "Mobile App",
-        description: "Manage events on-the-go with our iOS and Android apps.",
+        icon: Search,
+        title: "Search & Filter",
+        description: "Find exactly what you're looking for with powerful search tools.",
         gradient: "from-orange-500 to-amber-500"
     },
     {
-        icon: CreditCard,
-        title: "Flexible Pricing",
-        description: "Free, paid, donation-based, or tiered ticket options.",
+        icon: FileText,
+        title: "Event Details",
+        description: "View comprehensive information about each event before booking.",
         gradient: "from-violet-500 to-purple-500"
     },
     {
-        icon: Bell,
-        title: "Live Updates",
-        description: "Push notifications for schedule changes and announcements.",
+        icon: Smartphone,
+        title: "Responsive Design",
+        description: "Access EventHub seamlessly on any device, anywhere.",
         gradient: "from-red-500 to-pink-500"
     }
 ]

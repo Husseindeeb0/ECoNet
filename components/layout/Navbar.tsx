@@ -1,69 +1,243 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Menu, X, LogIn, User, LogOut, UserCircle } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "@/redux/store/store";
+import { logoutThunk } from "@/redux/states/auth/authThunks";
+import { useRouter } from "next/navigation";
 
-export default function Navbar() {
-    const pathname = usePathname();
+// --- Types ---
+type UserRole = "user" | "organizer" | null;
 
-    const isActive = (path: string) => {
-        if (path === "/") {
-            return pathname === "/" || pathname === "";
-        }
-        return pathname?.startsWith(path);
-    };
-
-    return (
-        <nav className="sticky top-0 z-50 border-b border-purple-100/50 bg-gradient-to-r from-white via-purple-50/30 to-blue-50/30 backdrop-blur-md shadow-sm">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/login" className="px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40">
-                            Login / Sign Up
-                        </Link>
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 text-white font-bold text-lg shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-all group-hover:scale-105">
-                                E
-                            </div>
-                            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">EventHub</span>
-                        </Link>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Link
-                            href="/"
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                                isActive("/") && !isActive("/myEvents") && !isActive("/profile")
-                                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "text-slate-700 hover:bg-purple-50 hover:text-purple-700"
-                            }`}
-                        >
-                            Events
-                        </Link>
-                        <Link
-                            href="/myEvents"
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                                isActive("/myEvents")
-                                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "text-slate-700 hover:bg-purple-50 hover:text-purple-700"
-                            }`}
-                        >
-                            My Events
-                        </Link>
-                        <Link
-                            href="/profile"
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                                isActive("/profile")
-                                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "text-slate-700 hover:bg-purple-50 hover:text-purple-700"
-                            }`}
-                        >
-                            Profile
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    );
+interface NavLink {
+  href: string;
+  label: string;
+  isProtected?: boolean;
+  minRole?: UserRole;
 }
 
+// --- Navigation Links Data ---
+const navLinks: NavLink[] = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/bookings", label: "My Bookings", isProtected: true },
+  // Organizer-specific links
+  {
+    href: "/myEvents",
+    label: "My Events",
+    isProtected: true,
+    minRole: "organizer",
+  },
+];
+
+const authLinks = [
+  { href: "/login", label: "Log In", icon: LogIn },
+  { href: "/signup", label: "Sign Up", icon: User },
+];
+
+export const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  // --- Redux State ---
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const userRole: UserRole = user?.role || null;
+
+  const filteredLinks = navLinks.filter((link) => {
+    if (!link.isProtected) return true; // Always show public links
+    if (isAuthenticated) {
+      if (link.minRole && userRole !== link.minRole) {
+        return false; // Hide if specific role required and user doesn't have it
+      }
+      return true; // Show protected links for authenticated users
+    }
+    return false;
+  });
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    await dispatch(logoutThunk());
+    setShowProfileMenu(false);
+    router.push("/login");
+  };
+
+  return (
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo/Brand */}
+          <div className="shrink-0">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 text-xl font-bold text-white"
+            >
+              <span className="text-2xl font-extrabold tracking-tight">
+                EventHub
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Links */}
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            {filteredLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Auth & Profile Icons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isAuthenticated ? (
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="p-2 border-2 border-white/30 hover:border-white rounded-full transition duration-150 ease-in-out"
+                  title="Profile"
+                >
+                  <User className="h-6 w-6 text-white" />
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                    <Link
+                      href="/profile"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <UserCircle className="h-4 w-4 mr-2" />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              authLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center space-x-1 text-sm font-medium text-purple-600 bg-white hover:bg-gray-100 px-4 py-2 rounded-full transition duration-150 ease-in-out shadow-md"
+                >
+                  <link.icon className="h-4 w-4" />
+                  <span>{link.label}</span>
+                </Link>
+              ))
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            >
+              <span className="sr-only">Open main menu</span>
+              {isOpen ? (
+                <X className="block h-6 w-6" />
+              ) : (
+                <Menu className="block h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Panel */}
+      {isOpen && (
+        <div
+          className="md:hidden bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600"
+          id="mobile-menu"
+        >
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {filteredLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="block text-white/90 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Mobile Auth Links */}
+            {!isAuthenticated ? (
+              <div className="pt-2 border-t border-white/20">
+                {authLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center space-x-2 text-white/90 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    <link.icon className="h-5 w-5" />
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="pt-2 border-t border-white/20">
+                <Link
+                  href="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-2 text-white/90 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+                >
+                  <UserCircle className="h-5 w-5" />
+                  <span>Profile</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center space-x-2 w-full text-white/90 hover:bg-white/10 hover:text-white px-3 py-2 rounded-md text-base font-medium"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;

@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 
 export function CTA() {
     return (
-        <section className="py-40 relative overflow-hidden">
+        <section className="pt-40 pb-0 relative overflow-hidden">
             {/* Full Gradient Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900" />
 
@@ -15,7 +15,7 @@ export function CTA() {
                 <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/30 rounded-full blur-[100px]" />
             </div>
 
-            <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
+            <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-40">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -39,10 +39,6 @@ export function CTA() {
                             Get Started Now
                         </Button>
                     </div>
-
-                    <p className="text-sm text-indigo-200/60 pt-8">
-                        No credit card required · Free 14-day trial · Cancel anytime
-                    </p>
                 </motion.div>
             </div>
         </section>

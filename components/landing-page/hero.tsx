@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 export function Hero() {
     return (
@@ -42,20 +43,6 @@ export function Hero() {
                         <Button variant="outline" size="lg" className="h-16 px-10 text-lg rounded-full border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all">
                             Become Organizer
                         </Button>
-                    </div>
-
-                    <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground pt-8 border-t border-gray-100 w-full">
-                        <div className="flex -space-x-3">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 shadow-sm" />
-                            ))}
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-1 text-yellow-500">
-                                {[1, 2, 3, 4, 5].map(i => <span key={i}>★</span>)}
-                            </div>
-                            <span>Trusted by 10,000+ organizers</span>
-                        </div>
                     </div>
                 </motion.div>
 
@@ -146,9 +133,15 @@ export function Hero() {
                             className="absolute -left-12 bottom-32 bg-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center gap-4"
                         >
                             <div className="flex -space-x-3">
-                                <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-200" />
-                                <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-300" />
-                                <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-400" />
+                                <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden relative">
+                                    <Image src="/images/avatars/avatar1.png" alt="User" fill className="object-cover" />
+                                </div>
+                                <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden relative">
+                                    <Image src="/images/avatars/avatar2.png" alt="User" fill className="object-cover" />
+                                </div>
+                                <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden relative">
+                                    <Image src="/images/avatars/avatar3.png" alt="User" fill className="object-cover" />
+                                </div>
                             </div>
                             <div>
                                 <div className="font-bold text-gray-900 text-sm">New Joiners</div>
@@ -157,7 +150,7 @@ export function Hero() {
                         </motion.div>
                     </div>
                 </motion.div>
-            </div>
-        </section>
+            </div >
+        </section >
     )
 }
