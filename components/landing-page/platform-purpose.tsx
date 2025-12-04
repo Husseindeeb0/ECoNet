@@ -22,7 +22,7 @@ export function PlatformPurpose() {
                                 Why We Built <br />
                                 <span className="text-indigo-600">EventHub</span>
                             </h2>
-                            <div className="w-24 h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" />
+                            <div className="w-24 h-2 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-full" />
                         </div>
 
                         <div className="space-y-8 text-xl text-muted-foreground leading-relaxed font-light">
@@ -57,10 +57,10 @@ export function PlatformPurpose() {
                         transition={{ duration: 0.6 }}
                         className="relative order-1 lg:order-2"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[3rem] rotate-6 opacity-20 blur-2xl" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-[3rem] rotate-6 opacity-20 blur-2xl" />
                         <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/20">
                             <AspectRatio ratio={4 / 5} className="bg-muted">
-                                <div className="w-full h-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex flex-col items-center justify-center text-white p-12 text-center relative overflow-hidden">
+                                <div className="w-full h-full bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 flex flex-col items-center justify-center text-white p-12 text-center relative overflow-hidden">
                                     {/* Decorative Circles */}
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />

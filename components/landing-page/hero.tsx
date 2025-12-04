@@ -27,7 +27,7 @@ export function Hero() {
 
                     <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-gray-900 leading-[1.1]">
                         Host Events <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 animate-gradient-x">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600">
                             Like a Pro
                         </span>
                     </h1>
@@ -55,7 +55,7 @@ export function Hero() {
                 >
                     <div className="relative w-full max-w-[600px] aspect-[4/5] md:aspect-square">
                         {/* Main Card */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[3rem] rotate-3 opacity-10 blur-2xl" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-[3rem] rotate-3 opacity-10 blur-2xl" />
                         <div className="relative h-full w-full bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden flex flex-col transform transition-transform hover:scale-[1.02] duration-500">
                             {/* Header */}
                             <div className="p-8 border-b border-gray-50 flex items-center justify-between">

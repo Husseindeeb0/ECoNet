@@ -7,7 +7,7 @@ export function CTA() {
     return (
         <section className="pt-40 pb-0 relative overflow-hidden">
             {/* Full Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900" />
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600" />
 
             {/* Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden">

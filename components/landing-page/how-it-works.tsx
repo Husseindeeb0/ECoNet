@@ -10,8 +10,8 @@ const steps = [
         icon: Search,
     },
     {
-        title: "Choose Seats",
-        description: "Select the perfect spot with our interactive seating charts.",
+        title: "Select Your Spot",
+        description: "Choose your preferred tickets and reserve your place at the event.",
         icon: Armchair,
     },
     {
