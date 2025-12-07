@@ -38,4 +38,9 @@ export const refreshToken = async (): Promise<AuthResponse> => {
   return response.data;
 };
 
+export const checkAuthSession = async (): Promise<AuthResponse> => {
+  const response = await apiClient.get<AuthResponse>("/me");
+  return response.data;
+};
+
 export default apiClient;

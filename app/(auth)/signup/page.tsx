@@ -88,8 +88,8 @@ export default function SignupPage() {
       const result = await dispatch(signupThunk(formData)).unwrap();
 
       if (result.success) {
-        // Redirect to login page on success
-        router.push("/login");
+        // Redirect to home page on success (auto-login)
+        router.push("/home");
       }
     } catch (err) {
       // Error is handled by Redux state
