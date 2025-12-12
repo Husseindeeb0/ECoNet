@@ -62,8 +62,8 @@ export default async function EventDetailsPage({
 }: {
   params: Promise<{ id: string }> | { id: string };
   searchParams:
-    | Promise<{ booked?: string; cancelled?: string }>
-    | { booked?: string; cancelled?: string };
+  | Promise<{ booked?: string; cancelled?: string }>
+  | { booked?: string; cancelled?: string };
 }) {
   const resolvedParams = await Promise.resolve(params);
   const resolvedSearchParams = await Promise.resolve(searchParams);
@@ -123,10 +123,10 @@ export default async function EventDetailsPage({
             </div>
           )}
           {event.coverImageUrl && (
-            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-800/70 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-800/70 to-transparent pointer-events-none"></div>
           )}
-          <div className="absolute inset-0 flex items-end p-8 sm:p-12">
-            <div className="mx-auto w-full max-w-5xl">
+          <div className="absolute inset-0 flex items-end p-8 sm:p-12 pointer-events-none">
+            <div className="mx-auto w-full max-w-5xl pointer-events-auto">
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg">
                 {event.title}
               </h1>
@@ -285,9 +285,8 @@ export default async function EventDetailsPage({
                         Bookings
                       </span>
                       <span
-                        className={`text-lg font-bold ${
-                          isFull ? "text-red-600" : "text-slate-900"
-                        }`}
+                        className={`text-lg font-bold ${isFull ? "text-red-600" : "text-slate-900"
+                          }`}
                       >
                         {event.capacity != null
                           ? `${bookedCount} / ${event.capacity}`

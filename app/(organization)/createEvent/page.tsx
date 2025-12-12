@@ -4,6 +4,8 @@ import Link from "next/link";
 import { createEventAction } from "@/app/actions";
 import { useFormStatus } from "react-dom";
 import { motion } from "framer-motion";
+import ImageKitUpload from "@/components/ImageKitUpload";
+import { useState } from "react";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -32,6 +34,8 @@ function SubmitButton() {
 }
 
 export default function CreateEventPage() {
+    const [coverImageUrl, setCoverImageUrl] = useState("");
+
     return (
         <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-100 via-blue-100 to-cyan-100 p-4 sm:p-8 relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.15),transparent_50%)] pointer-events-none"></div>
@@ -159,18 +163,15 @@ export default function CreateEventPage() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 1.0 }}
                         >
-                            <label htmlFor="coverImageUrl" className="block text-sm font-semibold text-slate-700 mb-2">
-                                Cover Image URL <span className="text-slate-400 font-normal">(Optional)</span>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                Cover Image <span className="text-slate-400 font-normal">(Optional)</span>
                             </label>
-                            <input
-                                type="url"
-                                id="coverImageUrl"
-                                name="coverImageUrl"
-                                className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                                placeholder="https://example.com/image.jpg"
-                            />
+
+                            <ImageKitUpload onSuccess={(url) => setCoverImageUrl(url)} />
+                            <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
+
                             <p className="mt-2 text-xs text-slate-500">
-                                Add a cover image URL for your event. If left empty, a clean gradient background will be displayed.
+                                Upload a cover image for your event. If left empty, a clean gradient background will be displayed.
                             </p>
                         </motion.div>
 
