@@ -42,8 +42,8 @@ const Footer: React.FC = () => {
         {/* Main 3-column layout for large screens, stacked for mobile */}
         <div className="lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           {/* Section 1: Logo and Mission */}
-          <div className="lg:col-span-1 lg:mb-0">
-            <img src="/logo.png" alt="EventHub Logo" className="w-60" />
+          <div className="space-y-6 lg:col-span-1 lg:mb-0">
+            <img src="/logo.png" alt="EventHub Logo" className="w-44" />
             <p className="text-gray-300 text-sm max-w-xs">
               Your one-stop platform for finding and booking the best events.
               Never miss out on what's happening.

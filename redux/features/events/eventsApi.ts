@@ -30,13 +30,21 @@ export const eventsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getEvents: builder.query<
       { success: boolean; events: Event[] },
-      { organizerId?: string } | void
+      { organizerId?: string; ids?: string[] } | void
     >({
       query: (params) => {
-        if (params && params.organizerId) {
-          return `/events?organizerId=${params.organizerId}`;
+        const queryParams = new URLSearchParams();
+
+        if (params?.organizerId) {
+          queryParams.append("organizerId", params.organizerId);
         }
-        return "/events";
+
+        if (params?.ids && params.ids.length > 0) {
+          queryParams.append("ids", params.ids.join(","));
+        }
+
+        const queryString = queryParams.toString();
+        return queryString ? `/events?${queryString}` : "/events";
       },
       providesTags: (result) =>
         result

@@ -21,6 +21,12 @@ export async function GET(req: Request) {
       query.organizerId = organizerId;
     }
 
+    const idsParam = searchParams.get("ids");
+    if (idsParam) {
+      const idsArray = idsParam.split(",");
+      query._id = { $in: idsArray };
+    }
+
     const rawEvents: any[] = await Event.find(query)
       .sort({ startsAt: organizerId ? -1 : 1 }) // Descending for organizer (newest first), Ascending for public (soonest first)
       .lean();
