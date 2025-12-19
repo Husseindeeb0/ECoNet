@@ -102,6 +102,16 @@ export async function POST(req: NextRequest) {
         { session }
       );
 
+      // Update event availableSeats
+      // Note: event is already fetched at line 39
+      if (event.capacity) {
+        await Event.findByIdAndUpdate(
+          eventId,
+          { $inc: { availableSeats: -seats } },
+          { session }
+        );
+      }
+
       // Commit transaction
       await session.commitTransaction();
 
