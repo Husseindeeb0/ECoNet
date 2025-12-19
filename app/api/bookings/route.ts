@@ -45,16 +45,24 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Check if event has enough available seats
-      if (event.availableSeats < seats) {
-        await session.abortTransaction();
-        return NextResponse.json(
-          {
-            success: false,
-            message: `Only ${event.availableSeats} seats available`,
-          },
-          { status: 400 }
-        );
+      // Check if event has capacity and enough available seats
+      if (event.capacity) {
+        const bookedCount = await Booking.countDocuments({
+          event: eventId,
+          status: { $ne: "cancelled" },
+        }).session(session);
+
+        const availableSeats = event.capacity - bookedCount;
+        if (availableSeats < seats) {
+          await session.abortTransaction();
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Only ${availableSeats} seats available`,
+            },
+            { status: 400 }
+          );
+        }
       }
 
       // Check if user already booked this event
@@ -85,16 +93,6 @@ export async function POST(req: NextRequest) {
         { session }
       );
 
-      // Update event: decrement available seats and add user to attendees
-      await Event.findByIdAndUpdate(
-        eventId,
-        {
-          $inc: { availableSeats: -seats },
-          $addToSet: { attendees: userId },
-        },
-        { session }
-      );
-
       // Update user: add event to bookedEvents
       await User.findByIdAndUpdate(
         userId,
@@ -103,6 +101,16 @@ export async function POST(req: NextRequest) {
         },
         { session }
       );
+
+      // Update event availableSeats
+      // Note: event is already fetched at line 39
+      if (event.capacity) {
+        await Event.findByIdAndUpdate(
+          eventId,
+          { $inc: { availableSeats: -seats } },
+          { session }
+        );
+      }
 
       // Commit transaction
       await session.commitTransaction();
