@@ -14,6 +14,7 @@ interface EventData {
     capacity?: number;
     description?: string;
     coverImageUrl?: string;
+    coverImageFileId?: string;
 }
 
 function SubmitButton() {
@@ -33,9 +34,11 @@ function SubmitButton() {
 export default function EditEventForm({ event }: { event: EventData }) {
     const defaultDate = new Date(event.startsAt).toISOString().slice(0, 16);
     const [coverImageUrl, setCoverImageUrl] = useState(event.coverImageUrl || "");
+    const [coverImageFileId, setCoverImageFileId] = useState(event.coverImageFileId || "");
 
-    const handleImageUploadSuccess = (url: string) => {
-        setCoverImageUrl(url);
+    const handleImageUploadSuccess = (res: { url: string; fileId: string }) => {
+        setCoverImageUrl(res.url);
+        setCoverImageFileId(res.fileId);
     };
 
     return (
@@ -132,6 +135,12 @@ export default function EditEventForm({ event }: { event: EventData }) {
                         name="coverImageUrl"
                         id="coverImageUrl"
                         value={coverImageUrl}
+                    />
+                    <input
+                        type="hidden"
+                        name="coverImageFileId"
+                        id="coverImageFileId"
+                        value={coverImageFileId}
                     />
                 </div>
 
