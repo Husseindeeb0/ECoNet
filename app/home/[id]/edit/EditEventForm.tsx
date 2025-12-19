@@ -9,7 +9,7 @@ import ImageKitUpload from "@/components/ImageKitUpload";
 interface EventData {
   _id: string;
   title: string;
-  location: string;
+  location?: string;
   startsAt?: Date | string;
   capacity?: number;
   description?: string;
@@ -78,7 +78,7 @@ export default function EditEventForm({ event }: { event: EventData }) {
             type="text"
             id="location"
             name="location"
-            defaultValue={event.location}
+            defaultValue={event.location || ""}
             required
             className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all placeholder:text-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
           />
