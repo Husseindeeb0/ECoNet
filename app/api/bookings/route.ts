@@ -150,10 +150,14 @@ export async function GET(req: NextRequest) {
 
     await connectDb();
 
+    const user = await User.findById(userId).select("bookedEvents");
+    const bookedEventIds = user?.bookedEvents || [];
+
     // Find bookings for user and populate event details
     const bookings = await Booking.find({
       user: userId,
       status: { $ne: "cancelled" },
+      event: { $in: bookedEventIds },
     })
       .populate("event")
       .sort({ bookingDate: -1 })
@@ -171,6 +175,9 @@ export async function GET(req: NextRequest) {
           location: booking.event.location,
           startsAt: booking.event.startsAt
             ? new Date(booking.event.startsAt).toISOString()
+            : null,
+          endsAt: booking.event.endsAt
+            ? new Date(booking.event.endsAt).toISOString()
             : null,
           coverImageUrl: booking.event.coverImageUrl || "",
           capacity: booking.event.capacity,
