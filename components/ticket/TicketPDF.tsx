@@ -25,13 +25,13 @@ const styles = StyleSheet.create({
     // Left Section (Main) - 70% width
     leftSection: {
         width: '70%',
-        backgroundColor: '#ffffff',
-        padding: 0, // Reset padding for poster integration
+        backgroundColor: '#fdfbf7', // Premium Ivory/Paper
+        padding: 0,
         position: 'relative',
         borderRightWidth: 3,
         borderRightColor: '#94a3b8',
         borderRightStyle: 'dashed',
-        flexDirection: 'row', // Poster | Details
+        flexDirection: 'row',
     },
 
     // Poster Section (New)
@@ -272,6 +272,22 @@ const TicketPDF: React.FC<TicketPDFProps> = ({ event, booking }) => {
                             )}
                         </View>
 
+                        {/* Watermark Background - Advanced Security Pattern */}
+                        <View style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '35%',
+                            right: 0,
+                            bottom: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            opacity: 0.08, // Increased visibility
+                            transform: 'rotate(-10deg)',
+                            zIndex: -1
+                        }}>
+                            <Image src="/logo.png" style={{ width: 250, height: 250, objectFit: 'contain' }} />
+                        </View>
+
                         {/* Content Area */}
                         <View style={styles.mainContent}>
                             <View>
@@ -298,7 +314,15 @@ const TicketPDF: React.FC<TicketPDFProps> = ({ event, booking }) => {
                             <View style={styles.grid}>
                                 <View style={styles.col}>
                                     <Text style={styles.label}>ATTENDEE</Text>
-                                    <Text style={styles.value}>{booking?.name || 'Guest'}</Text>
+                                    {booking?.userId ? (
+                                        <Link src={`http://localhost:3000/profile/${booking.userId}`} style={{ textDecoration: 'none' }}>
+                                            <Text style={{ ...styles.value, color: '#0f172a', textDecoration: 'underline' }}>
+                                                {booking?.name || 'Guest'}
+                                            </Text>
+                                        </Link>
+                                    ) : (
+                                        <Text style={styles.value}>{booking?.name || 'Guest'}</Text>
+                                    )}
                                 </View>
                                 <View style={styles.col}>
                                     <Text style={styles.label}>CONTACT</Text>

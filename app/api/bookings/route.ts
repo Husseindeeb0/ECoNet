@@ -206,6 +206,7 @@ export async function GET(req: NextRequest) {
           name: booking.name,
           email: booking.email,
           phone: booking.phone,
+          userId: booking.user,
           organizer: organizer
             ? {
               _id: organizer._id.toString(),

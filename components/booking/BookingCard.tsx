@@ -19,7 +19,9 @@ export interface Booking {
   bookedAt: string;
   name?: string;
   email?: string;
+  email?: string;
   phone?: string;
+  userId?: string;
   organizer?: {
     _id: string;
     name: string;
@@ -257,6 +259,7 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
                 _id: booking._id,
                 name: booking.name,
                 phone: booking.phone,
+                userId: booking.userId,
                 seats: booking.numberOfSeats, // Ensure mapping handles existing bookings
                 numberOfSeats: booking.numberOfSeats
               }}
