@@ -19,7 +19,6 @@ export interface Booking {
   bookedAt: string;
   name?: string;
   email?: string;
-  email?: string;
   phone?: string;
   userId?: string;
   organizer?: {
@@ -46,8 +45,8 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
   const isFinished = endsAt
     ? new Date(endsAt) < now
     : startsAt
-      ? new Date(startsAt) < now
-      : false;
+    ? new Date(startsAt) < now
+    : false;
 
   const dateObj = startsAt ? new Date(startsAt) : null;
   const isValidDate = dateObj && !isNaN(dateObj.getTime());
@@ -58,17 +57,18 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
     : "";
   const time = isValidDate
     ? dateObj.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    })
+        hour: "numeric",
+        minute: "2-digit",
+      })
     : "Time TBA";
 
   return (
     <div
-      className={`group relative flex flex-col md:flex-row overflow-hidden rounded-3xl border transition-all duration-500 ${isFinished
-        ? "border-slate-100 bg-white"
-        : "border-indigo-100 bg-white hover:border-purple-200 hover:shadow-2xl hover:shadow-purple-500/10"
-        }`}
+      className={`group relative flex flex-col md:flex-row overflow-hidden rounded-3xl border transition-all duration-500 ${
+        isFinished
+          ? "border-slate-100 bg-white"
+          : "border-indigo-100 bg-white hover:border-purple-200 hover:shadow-2xl hover:shadow-purple-500/10"
+      }`}
     >
       {/* Left: Image Section */}
       <div className="relative w-full md:w-64 lg:w-80 h-48 md:h-auto overflow-hidden bg-indigo-50 shrink-0">
@@ -95,10 +95,11 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
         {/* Status Badge */}
         <div className="absolute top-4 left-4">
           <span
-            className={`inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-black tracking-wider uppercase shadow-sm border ${isFinished
-              ? "bg-slate-500 border-slate-600 text-white"
-              : "bg-linear-to-r from-indigo-600 to-purple-600 border-indigo-400 text-white shadow-indigo-200"
-              }`}
+            className={`inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-black tracking-wider uppercase shadow-sm border ${
+              isFinished
+                ? "bg-slate-500 border-slate-600 text-white"
+                : "bg-linear-to-r from-indigo-600 to-purple-600 border-indigo-400 text-white shadow-indigo-200"
+            }`}
           >
             {isFinished ? "Attended" : "Confirmed"}
           </span>
@@ -111,20 +112,23 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
           <div className="flex gap-4 items-center">
             {/* Date Box */}
             <div
-              className={`flex flex-col items-center justify-center w-12 h-14 rounded-2xl border ${isFinished
-                ? "border-slate-100 bg-slate-50"
-                : "border-indigo-100 bg-indigo-50/50"
-                }`}
+              className={`flex flex-col items-center justify-center w-12 h-14 rounded-2xl border ${
+                isFinished
+                  ? "border-slate-100 bg-slate-50"
+                  : "border-indigo-100 bg-indigo-50/50"
+              }`}
             >
               <span
-                className={`text-xs font-black uppercase ${isFinished ? "text-slate-400" : "text-indigo-600"
-                  }`}
+                className={`text-xs font-black uppercase ${
+                  isFinished ? "text-slate-400" : "text-indigo-600"
+                }`}
               >
                 {month}
               </span>
               <span
-                className={`text-xl font-black ${isFinished ? "text-slate-500" : "text-slate-900"
-                  }`}
+                className={`text-xl font-black ${
+                  isFinished ? "text-slate-500" : "text-slate-900"
+                }`}
               >
                 {day}
               </span>
@@ -132,20 +136,23 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
 
             <div>
               <h3
-                className={`text-xl font-black transition-colors duration-300 line-clamp-1 ${isFinished
-                  ? "text-slate-500"
-                  : "text-slate-900 group-hover:text-indigo-600"
-                  }`}
+                className={`text-xl font-black transition-colors duration-300 line-clamp-1 ${
+                  isFinished
+                    ? "text-slate-500"
+                    : "text-slate-900 group-hover:text-indigo-600"
+                }`}
               >
                 {title}
               </h3>
               <div
-                className={`flex items-center gap-1.5 text-xs font-bold mt-1 ${isFinished ? "text-slate-400" : "text-slate-500"
-                  }`}
+                className={`flex items-center gap-1.5 text-xs font-bold mt-1 ${
+                  isFinished ? "text-slate-400" : "text-slate-500"
+                }`}
               >
                 <Clock
-                  className={`w-3.5 h-3.5 ${isFinished ? "text-slate-300" : "text-indigo-500"
-                    }`}
+                  className={`w-3.5 h-3.5 ${
+                    isFinished ? "text-slate-300" : "text-indigo-500"
+                  }`}
                 />
                 {time}
               </div>
@@ -153,14 +160,16 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
           </div>
 
           <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl border ${isFinished
-              ? "border-slate-100 bg-slate-50 text-slate-400"
-              : "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-sm shadow-emerald-500/10"
-              }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl border ${
+              isFinished
+                ? "border-slate-100 bg-slate-50 text-slate-400"
+                : "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-sm shadow-emerald-500/10"
+            }`}
           >
             <Ticket
-              className={`w-4 h-4 ${isFinished ? "text-slate-300" : "text-emerald-500"
-                }`}
+              className={`w-4 h-4 ${
+                isFinished ? "text-slate-300" : "text-emerald-500"
+              }`}
             />
             <span className="text-sm font-black uppercase tracking-tight">
               {numberOfSeats} {numberOfSeats > 1 ? "Tickets" : "Ticket"}
@@ -169,12 +178,14 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
         </div>
 
         <div
-          className={`flex items-center gap-2 text-sm font-bold mb-6 ${isFinished ? "text-slate-400" : "text-slate-600"
-            }`}
+          className={`flex items-center gap-2 text-sm font-bold mb-6 ${
+            isFinished ? "text-slate-400" : "text-slate-600"
+          }`}
         >
           <MapPin
-            className={`w-4 h-4 ${isFinished ? "text-slate-300" : "text-indigo-500"
-              }`}
+            className={`w-4 h-4 ${
+              isFinished ? "text-slate-300" : "text-indigo-500"
+            }`}
           />
           <span className="line-clamp-1">{location || "TBA"}</span>
         </div>
@@ -229,18 +240,21 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
               />
             </svg>
             <span
-              className={`text-[11px] font-black uppercase tracking-widest ${isFinished ? "text-slate-400" : "text-slate-500"
-                }`}
+              className={`text-[11px] font-black uppercase tracking-widest ${
+                isFinished ? "text-slate-400" : "text-slate-500"
+              }`}
             >
               Confirmed Spot
             </span>
           </div>
 
-          <Link href={`/home/${eventId}`}
-            className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${isFinished
-              ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
-              : "bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-100"
-              }`}
+          <Link
+            href={`/home/${eventId}`}
+            className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+              isFinished
+                ? "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                : "bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-100"
+            }`}
           >
             {isFinished ? "Details" : "Event Page"}
           </Link>
@@ -253,7 +267,7 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
                 startsAt: booking.startsAt,
                 description: booking.description,
                 coverImageUrl: booking.coverImageUrl,
-                organizer: booking.organizer
+                organizer: booking.organizer,
               }}
               booking={{
                 _id: booking._id,
@@ -261,7 +275,7 @@ const BookingCard: React.FC<{ booking: Booking }> = ({ booking }) => {
                 phone: booking.phone,
                 userId: booking.userId,
                 seats: booking.numberOfSeats, // Ensure mapping handles existing bookings
-                numberOfSeats: booking.numberOfSeats
+                numberOfSeats: booking.numberOfSeats,
               }}
               label="Ticket"
               className="px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all bg-white border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 flex items-center gap-2 cursor-pointer"
