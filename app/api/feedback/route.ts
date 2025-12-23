@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         type === "event" && eventTitle
           ? `Thank you for your feedback on "${eventTitle}"!`
           : `Thank you for your feedback!`,
-      relatedEntityId: feedback._id,
+      relatedEntityId: (feedback as any)._id.toString(),
       relatedEntityType: "User",
     });
 
@@ -137,10 +137,11 @@ export async function POST(req: NextRequest) {
         from: `"EventHub Feedback" <${emailUser}>`,
         to: emailUser, // Now sends to the website email (admin)
         replyTo: userEmail, // Makes it easy for the admin to reply to the user
-        subject: `✨ New Feedback: ${type === "event"
-          ? `Event "${eventTitle || "Unknown"}"`
-          : `General (${category || "Other"})`
-          }`,
+        subject: `✨ New Feedback: ${
+          type === "event"
+            ? `Event "${eventTitle || "Unknown"}"`
+            : `General (${category || "Other"})`
+        }`,
         html: `
           <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
             <div style="background: linear-gradient(to right, #4f46e5, #9333ea); padding: 30px; text-align: center;">
@@ -161,41 +162,47 @@ export async function POST(req: NextRequest) {
                 </div>
               </div>
 
-              ${type === "event" && eventTitle
-            ? `
+              ${
+                type === "event" && eventTitle
+                  ? `
               <div style="margin-bottom: 25px; padding: 15px 20px; background: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 8px;">
                 <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: bold; text-transform: uppercase;">Event Name</p>
                 <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 15px;">${eventTitle}</p>
               </div>
               `
-            : ""
-          }
+                  : ""
+              }
 
-              ${category
-            ? `
+              ${
+                category
+                  ? `
               <div style="margin-bottom: 25px; padding: 15px 20px; background: #f8fafc; border-left: 4px solid #9333ea; border-radius: 8px;">
                 <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: bold; text-transform: uppercase;">Category</p>
-                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 15px;">${category.charAt(0).toUpperCase() + category.slice(1)
-            }</p>
+                <p style="margin: 5px 0 0 0; color: #1e293b; font-weight: 600; font-size: 15px;">${
+                  category.charAt(0).toUpperCase() + category.slice(1)
+                }</p>
               </div>
               `
-            : ""
-          }
+                  : ""
+              }
 
               <div style="margin-bottom: 8px;">
                 <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Detailed Feedback</p>
               </div>
               <div style="background: #f8fafc; padding: 25px; border-radius: 15px; border: 1px solid #f1f5f9; text-align: left;">
-                <p style="margin: 0; color: #334155; line-height: 1.6; font-style: ${finalComment ? "normal" : "italic"
-          }; white-space: pre-wrap; font-size: 15px; text-align: left;">
-                  ${finalComment || "No detailed comments provided by the user."
-          }
+                <p style="margin: 0; color: #334155; line-height: 1.6; font-style: ${
+                  finalComment ? "normal" : "italic"
+                }; white-space: pre-wrap; font-size: 15px; text-align: left;">
+                  ${
+                    finalComment || "No detailed comments provided by the user."
+                  }
                 </p>
               </div>
 
               <div style="margin-top: 40px; text-align: center; color: #94a3b8; font-size: 10px;">
-                <p style="margin-bottom: 5px;">Internal Tracking ID: ${(feedback as any)._id || "N/A"
-          }</p>
+                <p style="margin-bottom: 5px;">Internal Tracking ID: ${
+                  (feedback as any)._id || "N/A"
+                }</p>
                 <p>© 2024 EventHub System • Quality Assurance Team</p>
               </div>
             </div>
