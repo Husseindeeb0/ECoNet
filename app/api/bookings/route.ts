@@ -263,11 +263,11 @@ export async function GET(req: NextRequest) {
           userId: booking.user,
           organizer: organizer
             ? {
-                _id: organizer._id.toString(),
-                name: organizer.name,
-                email: organizer.email,
-                imageUrl: organizer.imageUrl,
-              }
+              _id: organizer._id.toString(),
+              name: organizer.name,
+              email: organizer.email,
+              imageUrl: organizer.imageUrl,
+            }
             : null,
         };
       })

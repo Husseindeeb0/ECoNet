@@ -39,12 +39,12 @@ export default function AboutPage() {
       linkedinUrl: "####",
     },
     {
-      name: "Hadi",
+      name: "Hadi Deeb",
       role: "Front End",
       icon: Code2,
       bgClass: "bg-cyan-50",
       iconClass: "text-cyan-600",
-      linkedinUrl: "####",
+      linkedinUrl: "https://www.linkedin.com/in/hadi-deeb-3772a7317/",
     },
     {
       name: "Houssam Yakhni",

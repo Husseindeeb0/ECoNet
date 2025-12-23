@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const finalComment = comment || description;
+    let eventTitle = "";
 
     if (!rating) {
       return NextResponse.json(
@@ -88,6 +89,10 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      if (booking.event) {
+        eventTitle = (booking.event as any).title;
+      }
+
       feedbackData.booking = bookingId;
     } else if (type === "general") {
       feedbackData.category = category;
@@ -100,6 +105,19 @@ export async function POST(req: NextRequest) {
 
     // Create feedback in database
     const feedback = await Feedback.create(feedbackData);
+
+    // Trigger Feedback Submission Notification
+    const { createNotification } = await import("@/lib/notifications");
+    await createNotification({
+      recipient: userId,
+      type: "FEEDBACK_SUBMISSION",
+      message:
+        type === "event" && eventTitle
+          ? `Thank you for your feedback on "${eventTitle}"!`
+          : `Thank you for your feedback!`,
+      relatedEntityId: (feedback as any)._id.toString(),
+      relatedEntityType: "User",
+    });
 
     // Send Email Notification
     try {
@@ -114,18 +132,6 @@ export async function POST(req: NextRequest) {
           pass: emailPass,
         },
       });
-
-      // Get Event Title for event-type feedback
-      let eventTitle = "";
-      if (type === "event" && bookingId) {
-        const booking = await Booking.findById(bookingId).populate(
-          "event",
-          "title"
-        );
-        if (booking && booking.event) {
-          eventTitle = (booking.event as any).title;
-        }
-      }
 
       const mailOptions = {
         from: `"EventHub Feedback" <${emailUser}>`,

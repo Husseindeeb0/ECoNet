@@ -565,7 +565,7 @@ export default async function EventDetailsPage({
                 _id: userBooking._id.toString(),
                 name: userBooking.name,
                 phone: userBooking.phone,
-                userId: userBooking.user,
+                userId: userBooking.user.toString(),
                 seats: userBooking.seats,
                 numberOfSeats: userBooking.seats,
               }}
