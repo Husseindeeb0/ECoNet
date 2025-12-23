@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface INotification extends Document {
     recipient: mongoose.Types.ObjectId;
     sender?: mongoose.Types.ObjectId;
-    type: 'LOGIN' | 'RESERVATION' | 'CANCELLATION' | 'NEW_FOLLOWER' | 'NEW_EVENT_FROM_FOLLOWING';
+    type: 'LOGIN' | 'RESERVATION' | 'CANCELLATION' | 'NEW_FOLLOWER' | 'NEW_EVENT_FROM_FOLLOWING' | 'FEEDBACK_SUBMISSION';
     message: string;
     relatedEntityId?: mongoose.Types.ObjectId;
     relatedEntityType?: 'Event' | 'User';

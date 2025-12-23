@@ -8,12 +8,14 @@ interface ImageKitUploadProps {
     onSuccess: (res: { url: string; fileId: string }) => void;
     defaultImage?: string;
     aspectRatio?: "aspect-video" | "aspect-square";
+    variant?: "default" | "compact";
 }
 
 export default function ImageKitUpload({
     onSuccess,
     defaultImage,
     aspectRatio = "aspect-video",
+    variant = "default",
 }: ImageKitUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [preview, setPreview] = useState<string | null>(defaultImage || null);
@@ -21,6 +23,8 @@ export default function ImageKitUpload({
 
     const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
     const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+
+    // ... (authenticator and handlers remain same, omitted for brevity if I could, but I must replace block)
 
     const authenticator = async () => {
         try {
@@ -70,6 +74,10 @@ export default function ImageKitUpload({
         return true;
     };
 
+    const containerClasses = variant === "compact"
+        ? "relative border-2 border-dashed border-purple-200 rounded-xl bg-purple-50/50 h-32 w-full flex items-center justify-center p-2 transition-all hover:bg-purple-50 hover:border-purple-300 group"
+        : "relative border-2 border-dashed border-purple-200 rounded-xl bg-purple-50/50 min-h-[200px] flex items-center justify-center p-6 transition-all hover:bg-purple-50 hover:border-purple-300 group";
+
     return (
         <ImageKitProvider
             publicKey={publicKey}
@@ -77,7 +85,7 @@ export default function ImageKitUpload({
             authenticator={authenticator}
         >
             <div className="space-y-4">
-                <div className="relative border-2 border-dashed border-purple-200 rounded-xl bg-purple-50/50 p-6 transition-all hover:bg-purple-50 hover:border-purple-300 group">
+                <div className={containerClasses}>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         {!preview && !uploading && (
                             <>

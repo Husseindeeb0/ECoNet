@@ -116,16 +116,6 @@ export async function POST(req: NextRequest) {
       // Commit transaction
       await session.commitTransaction();
 
-      // Trigger Reservation Notification
-      const { createNotification } = await import("@/lib/notifications");
-      await createNotification({
-        recipient: userId,
-        type: "RESERVATION",
-        message: `You successfully reserved a spot for "${event.title}"`,
-        relatedEntityId: eventId,
-        relatedEntityType: "Event",
-      });
-
       return NextResponse.json(
         {
           success: true,

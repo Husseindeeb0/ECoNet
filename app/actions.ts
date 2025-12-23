@@ -79,6 +79,33 @@ export async function createEventAction(formData: FormData) {
     $push: { createdEvents: newEvent._id },
   });
 
+  // Notify followers
+  try {
+    const followers = await User.find({ following: currentUser.userId }).select("_id");
+
+    if (followers.length > 0) {
+      const organizer = await User.findById(currentUser.userId).select("name");
+      const organizerName = organizer?.name || "An organizer";
+
+      const { createNotification } = await import("@/lib/notifications");
+
+      const notificationPromises = followers.map((follower) =>
+        createNotification({
+          recipient: follower._id.toString(),
+          type: "NEW_EVENT_FROM_FOLLOWING",
+          message: `${organizerName} posted a new event: "${title}"`,
+          relatedEntityId: newEvent._id as any,
+          relatedEntityType: "Event",
+        })
+      );
+
+      await Promise.all(notificationPromises);
+      console.log(`Notified ${followers.length} followers about new event`);
+    }
+  } catch (error) {
+    console.error("Failed to notify followers:", error);
+  }
+
   revalidatePath("/myEvents");
   redirect("/myEvents");
 }
@@ -193,8 +220,8 @@ export async function updateEventAction(formData: FormData) {
       const isFinished = updatedEvent.endsAt
         ? new Date(updatedEvent.endsAt) < now
         : updatedEvent.startsAt
-        ? new Date(updatedEvent.startsAt) < now
-        : false;
+          ? new Date(updatedEvent.startsAt) < now
+          : false;
 
       const bookings = await Booking.find({
         event: id,
@@ -352,6 +379,20 @@ export async function bookEventAction(formData: FormData) {
     $push: { bookedEvents: eventId },
   });
 
+  // Trigger Notification
+  try {
+    const { createNotification } = await import("@/lib/notifications");
+    await createNotification({
+      recipient: currentUser.userId,
+      type: "RESERVATION",
+      message: `You successfully reserved a spot for "${event.title}"`,
+      relatedEntityId: eventId,
+      relatedEntityType: "Event",
+    });
+  } catch (error) {
+    console.error("Failed to create reservation notification:", error);
+  }
+
   // Check if this is the user's first successful booking
   // We count bookings. If it's 1, it's the first one (since we just created one).
   // AND check if they haven't given feedback yet.
@@ -389,7 +430,7 @@ export async function cancelBookingAction(formData: FormData) {
     user: currentUser.userId,
     event: eventId,
     status: { $ne: "cancelled" },
-  });
+  }).populate("event");
 
   if (!booking) {
     throw new Error("Booking not found");
@@ -403,6 +444,23 @@ export async function cancelBookingAction(formData: FormData) {
   await User.findByIdAndUpdate(currentUser.userId, {
     $pull: { bookedEvents: eventId },
   });
+
+  // Trigger Notification
+  try {
+    const { createNotification } = await import("@/lib/notifications");
+    const eventTitle = (booking.event as any)?.title || "Event";
+    const relatedEntityId = (booking.event as any)?._id || eventId;
+
+    await createNotification({
+      recipient: currentUser.userId,
+      type: "CANCELLATION",
+      message: `You successfully cancelled your reservation for "${eventTitle}"`,
+      relatedEntityId: relatedEntityId,
+      relatedEntityType: "Event",
+    });
+  } catch (error) {
+    console.error("Failed to create cancellation notification:", error);
+  }
 
   redirect(`/home/${eventId}?cancelled=true`);
 }
@@ -432,8 +490,8 @@ export async function rateEventAction(formData: FormData) {
   const isFinished = event.endsAt
     ? new Date(event.endsAt) < now
     : event.startsAt
-    ? new Date(event.startsAt) < now
-    : false;
+      ? new Date(event.startsAt) < now
+      : false;
 
   if (!isFinished) {
     throw new Error("You can only rate finished events");
