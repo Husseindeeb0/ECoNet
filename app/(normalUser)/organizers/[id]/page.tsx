@@ -5,7 +5,14 @@ import User from "@/models/User";
 import { getCurrentUser } from "@/lib/serverAuth";
 import FollowButton from "@/components/FollowButton";
 import Link from "next/link";
-import { Building2, Users, Settings, Calendar, MapPin } from "lucide-react";
+import {
+  Building2,
+  Users,
+  Settings,
+  Calendar,
+  MapPin,
+  Star,
+} from "lucide-react";
 import Event from "@/models/Event";
 import {
   AnimatedPageHeader,
@@ -55,6 +62,20 @@ export default async function OrganizerProfilePage({
     notFound();
   }
 
+  // Calculate Overall Rating
+  let totalScore = 0;
+  let totalRatings = 0;
+
+  events.forEach((event: any) => {
+    if (event.ratingCount && event.ratingCount > 0) {
+      totalScore += (event.averageRating || 0) * event.ratingCount;
+      totalRatings += event.ratingCount;
+    }
+  });
+
+  const overallRating =
+    totalRatings > 0 ? (totalScore / totalRatings).toFixed(1) : null;
+
   const isFollowing = currentUser
     ? organizer.followers.includes(currentUser.userId)
     : false;
@@ -71,9 +92,9 @@ export default async function OrganizerProfilePage({
             className="object-cover opacity-80"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-900 to-purple-900 opacity-90" />
+          <div className="absolute inset-0 bg-linear-to-r from-indigo-900 to-purple-900 opacity-90" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 to-transparent" />
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
@@ -112,6 +133,20 @@ export default async function OrganizerProfilePage({
                 <div className="flex items-center gap-1.5">
                   <Users className="w-4 h-4" />
                   <span>{organizer.followers.length} Followers</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Star
+                    className={`w-4 h-4 ${
+                      overallRating
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-slate-400"
+                    }`}
+                  />
+                  <span>
+                    {overallRating
+                      ? `${overallRating} Overall Rating`
+                      : "No Ratings yet"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -190,7 +225,7 @@ export default async function OrganizerProfilePage({
                               <Calendar className="w-10 h-10 opacity-50" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+                          <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-60" />
                           <div className="absolute bottom-3 left-3 right-3">
                             <h3 className="text-white font-bold text-lg leading-tight line-clamp-2 drop-shadow-sm">
                               {event.title}

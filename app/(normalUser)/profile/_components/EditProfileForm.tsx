@@ -108,6 +108,7 @@ export default function EditProfileForm({
                 onSuccess={(res) => setFormData((prev) => ({ ...prev, imageUrl: res.url, imageFileId: res.fileId }))}
                 defaultImage={formData.imageUrl}
                 aspectRatio="aspect-square"
+                variant="compact"
               />
               {formData.imageUrl && (
                 <button

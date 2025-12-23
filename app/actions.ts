@@ -8,6 +8,8 @@ import User from "@/models/User";
 import Booking from "@/models/Booking";
 import { requireOrganizer, requireAuth } from "@/lib/serverAuth";
 import imagekit from "@/lib/imagekit";
+import Review from "@/models/Review";
+import mongoose from "mongoose";
 
 export async function createEventAction(formData: FormData) {
   // Require organizer authentication
@@ -22,6 +24,8 @@ export async function createEventAction(formData: FormData) {
   const category = (formData.get("category") as string) || "Other";
   const coverImageUrl = formData.get("coverImageUrl") as string;
   const coverImageFileId = formData.get("coverImageFileId") as string;
+  const speakersStr = formData.get("speakers") as string;
+  const scheduleStr = formData.get("schedule") as string;
 
   if (!title || !location || !startsAt) {
     throw new Error("Missing required fields");
@@ -51,6 +55,10 @@ export async function createEventAction(formData: FormData) {
       ? coverImageFileId.trim()
       : undefined;
 
+  // Parse speakers and schedule
+  const speakers = speakersStr ? JSON.parse(speakersStr) : [];
+  const schedule = scheduleStr ? JSON.parse(scheduleStr) : [];
+
   const newEvent = await Event.create({
     title,
     location,
@@ -62,12 +70,41 @@ export async function createEventAction(formData: FormData) {
     description: description || undefined,
     coverImageUrl: imageUrl, // undefined means no image
     coverImageFileId: imageFileId,
+    speakers: speakers.length > 0 ? speakers : undefined,
+    schedule: schedule.length > 0 ? schedule : undefined,
   });
 
   // Add event to user's createdEvents array
   await User.findByIdAndUpdate(currentUser.userId, {
     $push: { createdEvents: newEvent._id },
   });
+
+  // Notify followers
+  try {
+    const followers = await User.find({ following: currentUser.userId }).select("_id");
+
+    if (followers.length > 0) {
+      const organizer = await User.findById(currentUser.userId).select("name");
+      const organizerName = organizer?.name || "An organizer";
+
+      const { createNotification } = await import("@/lib/notifications");
+
+      const notificationPromises = followers.map((follower) =>
+        createNotification({
+          recipient: follower._id.toString(),
+          type: "NEW_EVENT_FROM_FOLLOWING",
+          message: `${organizerName} posted a new event: "${title}"`,
+          relatedEntityId: newEvent._id as any,
+          relatedEntityType: "Event",
+        })
+      );
+
+      await Promise.all(notificationPromises);
+      console.log(`Notified ${followers.length} followers about new event`);
+    }
+  } catch (error) {
+    console.error("Failed to notify followers:", error);
+  }
 
   revalidatePath("/myEvents");
   redirect("/myEvents");
@@ -90,6 +127,8 @@ export async function updateEventAction(formData: FormData) {
     const category = formData.get("category") as string;
     const coverImageUrl = formData.get("coverImageUrl") as string;
     const coverImageFileId = formData.get("coverImageFileId") as string;
+    const speakersStr = formData.get("speakers") as string;
+    const scheduleStr = formData.get("schedule") as string;
 
     console.log("Form data parsed:", { id, title, location });
 
@@ -155,6 +194,10 @@ export async function updateEventAction(formData: FormData) {
       }
     }
 
+    // Parse speakers and schedule
+    const speakers = speakersStr ? JSON.parse(speakersStr) : [];
+    const schedule = scheduleStr ? JSON.parse(scheduleStr) : [];
+
     await Event.findByIdAndUpdate(id, {
       title,
       location,
@@ -165,8 +208,44 @@ export async function updateEventAction(formData: FormData) {
       description: description || undefined,
       coverImageUrl: imageUrl, // undefined means no image
       coverImageFileId: imageFileId,
+      speakers: speakers.length > 0 ? speakers : undefined,
+      schedule: schedule.length > 0 ? schedule : undefined,
     });
     console.log("Event updated in DB");
+
+    // Update attendedEvents for users based on new date
+    const updatedEvent = await Event.findById(id);
+    if (updatedEvent) {
+      const now = new Date();
+      const isFinished = updatedEvent.endsAt
+        ? new Date(updatedEvent.endsAt) < now
+        : updatedEvent.startsAt
+          ? new Date(updatedEvent.startsAt) < now
+          : false;
+
+      const bookings = await Booking.find({
+        event: id,
+        status: "confirmed",
+      }).select("user");
+
+      const userIds = bookings.map((b) => b.user);
+
+      if (userIds.length > 0) {
+        if (isFinished) {
+          await User.updateMany(
+            { _id: { $in: userIds } },
+            { $addToSet: { attendedEvents: id } }
+          );
+          console.log("Marked users as attended for event:", id);
+        } else {
+          await User.updateMany(
+            { _id: { $in: userIds } },
+            { $pull: { attendedEvents: id } }
+          );
+          console.log("Un-marked users as attended for event:", id);
+        }
+      }
+    }
   } catch (error) {
     console.error("Error in updateEventAction:", error);
     throw error;
@@ -300,6 +379,20 @@ export async function bookEventAction(formData: FormData) {
     $push: { bookedEvents: eventId },
   });
 
+  // Trigger Notification
+  try {
+    const { createNotification } = await import("@/lib/notifications");
+    await createNotification({
+      recipient: currentUser.userId,
+      type: "RESERVATION",
+      message: `You successfully reserved a spot for "${event.title}"`,
+      relatedEntityId: eventId,
+      relatedEntityType: "Event",
+    });
+  } catch (error) {
+    console.error("Failed to create reservation notification:", error);
+  }
+
   // Check if this is the user's first successful booking
   // We count bookings. If it's 1, it's the first one (since we just created one).
   // AND check if they haven't given feedback yet.
@@ -337,7 +430,7 @@ export async function cancelBookingAction(formData: FormData) {
     user: currentUser.userId,
     event: eventId,
     status: { $ne: "cancelled" },
-  });
+  }).populate("event");
 
   if (!booking) {
     throw new Error("Booking not found");
@@ -352,5 +445,96 @@ export async function cancelBookingAction(formData: FormData) {
     $pull: { bookedEvents: eventId },
   });
 
+  // Trigger Notification
+  try {
+    const { createNotification } = await import("@/lib/notifications");
+    const eventTitle = (booking.event as any)?.title || "Event";
+    const relatedEntityId = (booking.event as any)?._id || eventId;
+
+    await createNotification({
+      recipient: currentUser.userId,
+      type: "CANCELLATION",
+      message: `You successfully cancelled your reservation for "${eventTitle}"`,
+      relatedEntityId: relatedEntityId,
+      relatedEntityType: "Event",
+    });
+  } catch (error) {
+    console.error("Failed to create cancellation notification:", error);
+  }
+
   redirect(`/home/${eventId}?cancelled=true`);
+}
+
+export async function rateEventAction(formData: FormData) {
+  const currentUser = await requireAuth();
+  const eventId = formData.get("eventId") as string;
+  const ratingStr = formData.get("rating") as string;
+
+  if (!eventId || !ratingStr) {
+    throw new Error("Missing required fields");
+  }
+
+  const rating = parseInt(ratingStr, 10);
+  if (isNaN(rating) || rating < 1 || rating > 5) {
+    throw new Error("Invalid rating");
+  }
+
+  await connectDb();
+
+  const event = await Event.findById(eventId);
+  if (!event) {
+    throw new Error("Event not found");
+  }
+
+  const now = new Date();
+  const isFinished = event.endsAt
+    ? new Date(event.endsAt) < now
+    : event.startsAt
+      ? new Date(event.startsAt) < now
+      : false;
+
+  if (!isFinished) {
+    throw new Error("You can only rate finished events");
+  }
+
+  // Check if user has already rated
+  const existingReview = await Review.findOne({
+    user: currentUser.userId,
+    event: eventId,
+  });
+
+  if (existingReview) {
+    throw new Error("You have already rated this event");
+  }
+
+  // Create Review
+  await Review.create({
+    user: currentUser.userId,
+    event: eventId,
+    rating,
+  });
+
+  // Calculate new average
+  const result = await Review.aggregate([
+    { $match: { event: new mongoose.Types.ObjectId(eventId) } },
+    {
+      $group: {
+        _id: null,
+        avgRating: { $avg: "$rating" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const avgRating = result[0]?.avgRating || 0;
+  const count = result[0]?.count || 0;
+
+  // Update Event
+  await Event.findByIdAndUpdate(eventId, {
+    averageRating: avgRating,
+    ratingCount: count,
+  });
+
+  revalidatePath("/bookings");
+  revalidatePath(`/home/${eventId}`);
 }
