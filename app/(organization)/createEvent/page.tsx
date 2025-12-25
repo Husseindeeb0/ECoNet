@@ -65,6 +65,9 @@ export default function CreateEventPage() {
     DEFAULT_CATEGORIES[0]
   );
   const [customCategory, setCustomCategory] = useState("");
+  const [isPaid, setIsPaid] = useState(false);
+  const [price, setPrice] = useState("0");
+  const [whishNumber, setWhishNumber] = useState("");
 
   return (
     <main className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-linear-to-br from-indigo-100 via-purple-100 to-cyan-100 p-4 sm:p-8 relative overflow-hidden">
@@ -216,6 +219,91 @@ export default function CreateEventPage() {
                   placeholder="e.g. https://zoom.us/j/..."
                 />
               </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.72 }}
+              className="flex items-center gap-3 p-4 rounded-xl border-2 border-purple-100 bg-emerald-50/30"
+            >
+              <div className="flex items-center h-5">
+                <input
+                  id="isPaid"
+                  name="isPaid"
+                  type="checkbox"
+                  checked={isPaid}
+                  onChange={(e) => setIsPaid(e.target.checked)}
+                  className="h-5 w-5 rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                />
+              </div>
+              <div className="text-sm">
+                <label
+                  htmlFor="isPaid"
+                  className="font-semibold text-slate-700"
+                >
+                  This is a paid event
+                </label>
+                <p className="text-slate-500">
+                  Attendees will need to pay via Whish to book a spot.
+                </p>
+              </div>
+            </motion.div>
+
+            {isPaid && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <label
+                    htmlFor="price"
+                    className="block text-sm font-semibold text-slate-700 mb-2"
+                  >
+                    Ticket Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required={isPaid}
+                    min="1"
+                    step="0.01"
+                    className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    placeholder="e.g. 20"
+                  />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  transition={{ delay: 0.15 }}
+                >
+                  <label
+                    htmlFor="whishNumber"
+                    className="block text-sm font-semibold text-slate-700 mb-2"
+                  >
+                    Whish Number for Payment
+                  </label>
+                  <input
+                    type="tel"
+                    id="whishNumber"
+                    name="whishNumber"
+                    value={whishNumber}
+                    onChange={(e) => setWhishNumber(e.target.value)}
+                    required={isPaid}
+                    className="mt-2 block w-full rounded-xl border-2 border-purple-100 bg-purple-50/50 px-4 py-3 text-sm font-medium shadow-sm transition-all focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    placeholder="e.g. 70123456"
+                  />
+                  <p className="mt-2 text-xs text-slate-500">
+                    This is the phone number attendees will send the money to
+                    via Whish.
+                  </p>
+                </motion.div>
+              </>
             )}
 
             <motion.div

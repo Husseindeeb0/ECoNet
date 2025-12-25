@@ -23,6 +23,7 @@ interface EventSearchBarProps {
     search: string;
     category: string;
     status: "active" | "finished" | "";
+    isPaid?: boolean | null;
   }) => void;
 }
 
@@ -30,6 +31,7 @@ const EventSearchBar: React.FC<EventSearchBarProps> = ({ onSearch }) => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState<"active" | "finished" | "">("");
+  const [isPaidFilter, setIsPaidFilter] = useState<boolean | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Fetch all unique categories from the database
@@ -44,7 +46,7 @@ const EventSearchBar: React.FC<EventSearchBarProps> = ({ onSearch }) => {
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSearch({ search, category, status });
+      onSearch({ search, category, status, isPaid: isPaidFilter });
     }, 400);
     return () => clearTimeout(timer);
   }, [search, category, status, onSearch]);
@@ -53,6 +55,7 @@ const EventSearchBar: React.FC<EventSearchBarProps> = ({ onSearch }) => {
     setSearch("");
     setCategory("All");
     setStatus("");
+    setIsPaidFilter(null);
   };
 
   return (
@@ -160,6 +163,34 @@ const EventSearchBar: React.FC<EventSearchBarProps> = ({ onSearch }) => {
                               : "group-hover:scale-110"
                           }`}
                         />
+                        <span className="text-[10px] font-black uppercase tracking-widest">
+                          {item.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Entry Type */}
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">
+                    Entry Type
+                  </h4>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { id: null, label: "Any" },
+                      { id: false, label: "Free" },
+                      { id: true, label: "Paid" },
+                    ].map((item) => (
+                      <button
+                        key={String(item.id)}
+                        onClick={() => setIsPaidFilter(item.id)}
+                        className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all duration-300 ${
+                          isPaidFilter === item.id
+                            ? "bg-white border-indigo-600 text-indigo-600 shadow-lg shadow-indigo-100"
+                            : "bg-white border-slate-100 text-slate-400 hover:border-indigo-100 hover:text-slate-600"
+                        }`}
+                      >
                         <span className="text-[10px] font-black uppercase tracking-widest">
                           {item.label}
                         </span>

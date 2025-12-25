@@ -11,7 +11,7 @@ async function getOrganizersWithStats() {
 
     // 1. Get all organizers
     const organizers = await User.find({ role: "organizer" })
-      .select("name email imageUrl description followers")
+      .select("name email imageUrl coverImageUrl description followers")
       .lean();
 
     // 2. For each organizer, fetch their events to calculate stats

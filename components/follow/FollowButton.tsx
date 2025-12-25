@@ -8,7 +8,8 @@ interface FollowButtonProps {
   organizerId: string;
   initialIsFollowing: boolean;
   initialFollowerCount: number;
-  className?: string; // Allow custom styling
+  className?: string;
+  showCount?: boolean;
 }
 
 export default function FollowButton({
@@ -16,6 +17,7 @@ export default function FollowButton({
   initialIsFollowing,
   initialFollowerCount,
   className = "",
+  showCount = true,
 }: FollowButtonProps) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [followerCount, setFollowerCount] = useState(initialFollowerCount);
@@ -58,9 +60,11 @@ export default function FollowButton({
         )}
         <span>{isFollowing ? "Following" : "Follow"}</span>
       </button>
-      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-        {followerCount} {followerCount === 1 ? "Follower" : "Followers"}
-      </span>
+      {showCount && (
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+          {followerCount} {followerCount === 1 ? "Follower" : "Followers"}
+        </span>
+      )}
     </div>
   );
 }

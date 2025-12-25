@@ -39,7 +39,8 @@ export async function GET(req: Request) {
     const organizerId = searchParams.get("organizerId");
     const search = searchParams.get("search");
     const category = searchParams.get("category");
-    const status = searchParams.get("status"); // 'active', 'finished', or null (both)
+    const status = searchParams.get("status"); // 'active', 'finished'
+    const isPaid = searchParams.get("isPaid"); // 'true' or 'false'
 
     const query: any = {};
     if (organizerId) {
@@ -67,6 +68,12 @@ export async function GET(req: Request) {
         { endsAt: { $lte: now } },
         { endsAt: { $exists: false }, startsAt: { $lte: now } },
       ];
+    }
+
+    if (isPaid === "true") {
+      query.isPaid = true;
+    } else if (isPaid === "false") {
+      query.isPaid = false;
     }
 
     const idsParam = searchParams.get("ids");
@@ -147,6 +154,9 @@ export async function GET(req: Request) {
         averageRating: e.averageRating || 0,
         ratingCount: e.ratingCount || 0,
         category: e.category,
+        isPaid: e.isPaid,
+        price: e.price,
+        whishNumber: e.whishNumber,
       };
     });
 
@@ -175,6 +185,9 @@ export async function POST(req: Request) {
       description,
       coverImageUrl,
       organizerId,
+      isPaid,
+      price,
+      whishNumber,
     } = body;
 
     // Basic validation
@@ -217,6 +230,9 @@ export async function POST(req: Request) {
       category: category || "Other",
       description: description || undefined,
       coverImageUrl: coverImageUrl || undefined,
+      isPaid,
+      price: isPaid ? price : 0,
+      whishNumber: isPaid ? whishNumber : undefined,
     });
 
     // Add event to user's createdEvents array

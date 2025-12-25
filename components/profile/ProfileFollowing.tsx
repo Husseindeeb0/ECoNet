@@ -38,45 +38,81 @@ export default function ProfileFollowing() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {following.map((org: any, index: number) => (
             <AnimatedCard key={org._id} delay={index * 0.1}>
-              <div className="group relative flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300">
-                <Link
-                  href={`/organizers/${org._id}`}
-                  className="shrink-0 relative"
-                >
-                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm group-hover:scale-105 transition-transform">
-                    {org.imageUrl ? (
-                      <Image
-                        src={org.imageUrl}
-                        alt={org.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold text-lg">
-                        {org.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-
-                <div className="flex-1 min-w-0">
-                  <Link href={`/organizers/${org._id}`} className="block">
-                    <h3 className="font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
-                      {org.name}
-                    </h3>
+              <div
+                className={`group relative flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-slate-50/50 transition-all duration-300 ${
+                  org.role === "organizer"
+                    ? "hover:bg-white hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/10"
+                    : "cursor-default"
+                }`}
+              >
+                {org.role === "organizer" ? (
+                  <Link
+                    href={`/organizers/${org._id}`}
+                    className="shrink-0 relative"
+                  >
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm group-hover:scale-105 transition-transform">
+                      {org.imageUrl ? (
+                        <Image
+                          src={org.imageUrl}
+                          alt={org.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold text-lg">
+                          {org.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
                   </Link>
-                  <p className="text-xs font-medium text-slate-500 truncate">
-                    {org.followersCount} Followers
-                  </p>
-                </div>
+                ) : (
+                  <div className="shrink-0 relative">
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                      {org.imageUrl ? (
+                        <Image
+                          src={org.imageUrl}
+                          alt={org.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-lg">
+                          {org.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
-                <div className="shrink-0 flex items-center">
-                  <FollowButton
-                    organizerId={org._id}
-                    initialIsFollowing={true}
-                    initialFollowerCount={org.followersCount}
-                    className="scale-75 origin-right translate-x-3"
-                  />
+                <div className="flex flex-col gap-2 items-left">
+                  <div className="flex-1 min-w-0 pr-4">
+                    {org.role === "organizer" ? (
+                      <Link href={`/organizers/${org._id}`} className="block">
+                        <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">
+                          {org.name}
+                        </h3>
+                      </Link>
+                    ) : (
+                      <h3 className="font-bold text-slate-900 leading-tight">
+                        {org.name}
+                      </h3>
+                    )}
+                    <p className="text-xs font-medium text-slate-500 mt-0.5">
+                      {org.role === "organizer"
+                        ? `${org.followersCount} Followers`
+                        : "Normal User"}
+                    </p>
+                  </div>
+
+                  <div className="shrink-0 flex items-center pr-2">
+                    <FollowButton
+                      organizerId={org._id}
+                      initialIsFollowing={true}
+                      initialFollowerCount={org.followersCount}
+                      showCount={false}
+                      className="scale-90 origin-right"
+                    />
+                  </div>
                 </div>
               </div>
             </AnimatedCard>

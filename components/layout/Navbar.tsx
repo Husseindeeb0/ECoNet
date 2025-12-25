@@ -11,6 +11,7 @@ import {
   MessageSquare,
   LayoutDashboard,
   Users,
+  ClipboardCheck,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAppSelector } from "@/redux/store";
@@ -176,25 +177,35 @@ export const Navbar = () => {
                         <Link
                           href="/profile"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                          className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
                         >
                           <UserCircle className="h-4 w-4 mr-3 text-indigo-500" />
                           Profile
                         </Link>
                         {userRole === "organizer" && (
-                          <Link
-                            href="/myEvents"
-                            onClick={() => setShowProfileMenu(false)}
-                            className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                          >
-                            <LayoutDashboard className="h-4 w-4 mr-3 text-indigo-500" />
-                            Organizer Hub
-                          </Link>
+                          <>
+                            <Link
+                              href="/myEvents"
+                              onClick={() => setShowProfileMenu(false)}
+                              className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
+                            >
+                              <LayoutDashboard className="h-4 w-4 mr-3 text-indigo-500" />
+                              Organizer Hub
+                            </Link>
+                            <Link
+                              href="/requests"
+                              onClick={() => setShowProfileMenu(false)}
+                              className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
+                            >
+                              <ClipboardCheck className="h-4 w-4 mr-3 text-indigo-500" />
+                              Requests
+                            </Link>
+                          </>
                         )}
                         <Link
                           href="/feedback"
                           onClick={() => setShowProfileMenu(false)}
-                          className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                          className="flex items-center px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer"
                         >
                           <MessageSquare className="h-4 w-4 mr-3 text-indigo-500" />
                           Feedback
@@ -203,7 +214,7 @@ export const Navbar = () => {
                       <div className="border-t border-gray-100 mt-1 pt-1">
                         <button
                           onClick={handleLogout}
-                          className="flex items-center w-full px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                          className="flex items-center w-full px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         >
                           <LogOut className="h-4 w-4 mr-3" />
                           Logout
@@ -348,6 +359,22 @@ export const Navbar = () => {
                       >
                         <LayoutDashboard className="h-5 w-5 text-indigo-400" />
                         <span>Organizer Hub</span>
+                      </Link>
+                    </motion.div>
+                  )}
+                  {userRole === "organizer" && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: 0.23 }}
+                    >
+                      <Link
+                        href="/requests"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center space-x-3 text-white/70 hover:bg-white/10 hover:text-white px-4 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all duration-300"
+                      >
+                        <ClipboardCheck className="h-5 w-5 text-indigo-400" />
+                        <span>Requests</span>
                       </Link>
                     </motion.div>
                   )}

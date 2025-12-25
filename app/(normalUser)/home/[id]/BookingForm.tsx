@@ -11,11 +11,18 @@ import { useRouter } from "next/navigation";
 export default function BookingForm({
   eventId,
   initialBooking,
+  isPaid,
+  price,
+  whishNumber,
 }: {
   eventId: string;
   initialBooking?: any;
+  isPaid?: boolean;
+  price?: number;
+  whishNumber?: string;
 }) {
   const router = useRouter();
+  const [isResubmitting, setIsResubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,6 +35,23 @@ export default function BookingForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPaid) {
+      // For paid events, we open Whish and then send a pending request
+      const whishUrl = `https://whish.money/pay/${encodeURIComponent(
+        whishNumber || ""
+      )}?amount=${price}`;
+      window.open(whishUrl, "_blank");
+
+      try {
+        await bookEvent({ eventId, ...formData, seats: 1 }).unwrap();
+        router.push(`?requestSent=true`);
+        router.refresh();
+      } catch (error: any) {
+        alert(error.data?.message || "Failed to send booking request");
+      }
+      return;
+    }
+
     try {
       await bookEvent({ eventId, ...formData, seats: 1 }).unwrap();
       router.push(`?booked=true`);
@@ -50,35 +74,105 @@ export default function BookingForm({
     }
   };
 
-  if (initialBooking) {
+  if (initialBooking && !isResubmitting) {
+    const isPending = initialBooking.status === "pending";
+    const isRejected = initialBooking.status === "rejected";
+
     return (
       <div className="space-y-6">
-        <div className="rounded-xl bg-green-50 border border-green-200 p-4">
+        <div
+          className={`rounded-xl border p-4 ${
+            isPending
+              ? "bg-amber-50 border-amber-200"
+              : isRejected
+              ? "bg-red-50 border-red-200"
+              : "bg-green-50 border-green-200"
+          }`}
+        >
           <div className="flex items-center gap-3 mb-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600">
-              <CheckCircle2 className="h-5 w-5" />
+            <div
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                isPending
+                  ? "bg-amber-100 text-amber-600"
+                  : isRejected
+                  ? "bg-red-100 text-red-600"
+                  : "bg-green-100 text-green-600"
+              }`}
+            >
+              {isPending ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : isRejected ? (
+                <XCircle className="h-5 w-5" />
+              ) : (
+                <CheckCircle2 className="h-5 w-5" />
+              )}
             </div>
-            <h4 className="font-semibold text-green-900">Booking Confirmed</h4>
+            <h4
+              className={`font-semibold ${
+                isPending
+                  ? "text-amber-900"
+                  : isRejected
+                  ? "text-red-900"
+                  : "text-green-900"
+              }`}
+            >
+              {isPending
+                ? "Request Pending"
+                : isRejected
+                ? "Request Rejected"
+                : "Booking Confirmed"}
+            </h4>
           </div>
+          <p className="text-xs text-slate-600">
+            {isPending
+              ? "Your request has been sent to the organizer for approval. They will verify your payment and confirm your booking."
+              : isRejected
+              ? "Your booking request was rejected by the organizer."
+              : "You're all set! Your spot has been reserved."}
+          </p>
         </div>
 
-        <button
-          onClick={handleCancel}
-          disabled={isCancelling}
-          className="w-full rounded-xl bg-red-50 px-6 py-3 text-sm font-semibold text-red-600 border border-red-200 shadow-sm transition-all hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isCancelling ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Cancelling...
-            </>
-          ) : (
-            <>
-              <XCircle className="h-4 w-4" />
-              Cancel Booking
-            </>
-          )}
-        </button>
+        {!isRejected && (
+          <button
+            onClick={handleCancel}
+            disabled={isCancelling}
+            className="w-full rounded-xl bg-red-50 px-6 py-3 text-sm font-semibold text-red-600 border border-red-200 shadow-sm transition-all hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {isCancelling ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {isPending ? "Withdrawing..." : "Cancelling..."}
+              </>
+            ) : (
+              <>
+                <XCircle className="h-4 w-4" />
+                {isPending ? "Withdraw Request" : "Cancel Booking"}
+              </>
+            )}
+          </button>
+        )}
+
+        {isRejected && (
+          <button
+            onClick={async () => {
+              // First delete the rejected booking so we can create a new one
+              try {
+                await cancelBooking(initialBooking._id).unwrap();
+                setIsResubmitting(true);
+              } catch (err: any) {
+                alert(err.data?.message || "Failed to reset request");
+              }
+            }}
+            className="w-full rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-200 transition-all hover:bg-purple-700 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <Loader2
+              className={`h-4 w-4 animate-spin ${
+                isCancelling ? "block" : "hidden"
+              }`}
+            />
+            Try Again / Resubmit
+          </button>
+        )}
       </div>
     );
   }
@@ -148,12 +242,23 @@ export default function BookingForm({
       <button
         type="submit"
         disabled={isBooking}
-        className="w-full rounded-xl bg-linear-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className={`w-full rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer ${
+          isPaid
+            ? "bg-linear-to-r from-emerald-600 to-teal-600 shadow-emerald-500/30 hover:from-emerald-700 hover:to-teal-700 hover:shadow-emerald-500/40 focus:ring-emerald-500"
+            : "bg-linear-to-r from-purple-600 to-blue-600 shadow-purple-500/30 hover:from-purple-700 hover:to-blue-700 hover:shadow-purple-500/40 focus:ring-purple-500"
+        }`}
       >
         {isBooking ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Booking...
+            {isPaid ? "Sending Request..." : "Booking..."}
+          </>
+        ) : isPaid ? (
+          <>
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86l-2.04-1.2c-.19-.11-.42-.11-.61 0l-2.04 1.2c-.19.11-.31.31-.31.53v2.4c0 .22.12.42.31.53l2.04 1.2c.19.11.42.11.61 0l2.04-1.2c.19-.11.31-.31.31-.53v-2.4c0-.22-.12-.42-.31-.53z" />
+            </svg>
+            Pay via Whish & Request
           </>
         ) : (
           "Reserve Your Spot"

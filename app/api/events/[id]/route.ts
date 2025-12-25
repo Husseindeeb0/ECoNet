@@ -84,6 +84,10 @@ export async function PUT(request: Request, { params }: Params) {
     if (typeof body.category === "string")
       update.category = body.category.trim();
     if (typeof body.posterUrl === "string") update.posterUrl = body.posterUrl;
+    if (typeof body.isPaid === "boolean") update.isPaid = body.isPaid;
+    if (typeof body.price === "number") update.price = body.price;
+    if (typeof body.whishNumber === "string")
+      update.whishNumber = body.whishNumber.trim();
 
     // capacity handling (number)
     if (typeof body.capacity === "number") {

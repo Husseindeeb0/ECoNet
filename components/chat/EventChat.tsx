@@ -47,9 +47,16 @@ export default function EventChat({
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (comments.length > 0) {
+      scrollToBottom();
+    }
+  }, [comments.length]);
 
   const handleScrollToReply = (replyId?: string) => {
     if (!replyId) return;

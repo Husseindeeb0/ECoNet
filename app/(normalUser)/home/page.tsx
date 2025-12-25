@@ -15,10 +15,12 @@ export default function EventsPage() {
     search: string;
     category: string;
     status: "active" | "finished" | "";
+    isPaid?: boolean | null;
   }>({
     search: "",
     category: "All",
     status: "",
+    isPaid: null,
   });
 
   const {
@@ -28,6 +30,7 @@ export default function EventsPage() {
   } = useGetEventsQuery({
     ...filters,
     status: filters.status || undefined,
+    isPaid: filters.isPaid === null ? undefined : String(filters.isPaid),
   });
   const events = data?.events || [];
 

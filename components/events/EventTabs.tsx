@@ -40,7 +40,7 @@ export default function EventTabs({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`relative px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
+            className={`relative px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
               activeTab === tab.id
                 ? "text-white shadow-md shadow-purple-500/20"
                 : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"

@@ -7,6 +7,7 @@ import ProfileHeader from "../../../components/profile/ProfileHeader";
 import ProfileInfo from "../../../components/profile/ProfileInfo";
 import ProfileAttendedEvents from "../../../components/profile/ProfileAttendedEvents";
 import ProfileFollowing from "../../../components/profile/ProfileFollowing";
+import ProfileFollowers from "../../../components/profile/ProfileFollowers";
 import EditCoverForm from "../../../components/profile/EditCoverForm";
 import EditProfileForm from "../../../components/profile/EditProfileForm";
 import { useState } from "react";
@@ -47,7 +48,13 @@ export default function ProfilePage() {
                 <ProfileFollowing />
               </AnimatedCard>
             </div>
-            {/* Followers section removed as regular users don't have followers */}
+            {user?.role === "organizer" && (
+              <div className="mt-8">
+                <AnimatedCard delay={0.5}>
+                  <ProfileFollowers />
+                </AnimatedCard>
+              </div>
+            )}
           </div>
         </div>
       </div>

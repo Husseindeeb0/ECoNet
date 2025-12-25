@@ -31,6 +31,10 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
     ? new Date(startsAt) < now
     : false;
 
+  const isPending = booking.status === "pending";
+  const isRejected = booking.status === "rejected";
+  const isConfirmed = booking.status === "confirmed";
+
   const dateObj = startsAt ? new Date(startsAt) : null;
   const isValidDate = dateObj && !isNaN(dateObj.getTime());
 
@@ -81,10 +85,20 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
             className={`inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-black tracking-wider uppercase shadow-sm border ${
               isFinished
                 ? "bg-slate-500 border-slate-600 text-white"
+                : isPending
+                ? "bg-amber-500 border-amber-600 text-white shadow-amber-200"
+                : isRejected
+                ? "bg-rose-500 border-rose-600 text-white shadow-rose-200"
                 : "bg-linear-to-r from-indigo-600 to-purple-600 border-indigo-400 text-white shadow-indigo-200"
             }`}
           >
-            {isFinished ? "Attended" : "Confirmed"}
+            {isFinished
+              ? "Attended"
+              : isPending
+              ? "Pending Approval"
+              : isRejected
+              ? "Rejected"
+              : "Confirmed"}
           </span>
         </div>
       </div>
@@ -224,10 +238,22 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
             </svg>
             <span
               className={`text-[11px] font-black uppercase tracking-widest ${
-                isFinished ? "text-slate-400" : "text-slate-500"
+                isFinished
+                  ? "text-slate-400"
+                  : isPending
+                  ? "text-amber-600"
+                  : isRejected
+                  ? "text-rose-600"
+                  : "text-slate-500"
               }`}
             >
-              Confirmed Spot
+              {isFinished
+                ? "Attended Event"
+                : isPending
+                ? "Pending Verification"
+                : isRejected
+                ? "Booking Rejected"
+                : "Confirmed Spot"}
             </span>
           </div>
 
@@ -253,7 +279,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
 
                 <Link
                   href={`/home/${eventId}`}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-200"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-200 cursor-pointer"
                 >
                   Details
                 </Link>
@@ -262,30 +288,36 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
               <>
                 <Link
                   href={`/home/${eventId}`}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 shadow-lg shadow-indigo-100"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 shadow-lg shadow-indigo-100 cursor-pointer"
                 >
                   Event Page
                 </Link>
-                <DownloadTicketButton
-                  event={{
-                    title: booking.title,
-                    location: booking.location,
-                    startsAt: booking.startsAt,
-                    description: booking.description,
-                    coverImageUrl: booking.coverImageUrl,
-                    organizer: booking.organizer,
-                  }}
-                  booking={{
-                    _id: booking._id,
-                    name: booking.name,
-                    phone: booking.phone,
-                    userId: booking.userId,
-                    seats: booking.numberOfSeats,
-                    numberOfSeats: booking.numberOfSeats,
-                  }}
-                  label="Ticket"
-                  className="flex-1 sm:flex-none px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all bg-white border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 flex items-center justify-center gap-2 cursor-pointer"
-                />
+                {!isRejected && (
+                  <DownloadTicketButton
+                    event={{
+                      title: booking.title,
+                      location: booking.location,
+                      startsAt: booking.startsAt,
+                      description: booking.description,
+                      coverImageUrl: booking.coverImageUrl,
+                      organizer: booking.organizer,
+                    }}
+                    booking={{
+                      _id: booking._id,
+                      name: booking.name,
+                      phone: booking.phone,
+                      userId: booking.userId,
+                      seats: booking.numberOfSeats,
+                      numberOfSeats: booking.numberOfSeats,
+                    }}
+                    label={isPending ? "Pending..." : "Ticket"}
+                    className={`flex-1 sm:flex-none px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-2 ${
+                      isPending
+                        ? "bg-amber-50 border-amber-200 text-amber-600 cursor-not-allowed opacity-75"
+                        : "bg-white border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 cursor-pointer"
+                    }`}
+                  />
+                )}
               </>
             )}
           </div>

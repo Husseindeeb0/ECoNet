@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       if (event.capacity) {
         const bookedCount = await Booking.countDocuments({
           event: eventId,
-          status: { $ne: "cancelled" },
+          status: { $in: ["confirmed", "pending"] },
         }).session(session);
 
         const availableSeats = event.capacity - bookedCount;
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       const existingBooking = await Booking.findOne({
         user: userId,
         event: eventId,
-        status: "confirmed",
+        status: { $in: ["confirmed", "pending"] },
       }).session(session);
 
       if (existingBooking) {
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
             user: userId,
             event: eventId,
             seats,
-            status: "confirmed",
+            status: event.isPaid ? "pending" : "confirmed",
             name,
             email,
             phone,
@@ -100,14 +100,16 @@ export async function POST(req: NextRequest) {
         { session }
       );
 
-      // Update user: add event to bookedEvents
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          $addToSet: { bookedEvents: eventId },
-        },
-        { session }
-      );
+      // Update user: add event to bookedEvents if confirmed
+      if (!event.isPaid) {
+        await User.findByIdAndUpdate(
+          userId,
+          {
+            $addToSet: { bookedEvents: eventId },
+          },
+          { session }
+        );
+      }
 
       // Update event availableSeats
       // Note: event is already fetched at line 39
@@ -129,10 +131,23 @@ export async function POST(req: NextRequest) {
         await createNotification({
           recipient: userId,
           type: "RESERVATION",
-          message: `You successfully reserved a spot for "${event.title}"`,
+          message: event.isPaid
+            ? `Your request for "${event.title}" has been sent and is waiting for organizer acceptance. We will notify you once verified.`
+            : `You successfully reserved a spot for "${event.title}"`,
           relatedEntityId: eventId,
           relatedEntityType: "Event",
         });
+
+        if (event.isPaid) {
+          // Notify organizer (only on website)
+          await createNotification({
+            recipient: event.organizerId,
+            type: "RESERVATION",
+            message: `${name} sent a booking request for "${event.title}". Please check it out and verify payment.`,
+            relatedEntityId: eventId,
+            relatedEntityType: "Event",
+          });
+        }
       } catch (error) {
         console.error("Failed to create reservation notification:", error);
       }
