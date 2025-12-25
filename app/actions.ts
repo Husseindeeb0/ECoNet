@@ -28,6 +28,9 @@ export async function createEventAction(formData: FormData) {
   const coverImageFileId = formData.get("coverImageFileId") as string;
   const speakersStr = formData.get("speakers") as string;
   const scheduleStr = formData.get("schedule") as string;
+  const isPaid = formData.get("isPaid") === "on";
+  const priceStr = formData.get("price") as string;
+  const whishNumber = formData.get("whishNumber") as string;
 
   if (
     !title ||
@@ -85,6 +88,9 @@ export async function createEventAction(formData: FormData) {
     coverImageFileId: imageFileId,
     speakers: speakers.length > 0 ? speakers : undefined,
     schedule: schedule.length > 0 ? schedule : undefined,
+    isPaid,
+    price: isPaid ? parseFloat(priceStr) || 0 : 0,
+    whishNumber: isPaid ? whishNumber : undefined,
   });
 
   // Add event to user's createdEvents array
@@ -186,6 +192,9 @@ export async function updateEventAction(formData: FormData) {
     const coverImageFileId = formData.get("coverImageFileId") as string;
     const speakersStr = formData.get("speakers") as string;
     const scheduleStr = formData.get("schedule") as string;
+    const isPaid = formData.get("isPaid") === "on";
+    const priceStr = formData.get("price") as string;
+    const whishNumber = formData.get("whishNumber") as string;
 
     if (
       !id ||
@@ -267,6 +276,9 @@ export async function updateEventAction(formData: FormData) {
       coverImageFileId: imageFileId,
       speakers: speakers.length > 0 ? speakers : undefined,
       schedule: schedule.length > 0 ? schedule : undefined,
+      isPaid,
+      price: isPaid ? parseFloat(priceStr) || 0 : 0,
+      whishNumber: isPaid ? whishNumber : undefined,
     });
 
     // Update attendedEvents for users based on new date
@@ -590,4 +602,133 @@ export async function rateEventAction(formData: FormData) {
 
   revalidatePath("/bookings");
   revalidatePath(`/home/${eventId}`);
+}
+
+export async function approveBookingAction(requestId: string) {
+  const currentUser = await requireOrganizer();
+  await connectDb();
+
+  const booking = await Booking.findById(requestId).populate("event");
+  if (!booking) throw new Error("Booking request not found");
+
+  const event = booking.event as any;
+  if (event.organizerId !== currentUser.userId) {
+    throw new Error("Unauthorized");
+  }
+
+  booking.status = "confirmed";
+  await booking.save();
+
+  // Add event to user's bookedEvents array if not already there
+  await User.findByIdAndUpdate(booking.user, {
+    $addToSet: { bookedEvents: event._id },
+  });
+
+  // Notify user
+  const { createNotification } = await import("@/lib/notifications");
+  await createNotification({
+    recipient: booking.user.toString(),
+    type: "RESERVATION",
+    message: `Your booking request for "${event.title}" has been approved!`,
+    relatedEntityId: event._id.toString(),
+    relatedEntityType: "Event",
+  });
+
+  // Send email to user
+  try {
+    const { sendEmail } = await import("@/lib/sendEmail");
+    const user = await User.findById(booking.user).select("email name");
+    if (user) {
+      await sendEmail({
+        to: user.email,
+        subject: `✅ Booking Approved: ${event.title}`,
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
+              <h2 style="color: #4f46e5;">Booking Approved!</h2>
+              <p>Hello ${user.name || "there"},</p>
+              <p>Great news! Your booking request for <strong>${
+                event.title
+              }</strong> has been approved by the organizer.</p>
+              <p>You can now view your ticket in the "My Bookings" section of the website.</p>
+              <div style="margin: 20px 0; padding: 15px; background-color: #f8fafc; border-radius: 8px;">
+                <p style="margin: 0;"><strong>Event:</strong> ${event.title}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Status:</strong> Confirmed</p>
+              </div>
+              <p>Enjoy the event!</p>
+              <p>Best regards,<br/>The EventHub Team</p>
+            </div>
+          `,
+      });
+    }
+  } catch (emailErr) {
+    console.error("Failed to send approval email:", emailErr);
+  }
+
+  revalidatePath("/requests");
+  return { success: true };
+}
+
+export async function rejectBookingAction(requestId: string) {
+  const currentUser = await requireOrganizer();
+  await connectDb();
+
+  const booking = await Booking.findById(requestId).populate("event");
+  if (!booking) throw new Error("Booking request not found");
+
+  const event = booking.event as any;
+  if (event.organizerId !== currentUser.userId) {
+    throw new Error("Unauthorized");
+  }
+
+  booking.status = "rejected";
+  await booking.save();
+
+  // Restore event capacity if applicable
+  if (event.capacity) {
+    await Event.findByIdAndUpdate(event._id, {
+      $inc: { availableSeats: booking.seats },
+    });
+  }
+
+  // Notify user
+  const { createNotification } = await import("@/lib/notifications");
+  await createNotification({
+    recipient: booking.user.toString(),
+    type: "CANCELLATION",
+    message: `Your booking request for "${event.title}" was not approved.`,
+    relatedEntityId: event._id.toString(),
+    relatedEntityType: "Event",
+  });
+
+  // Send email to user
+  try {
+    const { sendEmail } = await import("@/lib/sendEmail");
+    const user = await User.findById(booking.user).select("email name");
+    if (user) {
+      await sendEmail({
+        to: user.email,
+        subject: `❌ Booking Request Not Approved: ${event.title}`,
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
+              <h2 style="color: #e11d48;">Request Not Approved</h2>
+              <p>Hello ${user.name || "there"},</p>
+              <p>We're sorry, but your booking request for <strong>${
+                event.title
+              }</strong> was not approved by the organizer.</p>
+              <p>If you believe this is a mistake or have already made the payment, please contact the organizer directly.</p>
+              <div style="margin: 20px 0; padding: 15px; background-color: #f8fafc; border-radius: 8px;">
+                <p style="margin: 0;"><strong>Event:</strong> ${event.title}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Status:</strong> Not Approved</p>
+              </div>
+              <p>Best regards,<br/>The EventHub Team</p>
+            </div>
+          `,
+      });
+    }
+  } catch (emailErr) {
+    console.error("Failed to send rejection email:", emailErr);
+  }
+
+  revalidatePath("/requests");
+  return { success: true };
 }

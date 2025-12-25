@@ -26,6 +26,7 @@ export interface Booking {
     email: string;
     imageUrl?: string;
   } | null;
+  status: "confirmed" | "cancelled" | "attended" | "pending" | "rejected";
 }
 
 export const bookingsApi = api.injectEndpoints({

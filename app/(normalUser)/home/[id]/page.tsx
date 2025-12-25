@@ -38,7 +38,7 @@ async function getBookedCount(eventId: string) {
     await connectDb();
     return await Booking.countDocuments({
       event: eventId,
-      status: { $ne: "cancelled" },
+      status: "confirmed",
     });
   } catch (error) {
     return 0;
@@ -88,8 +88,8 @@ export default async function EventDetailsPage({
 }: {
   params: Promise<{ id: string }> | { id: string };
   searchParams:
-    | Promise<{ booked?: string; cancelled?: string }>
-    | { booked?: string; cancelled?: string };
+    | Promise<{ booked?: string; cancelled?: string; requestSent?: string }>
+    | { booked?: string; cancelled?: string; requestSent?: string };
 }) {
   const resolvedParams = await Promise.resolve(params);
   const resolvedSearchParams = await Promise.resolve(searchParams);
@@ -550,6 +550,39 @@ export default async function EventDetailsPage({
             </AnimatedSuccessMessage>
           )}
 
+          {resolvedSearchParams?.requestSent === "true" && (
+            <AnimatedSuccessMessage>
+              <div className="mb-8 rounded-2xl bg-linear-to-r from-amber-500 to-orange-500 p-6 text-white shadow-lg ring-4 ring-amber-100">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold uppercase tracking-tight">
+                      Request Sent!
+                    </h3>
+                    <p className="text-sm font-medium text-white/90">
+                      Your booking request has been sent. The organizer will
+                      verify your payment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </AnimatedSuccessMessage>
+          )}
+
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
@@ -664,37 +697,44 @@ export default async function EventDetailsPage({
 
                   {/* Organizer & Follow */}
                   {organizer && (
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-indigo-50/50 border border-indigo-100/50 sm:col-span-2 lg:col-span-1 min-w-0">
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        {organizer.imageUrl ? (
-                          <img
-                            src={organizer.imageUrl}
-                            alt={organizer.name}
-                            className="h-9 w-9 rounded-full object-cover ring-2 ring-indigo-100 shrink-0"
-                          />
-                        ) : (
-                          <div className="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shrink-0 text-sm">
-                            {organizer.name.charAt(0)}
-                          </div>
-                        )}
-                        <div className="min-w-0 pr-2">
-                          <p className="text-[9px] font-black uppercase text-indigo-400 tracking-wider leading-none mb-0.5">
-                            Organizer
-                          </p>
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-indigo-50/70 border sm:col-span-2 lg:col-span-1 min-w-0 shadow-sm">
+                      <div className="flex flex-col items-start gap-2.5 min-w-0 flex-1">
+                        <Link
+                          href={`/organizers/${organizer._id}`}
+                          className="shrink-0 group"
+                        >
+                          {organizer.imageUrl ? (
+                            <img
+                              src={organizer.imageUrl}
+                              alt={organizer.name}
+                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-105 transition-transform text-lg">
+                              {organizer.name.charAt(0)}
+                            </div>
+                          )}
+                        </Link>
+                        <div className="min-w-0 w-full">
                           <Link
                             href={`/organizers/${organizer._id}`}
-                            className="font-bold text-slate-800 hover:text-indigo-600 transition-colors truncate block text-sm"
+                            className="font-black text-slate-900 hover:text-indigo-600 transition-colors block text-sm leading-tight truncate"
                           >
                             {organizer.name}
                           </Link>
+                          <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider">
+                            {organizer.followers.length} Followers
+                          </p>
                         </div>
                       </div>
                       {currentUser && currentUser.userId !== organizer._id && (
-                        <div className="shrink-0 scale-90 origin-right">
+                        <div className="shrink-0 flex items-center h-full ml-4">
                           <FollowButton
                             organizerId={organizer._id}
                             initialIsFollowing={isFollowing}
                             initialFollowerCount={organizer.followers.length}
+                            showCount={false}
+                            className="scale-90 origin-right translate-y-1"
                           />
                         </div>
                       )}
@@ -742,10 +782,18 @@ export default async function EventDetailsPage({
                       </span>
                       <span
                         className={`text-[13px] font-black ${
-                          isFinished ? "text-slate-400" : "text-indigo-600"
+                          isFinished
+                            ? "text-slate-400"
+                            : event.isPaid
+                            ? "text-emerald-600"
+                            : "text-indigo-600"
                         }`}
                       >
-                        {isFinished ? "Closed" : "Free Entry"}
+                        {isFinished
+                          ? "Closed"
+                          : event.isPaid
+                          ? `$${event.price}`
+                          : "Free Entry"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -853,6 +901,9 @@ export default async function EventDetailsPage({
                           ? JSON.parse(JSON.stringify(userBooking))
                           : null
                       }
+                      isPaid={event.isPaid}
+                      price={event.price}
+                      whishNumber={event.whishNumber}
                     />
                   )}
                 </div>

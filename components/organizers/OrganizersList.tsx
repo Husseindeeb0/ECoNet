@@ -22,6 +22,7 @@ interface Organizer {
   name: string;
   email: string;
   imageUrl?: string;
+  coverImageUrl?: string;
   description?: string;
   followers: string[];
   averageRating: number;
@@ -335,8 +336,18 @@ export default function OrganizersList({
             return (
               <AnimatedCard key={organizer._id} delay={index * 0.05}>
                 <div className="group bg-white rounded-4xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100 transition-all duration-500 flex flex-col h-full">
-                  {/* Header/Cover Placeholder */}
-                  <div className="relative h-32 bg-linear-to-r from-indigo-600 to-purple-600">
+                  {/* Header/Cover Image */}
+                  <div className="relative h-32">
+                    <Image
+                      src={
+                        organizer.coverImageUrl ||
+                        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop"
+                      }
+                      alt="Cover"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-indigo-900/20" />
                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
                     <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1.5 border border-white/30">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />

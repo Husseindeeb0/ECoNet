@@ -39,6 +39,9 @@ export interface IEvent extends Document {
   schedule?: IScheduleItem[];
   averageRating?: number;
   ratingCount?: number;
+  isPaid: boolean;
+  price?: number;
+  whishNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -94,6 +97,17 @@ const EventSchema = new Schema<IEvent>(
       default: "Other",
     },
     description: {
+      type: String,
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
+    price: {
+      type: Number,
+      default: 0,
+    },
+    whishNumber: {
       type: String,
     },
     speakers: [

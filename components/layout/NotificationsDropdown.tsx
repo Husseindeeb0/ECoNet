@@ -84,13 +84,13 @@ export default function NotificationsDropdown() {
             <div className="flex gap-3 text-xs font-medium">
               <button
                 onClick={handleMarkAllAsRead}
-                className="text-blue-600 hover:text-blue-700 transition flex items-center gap-1"
+                className="text-blue-600 hover:text-blue-700 transition flex items-center gap-1 cursor-pointer"
               >
                 <CheckCircle size={12} /> Mark all read
               </button>
               <button
                 onClick={handleClearAll}
-                className="text-gray-500 hover:text-red-600 transition flex items-center gap-1"
+                className="text-gray-500 hover:text-red-600 transition flex items-center gap-1 cursor-pointer"
               >
                 <Trash2 size={12} /> Clear all
               </button>
@@ -141,7 +141,7 @@ export default function NotificationsDropdown() {
                       onClick={(e) =>
                         handleDeleteNotification(notification._id, e)
                       }
-                      className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1 self-start"
+                      className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1 self-start cursor-pointer"
                       title="Delete"
                     >
                       <X size={16} />

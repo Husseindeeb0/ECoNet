@@ -69,6 +69,14 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
               {isFinished ? "Ended" : full ? "Sold Out" : "Join Now"}
             </span>
           </div>
+
+          {e.isPaid && e.price && (
+            <div className="absolute top-3 left-3">
+              <span className="inline-flex items-center rounded-lg bg-emerald-500/90 backdrop-blur-sm px-2.5 py-1 text-[10px] font-black tracking-wider uppercase text-white shadow-lg border border-emerald-400/50">
+                ${e.price}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 p-5">
@@ -276,11 +284,24 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
             </div>
           </div>
 
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+              Ticket
+            </span>
+            <span
+              className={`text-[13px] font-black ${
+                e.isPaid ? "text-emerald-600" : "text-indigo-600"
+              }`}
+            >
+              {e.isPaid && e.price ? `$${e.price}` : "FREE"}
+            </span>
+          </div>
+
           {showManage ? (
             <div className="flex items-center gap-2">
               <Link
                 href={`/attendees?eventId=${e.id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-indigo-600 to-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/40"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-indigo-600 to-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/40 cursor-pointer"
                 title="View Attendees"
               >
                 <svg
@@ -300,7 +321,7 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
               </Link>
               <Link
                 href={`/home/${e.id}/edit`}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-purple-600 to-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-lg hover:shadow-purple-500/40"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-purple-600 to-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-lg hover:shadow-purple-500/40 cursor-pointer"
               >
                 Manage
                 <svg
@@ -321,14 +342,14 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
           ) : isFinished ? (
             <Link
               href={`/home/${e.id}`}
-              className="inline-flex items-center justify-center rounded-xl bg-slate-200 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-300 shadow-sm"
+              className="inline-flex items-center justify-center rounded-xl bg-slate-200 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-300 shadow-sm cursor-pointer"
             >
               Details
             </Link>
           ) : (
             <Link
               href={`/home/${e.id}`}
-              className="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 shadow-lg shadow-indigo-100 ring-4 ring-indigo-50"
+              className="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 shadow-lg shadow-indigo-100 ring-4 ring-indigo-50 cursor-pointer"
             >
               Book Now
             </Link>

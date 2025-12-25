@@ -16,6 +16,9 @@ export interface Event {
   organizerId?: string;
   averageRating?: number;
   ratingCount?: number;
+  isPaid?: boolean;
+  price?: number;
+  whishNumber?: string;
 }
 
 export interface Comment {
@@ -48,6 +51,9 @@ export interface CreateEventData {
   description?: string;
   coverImageUrl?: string;
   organizerId: string;
+  isPaid?: boolean;
+  price?: number;
+  whishNumber?: string;
 }
 
 export interface UpdateEventData extends Partial<CreateEventData> {
@@ -64,6 +70,7 @@ export const eventsApi = api.injectEndpoints({
         search?: string;
         category?: string;
         status?: "active" | "finished";
+        isPaid?: string;
       } | void
     >({
       query: (params) => {
@@ -83,6 +90,10 @@ export const eventsApi = api.injectEndpoints({
 
         if (params?.status) {
           queryParams.append("status", params.status);
+        }
+
+        if (params?.isPaid) {
+          queryParams.append("isPaid", params.isPaid);
         }
 
         if (params?.ids && params.ids.length > 0) {

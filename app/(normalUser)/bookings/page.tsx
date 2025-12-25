@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Ticket } from "lucide-react";
 import { useAppSelector } from "@/redux/store";
 import { useRouter } from "next/navigation";
