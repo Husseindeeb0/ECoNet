@@ -3,8 +3,9 @@ import Event from "@/models/Event";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/serverAuth";
 import LiveStreamClient from "./LiveStreamClient";
+import { EventDisplay } from "@/types";
 
-async function getEvent(id: string) {
+async function getEvent(id: string): Promise<Partial<EventDisplay> | null> {
   try {
     await connectDb();
     const event = await Event.findById(id).lean();
@@ -12,13 +13,15 @@ async function getEvent(id: string) {
     return {
       _id: (event._id as any).toString(),
       title: event.title,
-      category: event.category,
+      category: event.category || "Other",
       description: event.description,
       liveStreamUrl: event.liveStreamUrl,
       organizerId: event.organizerId,
       schedule: event.schedule,
-      startsAt: event.startsAt,
-      endsAt: event.endsAt,
+      startsAt: event.startsAt?.toISOString(),
+      endsAt: event.endsAt?.toISOString(),
+      isOnline: event.isOnline,
+      isPaid: event.isPaid,
     };
   } catch (error) {
     console.error("Database error in getEvent:", error);
@@ -65,15 +68,7 @@ export default async function LiveStreamPage({
 
   return (
     <LiveStreamClient
-      event={{
-        _id: event._id,
-        title: event.title,
-        category: event.category,
-        description: event.description,
-        liveStreamUrl: event.liveStreamUrl,
-        organizerId: event.organizerId,
-        schedule: event.schedule as any,
-      }}
+      event={event as EventDisplay}
       youtubeId={youtubeId}
       currentUserId={currentUser?.userId}
     />

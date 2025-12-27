@@ -1,12 +1,13 @@
 # 🎫 EventHub — AI-Powered Event Management Platform
 
-EventHub is a state-of-the-art, full-stack event management and discovery platform. Built with **Next.js 15**, it combines stunning modern aesthetics with powerful AI-driven assistance, real-time notifications, and a robust booking infrastructure.
+EventHub is a state-of-the-art, full-stack event management and discovery platform. Built with **Next.js 15**, it combines stunning modern aesthetics with powerful AI-driven assistance, real-time WebSocket communication, and a robust booking infrastructure.
 
 ---
 
 ## 🚀 Core Technology Stack
 
-- **Frontend**: [Next.js 15](https://nextjs.org/) (App Router), TypeScript, TailwindCSS
+- **Frontend**: [Next.js 15](https://nextjs.org/) (App Router & Pages Router hybrid), TypeScript, TailwindCSS
+- **Real-Time Engine**: [Socket.IO](https://socket.io/) (WebSockets) for instant chat and notifications.
 - **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/) with **RTK Query** for efficient data fetching and caching.
 - **Animations**: [Framer Motion](https://www.framer.com/motion/) for smooth, premium-feel transitions.
 - **Backend**: Next.js API Routes & Server Actions.
@@ -21,18 +22,22 @@ EventHub is a state-of-the-art, full-stack event management and discovery platfo
 
 ```text
 EventHub/
-├── app/                  # Next.js Pages & API Routes
+├── app/                  # Next.js App Router (Main Application)
 │   ├── (auth)/           # Authentication Flow
 │   ├── (normalUser)/     # Attendee dashboard & Event Discovery
 │   ├── (organization)/   # Organizer management tools
-│   ├── api/              # Backend Endpoints
+│   ├── api/              # Standard REST API Endpoints
 │   └── actions.ts        # Server-side direct mutations
+├── pages/                # Next.js Pages Router (Specialized)
+│   └── api/socket/       # Socket.IO Server Injection
 ├── components/           # Modular UI Components
 │   ├── ai/               # AI Assistant interface
-│   ├── events/           # Event-specific logic & UI
-│   ├── ticket/           # Ticket generation & PDF logic
+│   ├── chat/             # Real-time WebSocket Chat
+│   ├── socket/           # Global Socket Connection Logic
 │   └── ui/               # Primary design system elements
 ├── lib/                  # Utilities, DB, & Shared Logic
+│   ├── socket-client.ts  # Client-side Socket instance
+│   └── notifications.ts  # Server-side notification logic
 ├── middleware/           # Auth & Security Middleware
 ├── models/               # Mongoose Database Schemas
 ├── public/               # Static Assets
@@ -49,79 +54,71 @@ The project follows a modular, feature-based architecture designed for scalabili
 
 ### 1. `/app` — The Core (Next.js App Router)
 
-The `app` directory handles routing, layouts, and API endpoints.
+The `app` directory handles the main routing, layouts, and standard API endpoints.
 
-- **`(auth)`**: Contains all authentication-related pages (Login, Signup, Reset Password, Email Verification). Organized in a route group to keep auth logic isolated.
-- **`(normalUser)`**: Contains the main application experience for attendees.
-  - `/home`: Event discovery and detailed event pages.
+- **`(auth)`**: Contains all authentication-related pages (Login, Signup, Reset Password). Organized in a route group to keep auth logic isolated.
+- **`(normalUser)`**: The main application experience for attendees.
+  - `/home`: Event discovery with advanced filtering.
   - `/bookings`: Personal booking history and ticket management.
-  - `/profile`: User account settings and following management.
-  - `/feedback`: General platform feedback center.
-- **`(organization)`**: Exclusive routes for event organizers to create and manage their events.
-- **`/api`**: The backend of the application. Organized by resource (bookings, auth, events, ai, notifications).
-- **`actions.ts`**: Contains Next.js Server Actions for handling form submissions and direct database mutations.
+  - `/profile`: User account settings.
+- **`(organization)`**: Exclusive routes for event organizers to create and track their events.
+- **`/api`**: The REST backend. Organized by resource (events, auth, users, etc.).
 
-### 2. `/components` — Modular UI System
+### 2. `/pages` — Specialized Server Logic
 
-Components are categorized by their role in the application.
+- **`/pages/api/socket`**: This folder uses the older Page Router API structure specifically to access the underlying Node.js HTTP `NetServer`. This allows us to inject the **Socket.IO** server instance into the Next.js stack, enabling real-time WebSocket connections on the same port.
+
+### 3. `/components` — Modular UI System
 
 - **`/ai`**: The `AIChat` ecosystem, providing an intelligent assistant overlay.
-- **`/auth`**: Specialized authentication UI components like `AuthInitializer`.
-- **`/booking`**: Card representations and lists for user bookings.
-- **`/chat`**: Real-time event-specific chat components.
-- **`/events`**: Complex event-related components (Tabs, Booking Forms, Lists).
-- **`/layout`**: Global UI elements like the responsive Navbar and the `NotificationsDropdown`.
-- **`/ticket`**: Logic and UI for generating and downloading event tickets.
-- **`/ui`**: Shared, high-reusability components (Modals, Buttons, Loaders, Star Ratings).
-- **`/animations`**: Wrapper components for Framer Motion effects.
+- **`/chat`**: Real-time event discussion components. Powered by Socket.IO to receive messages instantly without polling.
+- **`/socket`**: Contains `SocketInitializer`, a logical component that manages the global WebSocket connection lifecycle and authentication state.
+- **`/layout`**: Global UI elements like the responsive `Navbar` and the real-time `NotificationsDropdown`.
+- **`/ui`**: Shared, high-reusability components (Modals, Custom Buttons, Loaders).
+- **`/animations`**: Wrapper components for complex Framer Motion effects.
 
-### 3. `/redux` — Global State & RTK Query
+### 4. `/redux` — Global State & RTK Query
 
 EventHub uses a centralized API-first state management strategy.
 
 - **`api.ts`**: The base API configuration with automated authentication header injection.
 - **`/features`**: Specialized API slices for each domain:
-  - `authApi`: Handles JWT flow, session recovery, and password resets.
-  - `bookingsApi`: Manages event reservations and cancellations.
-  - `eventsApi`: Handles event fetching and organizer management.
-  - `notificationsApi`: Real-time notification management.
-  - `aiApi`: Interface for Gemini AI chat interactions.
-- **`store.ts`**: The central Redux store configured with middleware for RTK Query.
+  - `authApi`: Handles JWT flow & session recovery.
+  - `eventsApi`: Manages event fetching, optimistic updates for chat, and mutations.
+  - `notificationsApi`: Manages user alerts (integrated with Socket.IO for real-time updates).
 
-### 4. `/lib` — Utilities & Core Logic
+### 5. `/lib` — Utilities & Core Logic
 
+- **`socket-client.ts`**: The client-side singleton for Socket.IO. It manages the connection state and provides the interface for components to emit/listen to events.
+- **`notifications.ts`**: Server-side logic that saves notifications to MongoDB and immediately emits them to the specific user via WebSockets.
 - **`connectDb.ts`**: Optimized MongoDB connection singleton.
-- **`notifications.ts`**: Server-side logic for creating and delivering in-app notifications.
-- **`serverAuth.ts`**: Helpers for validating sessions within Server Components and Actions.
-- **`imagekit.ts`**: Configuration for optimized image uploads and transformations.
+- **`serverAuth.ts`**: Helpers for validating sessions within Server Components.
 
-### 5. `/models` — Data Schemas (Mongoose)
+### 6. `/models` — Data Schemas (Mongoose)
 
 Strict TypeScript-enhanced schemas defining the database structure:
 
-- `User`: Profiles, roles, following count, and created/booked events.
+- `User`: Profiles, roles, following count.
 - `Event`: Timing, location, capacity, speakers, and schedule data.
 - `Booking`: Links users to events with seat management.
-- `Notification`: System alerts for reservations, cancellations, and new events.
-- `Feedback`: User-submitted ratings for the platform and events.
-
-### 6. `/middleware` — Security Layer
-
-- **`authMiddleware`**: Protects API routes by validating JWT cookies and ensuring only authorized users can access sensitive endpoints.
+- `Comment`: Event discussion messages with support for replies and pinning.
+- `Notification`: System alerts for reservations and interactions.
 
 ---
 
 ## 💎 Key Features
 
+- **Real-Time Interaction**: powered by **Socket.IO**:
+  - **Live Chat**: Discuss events instantly with other attendees. No page refreshes needed.
+  - **Instant Notifications**: Get alerted immediately when you receive a message or booking update.
 - **Intelligent AI Assistant**: A persistent chat console powered by Gemini that answers queries about upcoming events.
-- **Smart Notifications**: Real-time updates when events are booked, cancelled, or when organizers you follow post new events.
 - **Automated Ticket System**: Instant generation of digital tickets upon booking.
 - **Premium UI/UX**: Use of glassmorphism, dynamic gradients, and micro-animations for a high-end feel.
 - **Organizer Suite**: A dedicated workspace for creators to track capacity, manage speakers, and build event schedules.
 
 ---
 
-## �️ Getting Started
+## 🏗️ Getting Started
 
 1.  **Clone & Install**:
     ```bash
@@ -137,16 +134,5 @@ Strict TypeScript-enhanced schemas defining the database structure:
     ```bash
     npm run dev
     ```
-
----
-
-## 📜 Documentation & Schema
-
-For more detailed information, see:
-
-- `AUTH_README.md`: In-depth explanation of the security and authentication flow.
-- `DATABASE_SCHEMA.md`: Documentation for the Mongoose models and relationships.
-
----
 
 Developed with ❤️ by the EventHub Team.

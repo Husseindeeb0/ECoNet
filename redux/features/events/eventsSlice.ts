@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Event } from "./eventsApi";
+import { EventDisplay } from "@/types";
 
 interface EventsState {
-  selectedEvent: Event | null;
+  selectedEvent: EventDisplay | null;
   filter: string;
 }
 
@@ -15,7 +15,7 @@ const eventsSlice = createSlice({
   name: "events",
   initialState,
   reducers: {
-    selectEvent: (state, action: PayloadAction<Event>) => {
+    selectEvent: (state, action: PayloadAction<EventDisplay>) => {
       state.selectedEvent = action.payload;
     },
     clearSelectedEvent: (state) => {

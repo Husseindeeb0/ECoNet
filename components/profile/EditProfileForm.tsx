@@ -6,14 +6,10 @@ import { X, Loader2, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImageKitUpload from "@/components/imageKit/ImageKitUpload";
 
+import { UserProfile } from "@/types";
+
 interface EditProfileFormProps {
-  user: {
-    name: string;
-    email: string;
-    description?: string;
-    imageUrl?: string;
-    imageFileId?: string;
-  };
+  user: UserProfile;
   onClose: () => void;
 }
 

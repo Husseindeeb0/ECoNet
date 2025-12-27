@@ -1,10 +1,10 @@
 import { api } from "../../api";
-import { Booking } from "../bookings/bookingsApi";
+import { BookingDetails } from "@/types";
 
 export const requestsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getRequests: builder.query<
-      { success: boolean; requests: Booking[] },
+      { success: boolean; requests: BookingDetails[] },
       { eventId?: string }
     >({
       query: (params) => {

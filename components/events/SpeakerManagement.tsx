@@ -2,17 +2,7 @@
 
 import { useState } from "react";
 import ImageKitUpload from "@/components/imageKit/ImageKitUpload";
-
-export interface Speaker {
-  name: string;
-  title?: string;
-  bio?: string;
-  linkedinLink?: string;
-  instagramLink?: string;
-  twitterLink?: string;
-  profileImageUrl?: string;
-  profileImageFileId?: string;
-}
+import { ISpeaker as Speaker } from "@/types/event";
 
 interface SpeakerManagementProps {
   speakers: Speaker[];
@@ -123,7 +113,6 @@ export default function SpeakerManagement({
         </button>
       </div>
 
-      {/* Speaker Form */}
       {showForm && (
         <div className="bg-purple-50/50 dark:bg-slate-800/50 border-2 border-purple-100 dark:border-slate-700 p-5 rounded-xl mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -233,7 +222,6 @@ export default function SpeakerManagement({
         </div>
       )}
 
-      {/* Speakers List */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border-2 border-purple-100 dark:border-slate-800">
         {speakers.length > 0 ? (
           <ul className="divide-y divide-purple-100 dark:divide-slate-800">

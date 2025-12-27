@@ -275,15 +275,14 @@ export const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{
-              duration: 0.3,
-              ease: "easeInOut",
-              opacity: { duration: 0.2 },
+              duration: 0.2,
+              ease: "easeOut",
             }}
-            className="md:hidden bg-linear-to-b from-indigo-800 to-indigo-900 border-t border-white/5 shadow-2xl overflow-hidden"
+            className="absolute left-0 right-0 top-full md:hidden bg-linear-to-b from-indigo-800 to-indigo-900 border-t border-white/5 shadow-2xl overflow-hidden"
             id="mobile-menu"
           >
             <motion.div

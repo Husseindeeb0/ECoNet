@@ -17,7 +17,13 @@ export const createNotification = async (data: {
 }) => {
   try {
     await connectDb();
-    await Notification.create(data);
+    const notification = await Notification.create(data);
+
+    // Socket.io emit
+    const io = (global as any).io;
+    if (io) {
+      io.to(`user:${data.recipient}`).emit("new-notification", notification);
+    }
   } catch (error) {
     console.error("Failed to create notification inside lib:", error);
     console.error(

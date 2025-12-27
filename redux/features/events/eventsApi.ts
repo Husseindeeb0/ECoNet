@@ -1,44 +1,5 @@
 import { api } from "../../api";
-
-export interface Event {
-  id: string;
-  title: string;
-  location: string;
-  isOnline?: boolean;
-  meetingLink?: string;
-  category: string;
-  startsAt: string;
-  endsAt?: string;
-  coverImageUrl?: string;
-  capacity?: number;
-  description?: string;
-  bookedCount: number;
-  organizerId?: string;
-  averageRating?: number;
-  ratingCount?: number;
-  isPaid?: boolean;
-  price?: number;
-  whishNumber?: string;
-  liveStreamUrl?: string;
-}
-
-export interface Comment {
-  _id: string;
-  content: string;
-  user: {
-    _id: string;
-    name: string;
-    imageUrl?: string;
-  };
-  likes: string[];
-  isPinned: boolean;
-  replyTo?: {
-    _id: string;
-    user: { name: string };
-    content: string;
-  };
-  createdAt: string;
-}
+import { EventDisplay, CommentDisplay } from "@/types";
 
 export interface CreateEventData {
   title: string;
@@ -65,7 +26,7 @@ export interface UpdateEventData extends Partial<CreateEventData> {
 export const eventsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getEvents: builder.query<
-      { success: boolean; events: Event[] },
+      { success: boolean; events: EventDisplay[] },
       {
         organizerId?: string;
         ids?: string[];
@@ -108,20 +69,20 @@ export const eventsApi = api.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.events.map(({ id }) => ({
+              ...result.events.map((event) => ({
                 type: "Event" as const,
-                id,
+                id: event.id || event._id,
               })),
               { type: "Event", id: "LIST" },
             ]
           : [{ type: "Event", id: "LIST" }],
     }),
-    getEventById: builder.query<{ event: Event }, string>({
+    getEventById: builder.query<{ event: EventDisplay }, string>({
       query: (id) => `/events/${id}`,
       providesTags: (result, error, id) => [{ type: "Event", id }],
     }),
     createEvent: builder.mutation<
-      { success: boolean; event: Event },
+      { success: boolean; event: EventDisplay },
       CreateEventData
     >({
       query: (data) => ({
@@ -131,7 +92,7 @@ export const eventsApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Event", id: "LIST" }],
     }),
-    updateEvent: builder.mutation<{ event: Event }, UpdateEventData>({
+    updateEvent: builder.mutation<{ event: EventDisplay }, UpdateEventData>({
       query: ({ id, ...data }) => ({
         url: `/events/${id}`,
         method: "PUT",
@@ -149,14 +110,14 @@ export const eventsApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Event", id: "LIST" }],
     }),
-    getComments: builder.query<Comment[], string>({
+    getComments: builder.query<CommentDisplay[], string>({
       query: (eventId) => `/events/${eventId}/comments`,
       providesTags: (result, error, eventId) => [
         { type: "Comment", id: eventId },
       ],
     }),
     addComment: builder.mutation<
-      Comment,
+      CommentDisplay,
       { eventId: string; content: string; replyTo?: string }
     >({
       query: ({ eventId, ...body }) => ({

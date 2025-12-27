@@ -1,18 +1,9 @@
 import { api } from "../../api";
-
-export interface Notification {
-  _id: string;
-  type: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
-  relatedEntityId?: string;
-  relatedEntityType?: string;
-}
+import { NotificationDisplay } from "@/types";
 
 export interface NotificationsResponse {
   success: boolean;
-  notifications: Notification[];
+  notifications: NotificationDisplay[];
   unreadCount: number;
 }
 

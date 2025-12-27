@@ -10,21 +10,10 @@ import {
   MessageCircle,
   ExternalLink,
 } from "lucide-react";
+import { EventDisplay } from "@/types";
 
 interface LiveStreamClientProps {
-  event: {
-    _id: string;
-    title: string;
-    category?: string;
-    description?: string;
-    liveStreamUrl: string;
-    organizerId: string;
-    schedule?: Array<{
-      title: string;
-      startTime: string;
-      presenter?: string;
-    }>;
-  };
+  event: EventDisplay;
   youtubeId: string | null;
   currentUserId?: string;
 }
@@ -35,7 +24,7 @@ export default function LiveStreamClient({
   currentUserId,
 }: LiveStreamClientProps) {
   return (
-    <main className="min-h-screen bg-linear-to-br from-blue-100 via-indigo-100/60 via-purple-100/70 to-pink-100/50 dark:bg-transparent relative overflow-hidden flex flex-col">
+    <main className="min-h-screen relative overflow-hidden flex flex-col">
       {/* Background decorations */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(99,102,241,0.18),transparent_50%)] dark:hidden pointer-events-none"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(168,85,247,0.18),transparent_50%)] dark:hidden pointer-events-none"></div>
@@ -152,6 +141,7 @@ export default function LiveStreamClient({
                     <div className="space-y-4">
                       {event.schedule && event.schedule.length > 0 ? (
                         event.schedule
+                          .slice() // Clone before sort
                           .sort((a, b) =>
                             a.startTime.localeCompare(b.startTime)
                           )

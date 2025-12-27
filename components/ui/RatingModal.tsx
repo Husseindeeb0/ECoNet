@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, X } from "lucide-react";
 import { rateEventAction } from "@/app/actions";
+import toast from "react-hot-toast";
 
 interface RatingModalProps {
   isOpen: boolean;
@@ -30,10 +31,13 @@ export default function RatingModal({
       formData.append("eventId", eventId);
       formData.append("rating", rating.toString());
       await rateEventAction(formData);
+      toast.success("Rating submitted successfully!");
       onClose();
     } catch (error) {
       console.error(error);
-      alert("Failed to submit rating. You may have already rated this event.");
+      toast.error(
+        "Failed to submit rating. You may have already rated this event."
+      );
     } finally {
       setIsSubmitting(false);
     }

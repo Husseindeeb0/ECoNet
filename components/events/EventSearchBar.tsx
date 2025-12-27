@@ -69,7 +69,7 @@ const EventSearchBar: React.FC<EventSearchBarProps> = ({ onSearch }) => {
           <input
             type="text"
             placeholder="Search by event name..."
-            className="flex-1 px-4 py-6 text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none bg-transparent"
+            className="flex-1 min-w-0 px-4 py-6 text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none bg-transparent"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -222,14 +222,14 @@ const EventSearchBar: React.FC<EventSearchBarProps> = ({ onSearch }) => {
 
       {/* Quick Category Bar (Visible even when collapsed) */}
       {!isExpanded && (
-        <div className="mt-8 flex justify-center gap-3 overflow-x-auto pb-4 no-scrollbar">
+        <div className="mt-8 flex justify-start md:justify-center gap-3 overflow-x-auto pb-4 no-scrollbar px-4">
           {ALL_CATEGORIES.slice(0, 8).map(
             (cat) =>
               cat !== "All" && (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat === category ? "All" : cat)}
-                  className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-sm border-2 ${
+                  className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-sm border-2 shrink-0 ${
                     category === cat
                       ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-100"
                       : "bg-white/50 dark:bg-slate-900/50 backdrop-blur-md text-slate-400 dark:text-slate-400 border-white dark:border-slate-800 hover:border-indigo-100 hover:text-indigo-500"

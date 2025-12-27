@@ -19,8 +19,12 @@ import {
   useLikeCommentMutation,
   useDeleteCommentMutation,
   usePinCommentMutation,
-  Comment,
 } from "@/redux/features/events/eventsApi";
+import { CommentDisplay as Comment } from "@/types";
+
+import { socket } from "@/lib/socket-client";
+import { eventsApi } from "@/redux/features/events/eventsApi";
+import { useAppDispatch } from "@/redux/store";
 
 interface EventChatProps {
   eventId: string;
@@ -35,9 +39,45 @@ export default function EventChat({
   currentUserId,
   className,
 }: EventChatProps) {
-  const { data: comments = [], isLoading } = useGetCommentsQuery(eventId, {
-    pollingInterval: 5000,
-  });
+  const { data: comments = [], isLoading } = useGetCommentsQuery(eventId);
+
+  const dispatch = useAppDispatch();
+
+  // Socket.io integration
+  useEffect(() => {
+    // Only join if socket is connected (or try to ensure it logic elsewhere)
+    // Actually, we can emit even if disconnected, it buffers? No.
+    // We assume SocketInitializer handles the connection if auth.
+    // But even public users might want to see chat?
+    // The current socket logic in SocketInitializer only connects if authenticated.
+    // If we want public users to see chat updates, we might need to connect anonymously.
+    // For now, let's respect the existing auth-based connection logic globally.
+    // But if currentUserId is present, we should be connected.
+
+    if (currentUserId && !socket.connected) {
+      socket.connect();
+    }
+
+    socket.emit("join-event", eventId);
+
+    const handleNewComment = (newComment: Comment) => {
+      dispatch(
+        eventsApi.util.updateQueryData("getComments", eventId, (draft) => {
+          // Check if already exists to avoid duplicates
+          if (!draft.find((c) => c._id === newComment._id)) {
+            draft.push(newComment);
+          }
+        })
+      );
+    };
+
+    socket.on("new-comment", handleNewComment);
+
+    return () => {
+      socket.emit("leave-event", eventId);
+      socket.off("new-comment", handleNewComment);
+    };
+  }, [eventId, dispatch, currentUserId]);
 
   const [addComment, { isLoading: isSending }] = useAddCommentMutation();
   const [likeComment] = useLikeCommentMutation();

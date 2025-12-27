@@ -1,16 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-export interface ScheduleItem {
-  title: string;
-  startTime: string;
-  endTime?: string;
-  date?: string;
-  presenter?: string;
-  description?: string;
-  type?: "session" | "break" | "opening" | "closing";
-}
+import { IScheduleItem as ScheduleItem } from "@/types/event";
 
 interface ScheduleManagementProps {
   schedule: ScheduleItem[];
@@ -27,7 +18,6 @@ export default function ScheduleManagement({
     title: "",
     startTime: "",
     endTime: "",
-    date: "",
     presenter: "",
     description: "",
     type: "session",
@@ -76,7 +66,6 @@ export default function ScheduleManagement({
       title: "",
       startTime: "",
       endTime: "",
-      date: "",
       presenter: "",
       description: "",
       type: "session",
@@ -113,7 +102,6 @@ export default function ScheduleManagement({
         </button>
       </div>
 
-      {/* Schedule Form */}
       {showForm && (
         <div className="bg-indigo-50/50 dark:bg-slate-800/50 border-2 border-indigo-100 dark:border-slate-700 p-5 rounded-xl mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -156,7 +144,7 @@ export default function ScheduleManagement({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Start Time *
@@ -177,18 +165,6 @@ export default function ScheduleManagement({
                 type="time"
                 name="endTime"
                 value={currentItem.endTime}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border-2 border-indigo-100 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Date
-              </label>
-              <input
-                type="date"
-                name="date"
-                value={currentItem.date}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border-2 border-indigo-100 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white"
               />
@@ -237,7 +213,6 @@ export default function ScheduleManagement({
         </div>
       )}
 
-      {/* Schedule List */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border-2 border-indigo-100 dark:border-slate-800">
         {schedule.length > 0 ? (
           <ul className="divide-y divide-indigo-100 dark:divide-slate-800">

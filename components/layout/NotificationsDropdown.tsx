@@ -16,9 +16,7 @@ export default function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data } = useGetNotificationsQuery(undefined, {
-    pollingInterval: 5000,
-  });
+  const { data } = useGetNotificationsQuery(undefined);
 
   const notifications = data?.notifications || [];
   const unreadCount = data?.unreadCount || 0;

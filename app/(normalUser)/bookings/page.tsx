@@ -12,15 +12,13 @@ import {
 import Loading from "@/components/ui/Loading";
 import RatingModal from "@/components/ui/RatingModal";
 import BookingCard from "@/components/booking/BookingCard";
-import {
-  useGetBookingsQuery,
-  Booking,
-} from "@/redux/features/bookings/bookingsApi";
+import { useGetBookingsQuery } from "@/redux/features/bookings/bookingsApi";
+import { BookingDetails } from "@/types";
 
 // Main Booking Page Component
 const BookingPage = () => {
   const [selectedBookingForRating, setSelectedBookingForRating] =
-    useState<Booking | null>(null);
+    useState<BookingDetails | null>(null);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
@@ -38,12 +36,20 @@ const BookingPage = () => {
   const now = new Date();
 
   const activeBookings = bookings.filter((b) => {
-    const endDate = b.endsAt ? new Date(b.endsAt) : new Date(b.startsAt);
+    const endDate = b.endsAt
+      ? new Date(b.endsAt)
+      : b.startsAt
+      ? new Date(b.startsAt)
+      : now;
     return endDate >= now;
   });
 
   const attendedBookings = bookings.filter((b) => {
-    const endDate = b.endsAt ? new Date(b.endsAt) : new Date(b.startsAt);
+    const endDate = b.endsAt
+      ? new Date(b.endsAt)
+      : b.startsAt
+      ? new Date(b.startsAt)
+      : now;
     return endDate < now;
   });
 

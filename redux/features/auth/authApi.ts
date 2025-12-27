@@ -1,5 +1,6 @@
 import { api } from "../../api";
 import { AuthResponse, LoginCredentials, SignupData } from "@/types/auth";
+import { UserProfile } from "@/types";
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -36,18 +37,7 @@ export const authApi = api.injectEndpoints({
         method: "POST",
       }),
     }),
-    updateProfile: builder.mutation<
-      AuthResponse,
-      {
-        name?: string;
-        email?: string;
-        description?: string;
-        imageUrl?: string;
-        imageFileId?: string;
-        coverImageUrl?: string;
-        coverImageFileId?: string;
-      }
-    >({
+    updateProfile: builder.mutation<AuthResponse, Partial<UserProfile>>({
       query: (data) => ({
         url: "/auth/me",
         method: "PUT",
@@ -65,11 +55,17 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
-    getFollowing: builder.query<{ success: boolean; following: any[] }, void>({
+    getFollowing: builder.query<
+      { success: boolean; following: UserProfile[] },
+      void
+    >({
       query: () => "/user/following",
       providesTags: ["Follow"],
     }),
-    getFollowers: builder.query<{ success: boolean; followers: any[] }, void>({
+    getFollowers: builder.query<
+      { success: boolean; followers: UserProfile[] },
+      void
+    >({
       query: () => "/user/followers",
       providesTags: ["Follow"],
     }),

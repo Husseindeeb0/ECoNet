@@ -48,10 +48,18 @@ export function ThemeToggle() {
 
       <div
         className={`absolute top-1 left-1 bg-white dark:bg-slate-900 w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ease-in-out z-20 flex items-center justify-center ${
-          theme === "dark" ? "translate-x-6" : "translate-x-0"
+          theme === "dark" ||
+          (theme === "system" &&
+            typeof window !== "undefined" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+            ? "translate-x-6"
+            : "translate-x-0"
         }`}
       >
-        {theme === "dark" ? (
+        {theme === "dark" ||
+        (theme === "system" &&
+          typeof window !== "undefined" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches) ? (
           <Moon className="h-3 w-3 text-indigo-400" />
         ) : (
           <Sun className="h-3 w-3 text-yellow-500" />
