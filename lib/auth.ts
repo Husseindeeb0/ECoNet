@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { TokenPayload } from "@/types/auth";
 
 const ACCESS_TOKEN_SECRET =
   process.env.ACCESS_TOKEN_SECRET || "your-access-token-secret";
@@ -9,12 +10,6 @@ const REFRESH_TOKEN_SECRET =
 
 const ACCESS_TOKEN_EXPIRY = "1d";
 const REFRESH_TOKEN_EXPIRY = "7d";
-
-export interface TokenPayload {
-  userId: string;
-  email: string;
-  role: "user" | "organizer";
-}
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 10;

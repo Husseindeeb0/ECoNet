@@ -11,6 +11,7 @@ import imagekit from "@/lib/imagekit";
 import Review from "@/models/Review";
 import mongoose from "mongoose";
 import Feedback from "@/models/Feedback";
+import { IEvent, IBooking, IUser } from "@/types";
 
 export async function createEventAction(formData: FormData) {
   const currentUser = await requireOrganizer();
@@ -160,7 +161,7 @@ export async function createEventAction(formData: FormData) {
 
   revalidatePath("/myEvents");
   revalidatePath("/");
-  redirect("/myEvents");
+  redirect(`/myEvents/${newEvent._id}/success?type=create`);
 }
 
 export async function updateEventAction(formData: FormData) {
@@ -296,9 +297,9 @@ export async function updateEventAction(formData: FormData) {
 
   revalidatePath("/myEvents");
   revalidatePath(`/home/${id}`);
-  revalidatePath(`/home/${id}/edit`);
+  revalidatePath(`/myEvents/${id}/edit`);
   revalidatePath("/");
-  redirect("/myEvents");
+  redirect(`/myEvents/${id}/success?type=edit`);
 }
 
 export async function deleteEventAction(formData: FormData) {
@@ -513,7 +514,7 @@ export async function approveBookingAction(requestId: string) {
   const booking = await Booking.findById(requestId).populate("event");
   if (!booking) throw new Error("Booking request not found");
 
-  const event = booking.event as any;
+  const event = booking.event as unknown as IEvent;
   if (event.organizerId !== currentUser.userId) throw new Error("Unauthorized");
 
   booking.status = "confirmed";
@@ -557,7 +558,7 @@ export async function rejectBookingAction(requestId: string) {
   const booking = await Booking.findById(requestId).populate("event");
   if (!booking) throw new Error("Booking request not found");
 
-  const event = booking.event as any;
+  const event = booking.event as unknown as IEvent;
   if (event.organizerId !== currentUser.userId) throw new Error("Unauthorized");
 
   booking.status = "rejected";

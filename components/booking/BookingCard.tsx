@@ -3,12 +3,11 @@
 import { MapPin, Ticket, Clock, Star } from "lucide-react";
 import Link from "next/link";
 import DownloadTicketButton from "../ticket/DownloadTicketButton";
-
-import { Booking } from "@/redux/features/bookings/bookingsApi";
+import { BookingDetails } from "@/types";
 
 interface BookingCardProps {
-  booking: Booking;
-  onRate?: (booking: Booking) => void;
+  booking: BookingDetails;
+  onRate?: (booking: BookingDetails) => void;
 }
 
 // Component for a single booked event card
@@ -20,6 +19,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
     endsAt,
     coverImageUrl,
     numberOfSeats,
+    seats,
     eventId,
     userRating,
   } = booking;
@@ -53,12 +53,12 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
     <div
       className={`group relative flex flex-col md:flex-row overflow-hidden rounded-3xl border transition-all duration-500 ${
         isFinished
-          ? "border-slate-100 bg-white"
-          : "border-indigo-100 bg-white hover:border-purple-200 hover:shadow-2xl hover:shadow-purple-500/10"
+          ? "border-slate-100 bg-white dark:bg-slate-900 dark:border-slate-800"
+          : "border-indigo-100 bg-white dark:bg-slate-900 dark:border-slate-800 hover:border-purple-200 dark:hover:border-purple-800 hover:shadow-2xl hover:shadow-purple-500/10"
       }`}
     >
       {/* Left: Image Section */}
-      <div className="relative w-full md:w-64 lg:w-80 h-48 md:h-auto overflow-hidden bg-indigo-50 shrink-0">
+      <div className="relative w-full md:w-64 lg:w-80 h-48 md:h-auto overflow-hidden bg-indigo-50 dark:bg-slate-800 shrink-0">
         {coverImageUrl ? (
           <div className="h-full w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -111,8 +111,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
             <div
               className={`flex flex-col items-center justify-center w-12 h-14 rounded-2xl border ${
                 isFinished
-                  ? "border-slate-100 bg-slate-50"
-                  : "border-indigo-100 bg-indigo-50/50"
+                  ? "border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50"
+                  : "border-indigo-100 bg-indigo-50/50 dark:border-indigo-900/30 dark:bg-indigo-900/20"
               }`}
             >
               <span
@@ -124,7 +124,9 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
               </span>
               <span
                 className={`text-xl font-black ${
-                  isFinished ? "text-slate-500" : "text-slate-900"
+                  isFinished
+                    ? "text-slate-500"
+                    : "text-slate-900 dark:text-white"
                 }`}
               >
                 {day}
@@ -136,7 +138,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
                 className={`text-xl font-black transition-colors duration-300 line-clamp-1 ${
                   isFinished
                     ? "text-slate-500"
-                    : "text-slate-900 group-hover:text-indigo-600"
+                    : "text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
                 }`}
               >
                 {title}
@@ -159,8 +161,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
           <div
             className={`flex items-center gap-2 px-4 py-2 rounded-2xl border ${
               isFinished
-                ? "border-slate-100 bg-slate-50 text-slate-400"
-                : "border-emerald-100 bg-emerald-50 text-emerald-700 shadow-sm shadow-emerald-500/10"
+                ? "border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50 text-slate-400"
+                : "border-emerald-100 bg-emerald-50 dark:border-emerald-900/30 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 shadow-sm shadow-emerald-500/10"
             }`}
           >
             <Ticket
@@ -169,7 +171,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
               }`}
             />
             <span className="text-sm font-black uppercase tracking-tight">
-              {numberOfSeats} {numberOfSeats > 1 ? "Tickets" : "Ticket"}
+              {numberOfSeats || seats || 1}{" "}
+              {(numberOfSeats || seats || 1) > 1 ? "Tickets" : "Ticket"}
             </span>
           </div>
         </div>
@@ -187,7 +190,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
           <span className="line-clamp-1">{location || "TBA"}</span>
         </div>
 
-        <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-6 border-t border-slate-50">
+        <div className="mt-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-6 border-t border-slate-50 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <svg
               className="w-4 h-4 shrink-0"
@@ -261,9 +264,9 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
             {isFinished ? (
               <>
                 {userRating ? (
-                  <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-lg">
+                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 px-3 py-1.5 rounded-lg">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span className="text-xs font-bold text-amber-700">
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
                       {userRating}/5
                     </span>
                   </div>
@@ -279,7 +282,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
 
                 <Link
                   href={`/home/${eventId}`}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-slate-100 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all hover:bg-slate-200 cursor-pointer"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
                 >
                   Details
                 </Link>
@@ -288,7 +291,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
               <>
                 <Link
                   href={`/home/${eventId}`}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 shadow-lg shadow-indigo-100 cursor-pointer"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95 shadow-lg shadow-purple-500/10 cursor-pointer"
                 >
                   Event Page
                 </Link>
@@ -313,8 +316,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
                     label={isPending ? "Pending..." : "Ticket"}
                     className={`flex-1 sm:flex-none px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border-2 flex items-center justify-center gap-2 ${
                       isPending
-                        ? "bg-amber-50 border-amber-200 text-amber-600 cursor-not-allowed opacity-75"
-                        : "bg-white border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 cursor-pointer"
+                        ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 cursor-not-allowed opacity-75"
+                        : "bg-white dark:bg-slate-900 border-indigo-100 dark:border-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-200 dark:hover:border-indigo-700 cursor-pointer"
                     }`}
                   />
                 )}

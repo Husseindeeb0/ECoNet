@@ -1,29 +1,5 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  password: string;
-  role: "user" | "organizer";
-  description?: string;
-  imageUrl?: string;
-  imageFileId?: string;
-  coverImageUrl?: string;
-  coverImageFileId?: string;
-  refreshToken?: string;
-  bookedEvents: mongoose.Types.ObjectId[]; // Events the user has booked
-  attendedEvents: mongoose.Types.ObjectId[]; // Events the user has attended
-  createdEvents: mongoose.Types.ObjectId[]; // Events the user has created
-  resetPasswordToken?: string;
-  resetPasswordExpire?: Date;
-  isVerified: boolean;
-  verificationToken?: string;
-  verificationTokenExpire?: Date;
-  followers: mongoose.Types.ObjectId[];
-  following: mongoose.Types.ObjectId[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+import mongoose, { Schema, Model } from "mongoose";
+import { IUser } from "@/types/user";
 
 const UserSchema = new Schema<IUser>(
   {
@@ -54,7 +30,6 @@ const UserSchema = new Schema<IUser>(
 UserSchema.index({ email: 1 });
 UserSchema.index({ role: 1 });
 
-// Prevent "OverwriteModelError" (and forcing schema refresh for dev)
 if (mongoose.models.User) {
   delete mongoose.models.User;
 }

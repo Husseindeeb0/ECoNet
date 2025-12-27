@@ -3,13 +3,7 @@ import { redirect } from "next/navigation";
 import { verifyToken } from "./auth";
 import User from "@/models/User";
 import connectDb from "./connectDb";
-
-export interface AuthenticatedUser {
-  userId: string;
-  email: string;
-  role: "user" | "organizer";
-  name: string;
-}
+import { AuthenticatedUser } from "@/types/auth";
 
 /**
  * Get the currently authenticated user from HTTP-only cookies
@@ -48,13 +42,11 @@ export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
       return {
         userId: decoded.userId,
         email: decoded.email,
-        role: decoded.role,
+        role: decoded.role as "user" | "organizer",
         name: user.name,
       };
     } catch (dbError) {
       console.error("Database connection failed in serverAuth:", dbError);
-      // Even if DB fails, if we have the token, we can still return basic data if needed
-      // But for safety, we return null to force login or handle error
       return null;
     }
   } catch (error) {

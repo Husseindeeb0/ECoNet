@@ -6,11 +6,10 @@ import { X, Loader2, Save, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import ImageKitUpload from "@/components/imageKit/ImageKitUpload";
 
+import { UserProfile } from "@/types";
+
 interface EditCoverFormProps {
-  user: {
-    coverImageUrl?: string;
-    coverImageFileId?: string;
-  };
+  user: UserProfile;
   onClose: () => void;
 }
 

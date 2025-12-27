@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
 import EventImage from "./EventImage";
-import { Event } from "@/redux/features/events/eventsApi";
+import { EventDisplay as Event } from "@/types";
 
 interface EventCardProps {
   e: Event;
@@ -11,7 +11,8 @@ interface EventCardProps {
 }
 
 export default function EventCard({ e, showManage = false }: EventCardProps) {
-  const full = e.capacity ? e.bookedCount >= e.capacity : false;
+  const bookedCount = e.bookedCount || 0;
+  const full = e.capacity ? bookedCount >= e.capacity : false;
   const isFinished = e.endsAt
     ? new Date(e.endsAt) < new Date()
     : e.startsAt
@@ -125,7 +126,7 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
               {e.category || "Other"}
             </span>
             {isFinished && (
-              <div className="flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-100">
+              <div className="flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800">
                 <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                 <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200">
                   {e.averageRating ? e.averageRating.toFixed(1) : "New"}
@@ -277,12 +278,12 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
               >
                 {e.capacity != null ? (
                   <>
-                    {e.bookedCount} <span className="text-slate-300">/</span>{" "}
+                    {bookedCount} <span className="text-slate-300">/</span>{" "}
                     {e.capacity}
                   </>
                 ) : (
                   <>
-                    {e.bookedCount}{" "}
+                    {bookedCount}{" "}
                     <span className="text-slate-400 dark:text-slate-500 font-normal">
                       Registered
                     </span>
@@ -328,7 +329,7 @@ export default function EventCard({ e, showManage = false }: EventCardProps) {
                 Attendees
               </Link>
               <Link
-                href={`/home/${e.id}/edit`}
+                href={`/myEvents/${e.id}/edit`}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-purple-600 to-blue-600 px-3 py-1.5 text-xs font-semibold text-white premium-button-purple transition-all hover:bg-purple-700 cursor-pointer"
               >
                 Manage

@@ -1,11 +1,5 @@
-import mongoose, { Schema, model, models, Document } from "mongoose";
-
-export interface IReview extends Document {
-  user: mongoose.Types.ObjectId;
-  event: mongoose.Types.ObjectId;
-  rating: number; // 1-5
-  createdAt: Date;
-}
+import mongoose, { Schema, model, models } from "mongoose";
+import { IReview } from "@/types/rating";
 
 const ReviewSchema = new Schema<IReview>(
   {
@@ -16,7 +10,6 @@ const ReviewSchema = new Schema<IReview>(
   { timestamps: true }
 );
 
-// Ensure user can rate an event only once
 ReviewSchema.index({ user: 1, event: 1 }, { unique: true });
 
 if (models.Review) {

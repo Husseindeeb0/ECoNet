@@ -108,16 +108,16 @@ export default function OrganizersList({
   return (
     <div className="space-y-8">
       {/* Search and Filters Bar */}
-      <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 flex flex-col lg:flex-row gap-4 items-center">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row gap-4 items-center">
         {/* Search Input */}
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search organizers by name or bio..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all outline-hidden"
+            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 transition-all outline-hidden"
           />
         </div>
 
@@ -126,11 +126,11 @@ export default function OrganizersList({
           <div className="relative flex-1 lg:w-56" ref={sortRef}>
             <button
               onClick={() => setIsSortOpen(!isSortOpen)}
-              className="w-full flex items-center justify-between px-5 py-3 bg-slate-50 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all group"
+              className="w-full flex items-center justify-between px-5 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all group"
             >
               <div className="flex items-center gap-2">
                 {activeSort && (
-                  <activeSort.icon className="w-4 h-4 text-indigo-500" />
+                  <activeSort.icon className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                 )}
                 <span>{activeSort?.label}</span>
               </div>
@@ -148,7 +148,7 @@ export default function OrganizersList({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 z-50 overflow-hidden"
+                  className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 z-50 overflow-hidden"
                 >
                   {sortOptions.map((option) => (
                     <button
@@ -159,21 +159,23 @@ export default function OrganizersList({
                       }}
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                         sortBy === option.value
-                          ? "bg-indigo-50 text-indigo-600"
-                          : "text-slate-600 hover:bg-slate-50"
+                          ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <option.icon
                           className={`w-4 h-4 ${
                             sortBy === option.value
-                              ? "text-indigo-500"
-                              : "text-slate-400"
+                              ? "text-indigo-500 dark:text-indigo-400"
+                              : "text-slate-400 dark:text-slate-500"
                           }`}
                         />
                         {option.label}
                       </div>
-                      {sortBy === option.value && <Check className="w-4 h-4" />}
+                      {sortBy === option.value && (
+                        <Check className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                      )}
                     </button>
                   ))}
                 </motion.div>
@@ -186,13 +188,13 @@ export default function OrganizersList({
             onClick={() => setShowFilters(!showFilters)}
             className={`p-3 rounded-2xl border transition-all relative ${
               showFilters
-                ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200"
-                : "bg-white border-slate-100 text-slate-600 hover:bg-slate-50"
+                ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none"
+                : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
             }`}
           >
             <SlidersHorizontal className="w-5 h-5" />
             {!showFilters && (minRating > 0 || minFollowers > 0) && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white dark:border-slate-800" />
             )}
           </button>
         </div>
@@ -208,30 +210,30 @@ export default function OrganizersList({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-8">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {/* Followers Filter */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Follower Count
                     </label>
-                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md">
                       {
                         followerRanges.find((r) => r.value === minFollowers)
                           ?.label
                       }
                     </span>
                   </div>
-                  <div className="flex bg-slate-50 p-1 rounded-xl">
+                  <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl">
                     {followerRanges.map((range) => (
                       <button
                         key={range.value}
                         onClick={() => setMinFollowers(range.value)}
                         className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           minFollowers === range.value
-                            ? "bg-white text-indigo-600 shadow-sm"
-                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-100/50"
+                            ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm"
+                            : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-700/50"
                         }`}
                       >
                         {range.label}
@@ -243,10 +245,10 @@ export default function OrganizersList({
                 {/* Rating Filter */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                    <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                       Minimum Rating
                     </label>
-                    <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-md">
                       {minRating > 0 ? `${minRating}+ Stars` : "Any Rating"}
                     </span>
                   </div>
@@ -259,15 +261,15 @@ export default function OrganizersList({
                         }
                         className={`flex-1 h-10 rounded-xl border transition-all flex items-center justify-center group ${
                           minRating >= star
-                            ? "bg-amber-50 border-amber-200 text-amber-500 shadow-xs"
-                            : "bg-white border-slate-100 text-slate-300 hover:border-amber-200 hover:bg-amber-50/50"
+                            ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-900/50 text-amber-500 shadow-xs"
+                            : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-300 dark:text-slate-600 hover:border-amber-200 dark:hover:border-amber-900 hover:bg-amber-50/50 dark:hover:bg-amber-900/10"
                         }`}
                       >
                         <Star
                           className={`w-5 h-5 transition-all duration-300 ${
                             minRating >= star
                               ? "fill-amber-500 scale-110"
-                              : "group-hover:text-amber-400"
+                              : "group-hover:text-amber-400 dark:group-hover:text-amber-500"
                           }`}
                         />
                       </button>
@@ -280,14 +282,14 @@ export default function OrganizersList({
                   <button
                     onClick={clearFilters}
                     disabled={!hasActiveFilters}
-                    className="flex-1 py-3 px-4 bg-slate-50 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-100 hover:text-slate-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 py-3 px-4 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <X className="w-4 h-4" />
                     Reset
                   </button>
                   <button
                     onClick={() => setShowFilters(false)}
-                    className="flex-2 py-3 px-4 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2"
+                    className="flex-2 py-3 px-4 bg-indigo-600 dark:bg-indigo-700 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-100 dark:shadow-none flex items-center justify-center gap-2"
                   >
                     Apply Filters
                   </button>
@@ -314,14 +316,14 @@ export default function OrganizersList({
       </div>
 
       {filteredAndSortedOrganizers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed border-slate-200 bg-white py-32 text-center shadow-xs">
-          <div className="rounded-2xl bg-slate-50 p-5 mb-4">
-            <Users className="h-10 w-10 text-slate-300" />
+        <div className="flex flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-32 text-center shadow-xs">
+          <div className="rounded-2xl bg-slate-50 dark:bg-slate-800 p-5 mb-4">
+            <Users className="h-10 w-10 text-slate-300 dark:text-slate-600" />
           </div>
-          <h2 className="text-xl font-black text-slate-900">
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">
             No organizers found
           </h2>
-          <p className="mt-3 text-sm text-slate-400 max-w-xs font-medium leading-relaxed">
+          <p className="mt-3 text-sm text-slate-400 dark:text-slate-500 max-w-xs font-medium leading-relaxed">
             Try adjusting your search terms or filters to find what you're
             looking for.
           </p>
@@ -335,7 +337,7 @@ export default function OrganizersList({
 
             return (
               <AnimatedCard key={organizer._id} delay={index * 0.05}>
-                <div className="group bg-white rounded-4xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100 transition-all duration-500 flex flex-col h-full">
+                <div className="group bg-white dark:bg-slate-900 rounded-4xl border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all duration-500 flex flex-col h-full">
                   {/* Header/Cover Image */}
                   <div className="relative h-32">
                     <Image
@@ -349,7 +351,7 @@ export default function OrganizersList({
                     />
                     <div className="absolute inset-0 bg-indigo-900/20" />
                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1.5 border border-white/30">
+                    <div className="absolute top-4 right-4 bg-white/20 dark:bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1.5 border border-white/30 dark:border-white/10">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                       <span className="text-xs font-bold text-white">
                         {organizer.averageRating > 0
@@ -363,7 +365,7 @@ export default function OrganizersList({
                   <div className="px-6 pb-6 flex-1 flex flex-col items-center -mt-12">
                     {/* Avatar */}
                     <div className="relative mb-4 group/avatar">
-                      <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white ring-4 ring-slate-50 group-hover:ring-indigo-50 transition-all duration-500 relative">
+                      <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-900 shadow-xl overflow-hidden bg-white dark:bg-slate-900 ring-4 ring-slate-50 dark:ring-slate-800 group-hover:ring-indigo-50 dark:group-hover:ring-indigo-900/30 transition-all duration-500 relative">
                         {organizer.imageUrl ? (
                           <Image
                             src={organizer.imageUrl}
@@ -372,29 +374,29 @@ export default function OrganizersList({
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-linear-to-br from-indigo-50 to-purple-50 flex items-center justify-center text-3xl font-black text-indigo-400">
+                          <div className="w-full h-full bg-linear-to-br from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-3xl font-black text-indigo-400 dark:text-indigo-300">
                             {organizer.name.charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <h3 className="text-xl font-black text-slate-900 text-center mb-1 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white text-center mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                       {organizer.name}
                     </h3>
 
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
+                      <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
                         <Users className="w-3 h-3" />
                         <span>{organizer.followers?.length || 0}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
-                        <ArrowRight className="w-3 h-3 text-indigo-500" />
+                      <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+                        <ArrowRight className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
                         <span>{organizer.eventCount} Events</span>
                       </div>
                     </div>
 
-                    <p className="text-sm text-slate-500 text-center line-clamp-2 mb-6 font-medium leading-relaxed px-2">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 text-center line-clamp-2 mb-6 font-medium leading-relaxed px-2">
                       {organizer.description ||
                         "Bringing unique experiences and unforgettable moments to the EventHub community."}
                     </p>
@@ -405,7 +407,7 @@ export default function OrganizersList({
                         <div className="flex-1">
                           {currentUser &&
                           currentUser.userId === organizer._id ? (
-                            <div className="w-full py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <div className="w-full py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                               Your Profile
                             </div>
                           ) : currentUser ? (
@@ -420,7 +422,7 @@ export default function OrganizersList({
                           ) : (
                             <Link
                               href="/login"
-                              className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-colors"
+                              className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
                             >
                               Login to Follow
                             </Link>
@@ -428,7 +430,7 @@ export default function OrganizersList({
                         </div>
                         <Link
                           href={`/organizers/${organizer._id}`}
-                          className="p-2.5 bg-slate-50 text-slate-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all duration-300 group/btn"
+                          className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition-all duration-300 group/btn"
                           title="View Profile"
                         >
                           <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-0.5 transition-all duration-300 ease-in-out" />

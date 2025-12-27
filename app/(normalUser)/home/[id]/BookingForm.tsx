@@ -5,8 +5,9 @@ import {
   useBookEventMutation,
   useCancelBookingMutation,
 } from "@/redux/features/bookings/bookingsApi";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Copy, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function BookingForm({
   eventId,
@@ -33,11 +34,24 @@ export default function BookingForm({
   const [cancelBooking, { isLoading: isCancelling }] =
     useCancelBookingMutation();
 
+  const [copied, setCopied] = useState(false);
+
   const handleWhishPay = () => {
-    const whishUrl = `https://whish.money/pay/${encodeURIComponent(
+    // Many Whish payments are handled via deep links or their app.
+    // We'll use a more standard web link or just the number.
+    const whishUrl = `https://whish.money/pay?id=${encodeURIComponent(
       whishNumber || ""
-    )}?amount=${price}`;
+    )}&amount=${price}`;
     window.open(whishUrl, "_blank");
+  };
+
+  const copyToClipboard = () => {
+    if (whishNumber) {
+      navigator.clipboard.writeText(whishNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Whish number copied!");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,6 +59,11 @@ export default function BookingForm({
 
     try {
       await bookEvent({ eventId, ...formData, seats: 1 }).unwrap();
+      toast.success(
+        isPaid
+          ? "Request sent successfully! check your bookings"
+          : "Booking confirmed! check your bookings"
+      );
       if (isPaid) {
         router.push(`?requestSent=true`);
       } else {
@@ -52,7 +71,7 @@ export default function BookingForm({
       }
       router.refresh();
     } catch (error: any) {
-      alert(
+      toast.error(
         error.data?.message ||
           `Failed to ${isPaid ? "send request" : "book event"}`
       );
@@ -65,10 +84,11 @@ export default function BookingForm({
 
     try {
       await cancelBooking(initialBooking._id).unwrap();
+      toast.success("Booking cancelled successfully");
       router.push(`?cancelled=true`);
       router.refresh();
     } catch (error: any) {
-      alert(error.data?.message || "Failed to cancel booking");
+      toast.error(error.data?.message || "Failed to cancel booking");
     }
   };
 
@@ -158,7 +178,7 @@ export default function BookingForm({
                 await cancelBooking(initialBooking._id).unwrap();
                 setIsResubmitting(true);
               } catch (err: any) {
-                alert(err.data?.message || "Failed to reset request");
+                toast.error(err.data?.message || "Failed to reset request");
               }
             }}
             className="w-full rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-200 transition-all hover:bg-purple-700 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
@@ -240,20 +260,50 @@ export default function BookingForm({
       <div className="space-y-3">
         {isPaid && (
           <>
-            <button
-              type="button"
-              onClick={handleWhishPay}
-              className="w-full rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-6 py-3 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-orange-600 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86l-2.04-1.2c-.19-.11-.42-.11-.61 0l-2.04 1.2c-.19.11-.31.31-.31.53v2.4c0 .22.12.42.31.53l2.04 1.2c.19.11.42.11.61 0l2.04-1.2c.19-.11.31-.31.31-.53v-2.4c0-.22-.12-.42-.31-.53z" />
-              </svg>
-              Step 1: Pay via Whish
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleWhishPay}
+                className="w-full rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-6 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-orange-600 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86l-2.04-1.2c-.19-.11-.42-.11-.61 0l-2.04 1.2c-.19.11-.31.31-.31.53v2.4c0 .22.12.42.31.53l2.04 1.2c.19.11.42.11.61 0l2.04-1.2c.19-.11.31-.31.31-.53v-2.4c0-.22-.12-.42-.31-.53z" />
+                </svg>
+                Step 1: Pay via Whish
+              </button>
+
+              <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="flex-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 mb-0.5 tracking-wider">
+                    Whish Number
+                  </p>
+                  <p className="font-bold text-slate-700 dark:text-slate-200">
+                    {whishNumber || "N/A"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={copyToClipboard}
+                  className="p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer shadow-sm group"
+                  title="Copy Whish Number"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                  )}
+                </button>
+              </div>
+            </div>
             <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3">
               <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold text-center leading-tight">
-                ⚠️ IMPORTANT: Send a request only AFTER you are sure of payment.
-                The organizer will verify your transfer.
+                ⚠️ IMPORTANT: Send a request only AFTER you have completed the
+                payment. The organizer will verify your transfer using the
+                number provided.
               </p>
             </div>
           </>

@@ -220,9 +220,11 @@ const styles = StyleSheet.create({
   },
 });
 
+import { EventDisplay, BookingDetails } from "@/types";
+
 interface TicketPDFProps {
-  event: any;
-  booking: any;
+  event: EventDisplay;
+  booking: BookingDetails;
 }
 
 const TicketPDF: React.FC<TicketPDFProps> = ({ event, booking }) => {
@@ -262,9 +264,11 @@ const TicketPDF: React.FC<TicketPDFProps> = ({ event, booking }) => {
     qrData
   )}`;
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   // Organizer Link
   const organizerUrl = event?.organizer?._id
-    ? `http://localhost:3000/organizers/${event.organizer._id}`
+    ? `${baseUrl}/organizers/${event.organizer._id}`
     : "#";
 
   return (
@@ -360,7 +364,7 @@ const TicketPDF: React.FC<TicketPDFProps> = ({ event, booking }) => {
                   <Text style={styles.label}>ATTENDEE</Text>
                   {booking?.userId ? (
                     <Link
-                      src={`http://localhost:3000/profile/${booking.userId}`}
+                      src={`${baseUrl}/profile/${booking.userId}`}
                       style={{ textDecoration: "none" }}
                     >
                       <Text

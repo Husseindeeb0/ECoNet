@@ -135,7 +135,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-transparent selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100">
+    <div className="min-h-screen selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100">
       {/* Hero Section */}
       <section className="relative pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_40%_at_50%_50%,rgba(99,102,241,0.08)_0%,rgba(255,255,255,0)_100%)]" />
@@ -257,14 +257,14 @@ export default function AboutPage() {
               </div>
               <div className="relative">
                 <div className="absolute -inset-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-[3rem] -rotate-2 -z-10" />
-                <div className="relative aspect-square rounded-[2.5rem] bg-indigo-600 overflow-hidden shadow-2xl">
+                <div className="relative aspect-square rounded-[2.5rem] bg-slate-100 dark:bg-slate-800 overflow-hidden shadow-2xl">
                   <Image
                     src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop"
                     alt="Community"
                     fill
-                    className="object-cover opacity-80 mix-blend-overlay"
+                    className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-indigo-900/50 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                   <div className="absolute bottom-10 left-10 right-10">
                     <p className="text-2xl font-black text-white leading-tight">
                       "Connecting minds, one event at a time."

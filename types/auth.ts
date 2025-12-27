@@ -1,30 +1,20 @@
-export interface BookingDetails {
-  userId: string;
-  userName: string;
-  userEmail: string;
-  seatsBooked: number;
-  bookedAt: string;
-}
+import { UserProfile } from "./user";
 
-export interface User {
-  _id: string;
-  name: string;
+export interface TokenPayload {
+  userId: string;
   email: string;
   role: "user" | "organizer";
-  description?: string;
-  imageUrl?: string;
-  imageFileId?: string;
-  coverImageUrl?: string;
-  coverImageFileId?: string;
-  bookedEvents: string[];
-  attendedEvents: string[];
-  createdEvents: string[];
-  createdAt: string;
-  updatedAt: string;
+}
+
+export interface AuthenticatedUser {
+  userId: string;
+  email: string;
+  role: "user" | "organizer";
+  name: string;
 }
 
 export interface AuthState {
-  user: User | null;
+  user: UserProfile | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -48,5 +38,5 @@ export interface SignupData {
 export interface AuthResponse {
   success: boolean;
   message: string;
-  user?: User;
+  user?: UserProfile;
 }

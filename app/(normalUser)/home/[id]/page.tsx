@@ -21,12 +21,17 @@ import FeedbackIntegration from "@/components/feedback/FeedbackIntegration";
 import Feedback from "@/models/Feedback";
 import GiveFeedbackButton from "@/components/feedback/GiveFeedbackButton";
 
-async function getEvent(id: string) {
+import { EventDisplay, UserProfile } from "@/types";
+
+async function getEvent(id: string): Promise<EventDisplay | null> {
   try {
     await connectDb();
     const event = await Event.findById(id).lean();
     if (!event) return null;
-    return { ...event, _id: (event._id as any).toString() };
+    return {
+      ...event,
+      _id: (event._id as any).toString(),
+    } as unknown as EventDisplay;
   } catch (error) {
     console.error("Database error in getEvent:", error);
     return null;
@@ -45,7 +50,9 @@ async function getBookedCount(eventId: string) {
   }
 }
 
-async function getOrganizerDetails(organizerId: string) {
+async function getOrganizerDetails(
+  organizerId: string
+): Promise<UserProfile | null> {
   try {
     await connectDb();
     const organizer = await User.findById(organizerId)
@@ -56,7 +63,7 @@ async function getOrganizerDetails(organizerId: string) {
       ...organizer,
       _id: (organizer._id as any).toString(),
       followers: (organizer.followers || []).map((id: any) => id.toString()),
-    };
+    } as unknown as UserProfile;
   } catch (error) {
     return null;
   }
@@ -93,14 +100,14 @@ export default async function EventDetailsPage({
 }) {
   const resolvedParams = await Promise.resolve(params);
   const resolvedSearchParams = await Promise.resolve(searchParams);
-  const event = (await getEvent(resolvedParams.id)) as any;
+  const event = await getEvent(resolvedParams.id);
   const currentUser = await getCurrentUser();
 
   if (!event) {
     notFound();
   }
 
-  const organizer = (await getOrganizerDetails(event.organizerId)) as any;
+  const organizer = await getOrganizerDetails(event.organizerId);
   const bookedCount = await getBookedCount(resolvedParams.id);
   const remainingSeats = event.capacity ? event.capacity - bookedCount : null;
   const isFull = event.capacity ? bookedCount >= event.capacity : false;
@@ -179,7 +186,7 @@ export default async function EventDetailsPage({
               Speakers & Presenters
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {event.speakers.map((speaker: any, index: number) => (
+              {event.speakers.map((speaker, index) => (
                 <div
                   key={index}
                   className="flex gap-4 items-start p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 transition-all hover:bg-white dark:hover:bg-slate-700 hover:shadow-md"
@@ -291,8 +298,11 @@ export default async function EventDetailsPage({
           </h2>
           <div className="space-y-4">
             {event.schedule
-              ?.sort((a: any, b: any) => a.startTime.localeCompare(b.startTime))
-              .map((item: any, index: number) => (
+              ?.slice()
+              .sort((a, b) =>
+                (a.startTime || "").localeCompare(b.startTime || "")
+              )
+              .map((item, index) => (
                 <div
                   key={index}
                   className="flex gap-4 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
@@ -375,9 +385,7 @@ export default async function EventDetailsPage({
   return (
     <main
       className={`min-h-screen relative overflow-hidden ${
-        isFinished
-          ? "grayscale-sm bg-slate-100 dark:bg-slate-900"
-          : ""
+        isFinished ? "grayscale-sm bg-slate-100 dark:bg-slate-900" : ""
       }`}
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.15),transparent_70%)] dark:hidden pointer-events-none"></div>
