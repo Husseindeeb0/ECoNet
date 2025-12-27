@@ -6,11 +6,25 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, FileText, UserCircle, Loader2 } from "lucide-react";
 import { useSignupMutation } from "@/redux/features/auth/authApi";
+import { useAppSelector } from "@/redux/store";
+import { useEffect } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [signup, { isLoading: loading, error: signupError }] =
     useSignupMutation();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "organizer") {
+        router.replace("/myEvents");
+      } else {
+        router.replace("/home");
+      }
+    }
+  }, [isAuthenticated, user, router]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -88,10 +102,8 @@ export default function SignupPage() {
       const result = await signup(signupData);
 
       if (result.data?.success) {
-        // Redirect to verification page
-        router.push(
-          `/verify-email?email=${encodeURIComponent(formData.email)}`
-        );
+        localStorage.setItem("isLoggedIn", "true");
+        // Navigation is handled by the useEffect above once state updates
       }
     } catch {
       // Error is handled by the mutation state (signupError)

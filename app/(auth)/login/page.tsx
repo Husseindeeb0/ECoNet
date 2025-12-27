@@ -9,9 +9,24 @@ import {
   useLoginMutation,
   useResendVerificationMutation,
 } from "@/redux/features/auth/authApi";
+import { useAppSelector } from "@/redux/store";
+import { useEffect } from "react";
+
 export default function LoginPage() {
   const router = useRouter();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [login, { isLoading: loading, error: loginError }] = useLoginMutation();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "organizer") {
+        router.replace("/myEvents");
+      } else {
+        router.replace("/home");
+      }
+    }
+  }, [isAuthenticated, user, router]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -71,7 +86,7 @@ export default function LoginPage() {
 
       if (result.success) {
         localStorage.setItem("isLoggedIn", "true");
-        router.push("/home");
+        // Navigation is handled by the useEffect above once state updates
       }
     } catch (err: any) {
       // Improved error logging
