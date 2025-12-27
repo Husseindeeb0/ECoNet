@@ -17,7 +17,7 @@ export default function FeedbackIntegration({
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get("showFeedback") === "true") {
+    if (searchParams?.get("showFeedback") === "true") {
       setIsOpen(true);
     }
   }, [searchParams]);
@@ -26,7 +26,7 @@ export default function FeedbackIntegration({
     setIsOpen(false);
 
     // Clean up the URL
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || "");
     params.delete("showFeedback");
 
     // Keep 'booked=true' if we want, or remove it too if it's annoying.

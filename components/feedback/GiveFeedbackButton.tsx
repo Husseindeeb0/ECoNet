@@ -15,7 +15,7 @@ export default function GiveFeedbackButton({ eventId }: { eventId?: string }) {
     if (eventId) {
       router.push(`/home/${eventId}?showFeedback=true`);
     } else {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() || "");
       params.set("showFeedback", "true");
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
