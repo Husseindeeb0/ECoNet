@@ -151,13 +151,13 @@ export default async function AttendeesPage({
                           Booked on{" "}
                           {attendee.bookedAt
                             ? new Date(attendee.bookedAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }
-                              )
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )
                             : "N/A"}
                         </div>
                       </div>
