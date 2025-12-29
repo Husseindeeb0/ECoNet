@@ -97,32 +97,30 @@ export async function generateMetadata(
   const params = await props.params;
   const event = await getEvent(params.id);
 
-  // Default Fallback if event is not found
   if (!event) {
     return {
-      title: "Event Not Found | ECoNet",
+      title: "Event Not Found",
       description: "The requested event could not be found on ECoNet.",
     };
   }
 
-  // --- META TAGS GENERATION ---
-  // We use this function to generate dynamic meta tags based on the event details.
-  // This ensures that when you share the link, the correct title, description, and image appear.
-
   const previousImages = (await parent).openGraph?.images || [];
-  const eventImage = event.coverImageUrl || `/og/${params.id}`; // Fallback image if no cover
-
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     "https://event-hub-pearl-alpha.vercel.app";
+
+  let eventImage = event.coverImageUrl || `/og/${params.id}`;
+  // Ensure absolute URL for better social media compatibility (especially WhatsApp)
+  if (eventImage.startsWith("/")) {
+    eventImage = `${baseUrl}${eventImage}`;
+  }
+
   const eventUrl = `${baseUrl}/home/${params.id}`;
 
   return {
-    title: `${event.title} | ECoNet`,
+    title: event.title, // ' | ECoNet' is added by the template in layout.tsx
     description:
       event.description?.slice(0, 160) || "Join this event on ECoNet.",
-
-    // OpenGraph (Facebook, LinkedIn, Discord, WhatsApp)
     openGraph: {
       title: event.title,
       description:
@@ -141,8 +139,6 @@ export async function generateMetadata(
       locale: "en_US",
       type: "website",
     },
-
-    // Twitter Card (X)
     twitter: {
       card: "summary_large_image",
       title: event.title,

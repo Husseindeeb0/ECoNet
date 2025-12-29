@@ -9,14 +9,10 @@ async function getOrganizersWithStats() {
   try {
     await connectDb();
 
-    // 1. Get all organizers
     const organizers = await User.find({ role: "organizer" })
       .select("name email imageUrl coverImageUrl description followers")
       .lean();
 
-    // 2. For each organizer, fetch their events to calculate stats
-    // Note: In a production app with many organizers, you'd use an aggregation pipeline
-    // or store these stats on the User model.
     const organizersWithStats = await Promise.all(
       organizers.map(async (org: any) => {
         const orgEvents = await Event.find({ organizerId: org._id.toString() })

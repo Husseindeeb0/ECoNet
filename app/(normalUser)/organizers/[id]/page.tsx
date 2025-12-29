@@ -29,13 +29,10 @@ export async function generateMetadata(
 
   if (!organizer) {
     return {
-      title: "Organizer Not Found | ECoNet",
+      title: "Organizer Not Found",
       description: "The requested organizer profile could not be found.",
     };
   }
-
-  // --- META TAGS GENERATION ---
-  // This function dynamically creates the <meta> tags for social sharing.
 
   const previousImages = (await parent).openGraph?.images || [];
   const baseUrl =
@@ -43,13 +40,17 @@ export async function generateMetadata(
     "https://event-hub-pearl-alpha.vercel.app";
   const profileUrl = `${baseUrl}/organizers/${params.id}`;
 
+  let imageUrl = organizer.imageUrl;
+  if (imageUrl && imageUrl.startsWith("/")) {
+    imageUrl = `${baseUrl}${imageUrl}`;
+  }
+
   return {
-    title: `${organizer.name} | ECoNet Organizer`,
+    title: organizer.name,
     description:
       organizer.description?.slice(0, 160) ||
       `Check out ${organizer.name}'s profile on ECoNet.`,
 
-    // OpenGraph (Facebook, LinkedIn, etc)
     openGraph: {
       title: `${organizer.name} | ECoNet Profile`,
       description:
@@ -57,10 +58,10 @@ export async function generateMetadata(
         `Check out ${organizer.name}'s profile on ECoNet.`,
       url: profileUrl,
       siteName: "ECoNet",
-      images: organizer.imageUrl
+      images: imageUrl
         ? [
             {
-              url: organizer.imageUrl,
+              url: imageUrl,
               width: 800,
               height: 800,
               alt: organizer.name,
@@ -72,14 +73,13 @@ export async function generateMetadata(
       type: "profile",
     },
 
-    // Twitter Card
     twitter: {
       card: "summary_large_image",
-      title: `${organizer.name} | ECoNet Organizer`,
+      title: organizer.name,
       description:
         organizer.description?.slice(0, 160) ||
         `Check out ${organizer.name}'s profile.`,
-      images: organizer.imageUrl ? [organizer.imageUrl] : [],
+      images: imageUrl ? [imageUrl] : [],
     },
   };
 }
