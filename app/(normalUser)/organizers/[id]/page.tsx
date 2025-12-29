@@ -21,35 +21,41 @@ import {
 import type { Metadata, ResolvingMetadata } from "next";
 
 export async function generateMetadata(
-  { params }: { params: { id: string } },
+  props: { params: Promise<{ id: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
-  const organizer = await getOrganizerProfile(resolvedParams.id);
+  const params = await props.params;
+  const organizer = await getOrganizerProfile(params.id);
 
   if (!organizer) {
     return {
       title: "Organizer Not Found | ECoNet",
+      description: "The requested organizer profile could not be found.",
     };
   }
 
-  const previousImages = (await parent).openGraph?.images || [];
+  // --- META TAGS GENERATION ---
+  // This function dynamically creates the <meta> tags for social sharing.
 
+  const previousImages = (await parent).openGraph?.images || [];
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     "https://event-hub-pearl-alpha.vercel.app";
+  const profileUrl = `${baseUrl}/organizers/${params.id}`;
 
   return {
-    title: `${organizer.name} | Organizer Profile`,
-    description: organizer.description
-      ? organizer.description.slice(0, 160)
-      : `Check out ${organizer.name}'s profile on ECoNet.`,
+    title: `${organizer.name} | ECoNet Organizer`,
+    description:
+      organizer.description?.slice(0, 160) ||
+      `Check out ${organizer.name}'s profile on ECoNet.`,
+
+    // OpenGraph (Facebook, LinkedIn, etc)
     openGraph: {
-      title: `${organizer.name} - Organizer on ECoNet`,
-      description: organizer.description
-        ? organizer.description.slice(0, 160)
-        : `See ${organizer.name}'s events and profile on ECoNet.`,
-      url: `${baseUrl}/organizers/${resolvedParams.id}`,
+      title: `${organizer.name} | ECoNet Profile`,
+      description:
+        organizer.description?.slice(0, 160) ||
+        `Check out ${organizer.name}'s profile on ECoNet.`,
+      url: profileUrl,
       siteName: "ECoNet",
       images: organizer.imageUrl
         ? [
@@ -65,12 +71,14 @@ export async function generateMetadata(
       locale: "en_US",
       type: "profile",
     },
+
+    // Twitter Card
     twitter: {
       card: "summary_large_image",
       title: `${organizer.name} | ECoNet Organizer`,
-      description: organizer.description
-        ? organizer.description.slice(0, 160)
-        : `Check out ${organizer.name}'s profile.`,
+      description:
+        organizer.description?.slice(0, 160) ||
+        `Check out ${organizer.name}'s profile.`,
       images: organizer.imageUrl ? [organizer.imageUrl] : [],
     },
   };
@@ -105,14 +113,12 @@ async function getOrganizerEvents(organizerId: string) {
   }
 }
 
-export default async function OrganizerProfilePage({
-  params,
-}: {
-  params: { id: string };
+export default async function OrganizerProfilePage(props: {
+  params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = await Promise.resolve(params);
-  const organizer = await getOrganizerProfile(resolvedParams.id);
-  const events = await getOrganizerEvents(resolvedParams.id);
+  const params = await props.params;
+  const organizer = await getOrganizerProfile(params.id);
+  const events = await getOrganizerEvents(params.id);
   const currentUser = await getCurrentUser();
 
   if (!organizer) {

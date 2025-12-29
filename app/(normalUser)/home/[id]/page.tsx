@@ -91,36 +91,43 @@ function formatEventDate(date: any): string {
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> },
+  props: { params: Promise<{ id: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const resolvedParams = await params;
-  const event = await getEvent(resolvedParams.id);
+  const params = await props.params;
+  const event = await getEvent(params.id);
 
+  // Default Fallback if event is not found
   if (!event) {
     return {
       title: "Event Not Found | ECoNet",
+      description: "The requested event could not be found on ECoNet.",
     };
   }
 
+  // --- META TAGS GENERATION ---
+  // We use this function to generate dynamic meta tags based on the event details.
+  // This ensures that when you share the link, the correct title, description, and image appear.
+
   const previousImages = (await parent).openGraph?.images || [];
-  const eventImage = event.coverImageUrl || `/og/${resolvedParams.id}`;
+  const eventImage = event.coverImageUrl || `/og/${params.id}`; // Fallback image if no cover
 
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     "https://event-hub-pearl-alpha.vercel.app";
+  const eventUrl = `${baseUrl}/home/${params.id}`;
 
   return {
-    title: `${event.title} | ECoNet Event`,
+    title: `${event.title} | ECoNet`,
     description:
-      event.description?.slice(0, 160) ||
-      "Join this event on ECoNet. The premier platform for connecting communities and discovering events.",
+      event.description?.slice(0, 160) || "Join this event on ECoNet.",
+
+    // OpenGraph (Facebook, LinkedIn, Discord, WhatsApp)
     openGraph: {
       title: event.title,
       description:
-        event.description?.slice(0, 160) ||
-        "Join this amazing event on ECoNet!",
-      url: `${baseUrl}/home/${resolvedParams.id}`,
+        event.description?.slice(0, 160) || "Join this event on ECoNet.",
+      url: eventUrl,
       siteName: "ECoNet",
       images: [
         {
@@ -134,29 +141,29 @@ export async function generateMetadata(
       locale: "en_US",
       type: "website",
     },
+
+    // Twitter Card (X)
     twitter: {
       card: "summary_large_image",
       title: event.title,
       description:
-        event.description?.slice(0, 160) ||
-        "Details about this event on ECoNet.",
+        event.description?.slice(0, 160) || "Join this event on ECoNet.",
       images: [eventImage],
     },
   };
 }
 
-export default async function EventDetailsPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }> | { id: string };
-  searchParams:
-    | Promise<{ booked?: string; cancelled?: string; requestSent?: string }>
-    | { booked?: string; cancelled?: string; requestSent?: string };
+export default async function EventDetailsPage(props: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    booked?: string;
+    cancelled?: string;
+    requestSent?: string;
+  }>;
 }) {
-  const resolvedParams = await Promise.resolve(params);
-  const resolvedSearchParams = await Promise.resolve(searchParams);
-  const event = await getEvent(resolvedParams.id);
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const event = await getEvent(params.id);
   const currentUser = await getCurrentUser();
 
   if (!event) {
@@ -164,7 +171,7 @@ export default async function EventDetailsPage({
   }
 
   const organizer = await getOrganizerDetails(event.organizerId);
-  const bookedCount = await getBookedCount(resolvedParams.id);
+  const bookedCount = await getBookedCount(params.id);
   const remainingSeats = event.capacity ? event.capacity - bookedCount : null;
   const isFull = event.capacity ? bookedCount >= event.capacity : false;
   const isFinished = event.endsAt
@@ -179,7 +186,7 @@ export default async function EventDetailsPage({
     await connectDb();
     userBooking = await Booking.findOne({
       user: currentUser.userId,
-      event: resolvedParams.id,
+      event: params.id,
       status: { $ne: "cancelled" },
     }).lean();
 
@@ -187,7 +194,7 @@ export default async function EventDetailsPage({
       try {
         const feedbackCount = await Feedback.countDocuments({
           user: currentUser.userId,
-          event: resolvedParams.id,
+          event: params.id,
         });
         hasFeedback = feedbackCount > 0;
       } catch (e) {}
@@ -584,7 +591,7 @@ export default async function EventDetailsPage({
       <AnimatedContent>
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 relative z-10">
           {/* Messages */}
-          {resolvedSearchParams?.booked === "true" && (
+          {searchParams?.booked === "true" && (
             <AnimatedSuccessMessage>
               <div className="mb-8 rounded-2xl bg-linear-to-r from-green-500 to-emerald-500 p-6 text-white shadow-lg ring-4 ring-green-100">
                 <div className="flex items-center gap-3">
@@ -616,7 +623,7 @@ export default async function EventDetailsPage({
             </AnimatedSuccessMessage>
           )}
 
-          {resolvedSearchParams?.booked === "true" && userBooking && (
+          {searchParams?.booked === "true" && userBooking && (
             <AutoDownloadTicket
               event={{
                 title: event.title,
@@ -647,7 +654,7 @@ export default async function EventDetailsPage({
             />
           )}
 
-          {resolvedSearchParams?.cancelled === "true" && (
+          {searchParams?.cancelled === "true" && (
             <AnimatedSuccessMessage>
               <div className="mb-8 rounded-2xl bg-linear-to-r from-rose-500 to-pink-500 p-6 text-white shadow-lg ring-4 ring-rose-100">
                 <div className="flex items-center gap-3">
@@ -679,7 +686,7 @@ export default async function EventDetailsPage({
             </AnimatedSuccessMessage>
           )}
 
-          {resolvedSearchParams?.requestSent === "true" && (
+          {searchParams?.requestSent === "true" && (
             <AnimatedSuccessMessage>
               <div className="mb-8 rounded-2xl bg-linear-to-r from-amber-500 to-orange-500 p-6 text-white shadow-lg ring-4 ring-amber-100">
                 <div className="flex items-center gap-3">
@@ -1026,7 +1033,7 @@ export default async function EventDetailsPage({
                     </div>
                   ) : (
                     <BookingForm
-                      eventId={resolvedParams.id}
+                      eventId={params.id}
                       initialBooking={
                         userBooking
                           ? JSON.parse(JSON.stringify(userBooking))
