@@ -1,6 +1,6 @@
-# 🎫 EventHub — AI-Powered Event Management Platform
+# 🎫 ECoNet — AI-Powered Event Management Platform
 
-EventHub is a state-of-the-art, full-stack event management and discovery platform. Built with **Next.js 15**, it combines stunning modern aesthetics with powerful AI-driven assistance, real-time WebSocket communication, and a robust booking infrastructure.
+ECoNet is a state-of-the-art, full-stack event management and discovery platform. Built with **Next.js 15**, it combines stunning modern aesthetics with powerful AI-driven assistance, real-time WebSocket communication, and a robust booking infrastructure.
 
 ---
 
@@ -21,7 +21,7 @@ EventHub is a state-of-the-art, full-stack event management and discovery platfo
 ## 🏗️ Project Structure At A Glance
 
 ```text
-EventHub/
+ECoNet/
 ├── app/                  # Next.js App Router (Main Application)
 │   ├── (auth)/           # Authentication Flow
 │   ├── (normalUser)/     # Attendee dashboard & Event Discovery
@@ -79,7 +79,7 @@ The `app` directory handles the main routing, layouts, and standard API endpoint
 
 ### 4. `/redux` — Global State & RTK Query
 
-EventHub uses a centralized API-first state management strategy.
+ECoNet uses a centralized API-first state management strategy.
 
 - **`api.ts`**: The base API configuration with automated authentication header injection.
 - **`/features`**: Specialized API slices for each domain:
@@ -135,4 +135,4 @@ Strict TypeScript-enhanced schemas defining the database structure:
     npm run dev
     ```
 
-Developed with ❤️ by the EventHub Team.
+Developed with ❤️ by the ECoNet Team.

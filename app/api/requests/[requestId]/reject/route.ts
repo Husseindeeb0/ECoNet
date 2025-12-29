@@ -83,7 +83,7 @@ export async function POST(
                   }</p>
                   <p style="margin: 5px 0 0 0;"><strong>Status:</strong> Not Approved</p>
                 </div>
-                <p>Best regards,<br/>The EventHub Team</p>
+                <p>Best regards,<br/>The ECoNet Team</p>
               </div>
             `,
           });

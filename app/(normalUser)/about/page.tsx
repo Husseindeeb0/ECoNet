@@ -28,7 +28,7 @@ export default function AboutPage() {
   const teamMembers = [
     {
       name: "Hussein Deeb",
-      role: "Founder & Lead Developer",
+      role: "Founder & Full Stack Developer",
       icon: Users,
       bgClass: "bg-indigo-50",
       iconClass: "text-indigo-600",
@@ -36,15 +36,15 @@ export default function AboutPage() {
     },
     {
       name: "Ali Ghaith",
-      role: "UI/UX Specialist",
+      role: "Frontend Developer",
       icon: Code2,
       bgClass: "bg-blue-50",
       iconClass: "text-blue-600",
-      linkedinUrl: "#",
+      linkedinUrl: "https://www.linkedin.com/in/ali-ghaith-50a604211/",
     },
     {
       name: "Hadi Deeb",
-      role: "Front-End Architect",
+      role: "Frontend Developer",
       icon: Code2,
       bgClass: "bg-cyan-50",
       iconClass: "text-cyan-600",
@@ -52,27 +52,27 @@ export default function AboutPage() {
     },
     {
       name: "Houssam Yakhni",
-      role: "Backend Engineer",
+      role: "Full Stack Developer",
       icon: Globe,
       bgClass: "bg-purple-50",
       iconClass: "text-purple-600",
-      linkedinUrl: "#",
+      linkedinUrl: "https://www.linkedin.com/in/houssam-yakhni-02768a274",
     },
     {
-      name: "Marwan Nhle",
-      role: "System Designer",
+      name: "Marwan Nahle",
+      role: "Frontend Developer",
       icon: Code2,
       bgClass: "bg-teal-50",
       iconClass: "text-teal-600",
-      linkedinUrl: "#",
+      linkedinUrl: "https://www.linkedin.com/in/marwan-nahle-67862b39a",
     },
     {
-      name: "Abass",
-      role: "Creative Developer",
+      name: "Abass Jaafar",
+      role: "Frontend Developer",
       icon: Code2,
       bgClass: "bg-pink-50",
       iconClass: "text-pink-600",
-      linkedinUrl: "#",
+      linkedinUrl: "https://www.linkedin.com/in/abbas-jaafar-a20702397/",
     },
   ];
 
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 {isAuthenticated && user?.name
                   ? `Hi ${user.name.split(" ")[0]}, `
                   : ""}
-                EventHub was born from a simple idea: that campus life should be
+                ECoNet was born from a simple idea: that campus life should be
                 vibrant, accessible, and unforgettable. We've built the ultimate
                 platform for hosting and discovering experiences that shape your
                 university journey.
@@ -230,7 +230,7 @@ export default function AboutPage() {
                 </h3>
                 <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
                   We believe that what happens outside the classroom is just as
-                  important as what happens inside. EventHub provides organizers
+                  important as what happens inside. ECoNet provides organizers
                   with professional tools to host seamless experiences, while
                   giving students a central hub to discover opportunities that
                   matter.
@@ -342,7 +342,7 @@ export default function AboutPage() {
                 </h2>
                 <p className="text-lg text-indigo-100 mb-10 max-w-2xl mx-auto">
                   Join hundreds of students and organizers already shaping the
-                  campus experience on EventHub.
+                  campus experience on ECoNet.
                 </p>
                 <Link
                   href={isAuthenticated ? "/home" : "/signup"}

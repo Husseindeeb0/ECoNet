@@ -140,7 +140,7 @@ export default function LoginPage() {
               Welcome Back
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Sign in to your EventHub account
+              Sign in to your ECoNet account
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 import connectDb from "@/lib/connectDb";
 import Event from "@/models/Event";
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import Booking from "@/models/Booking";
 import User from "@/models/User";
 import { notFound } from "next/navigation";
@@ -90,11 +90,10 @@ function formatEventDate(date: any): string {
   }
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const resolvedParams = await params;
   const event = await getEvent(resolvedParams.id);
 
@@ -104,21 +103,44 @@ export async function generateMetadata({
     };
   }
 
+  const previousImages = (await parent).openGraph?.images || [];
+  const eventImage = event.coverImageUrl || `/og/${resolvedParams.id}`;
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://event-hub-pearl-alpha.vercel.app";
+
   return {
-    title: `${event.title} | ECoNet`,
-    description: event.description?.slice(0, 160) || "Join this event on ECoNet. The premier platform for connecting communities and discovering events.",
+    title: `${event.title} | ECoNet Event`,
+    description:
+      event.description?.slice(0, 160) ||
+      "Join this event on ECoNet. The premier platform for connecting communities and discovering events.",
     openGraph: {
       title: event.title,
-      description: event.description?.slice(0, 160) || "Join this event on ECoNet.",
+      description:
+        event.description?.slice(0, 160) ||
+        "Join this amazing event on ECoNet!",
+      url: `${baseUrl}/home/${resolvedParams.id}`,
+      siteName: "ECoNet",
       images: [
         {
-          url: `/og/${resolvedParams.id}`,
+          url: eventImage,
           width: 1200,
           height: 630,
           alt: event.title,
         },
+        ...previousImages,
       ],
+      locale: "en_US",
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: event.title,
+      description:
+        event.description?.slice(0, 160) ||
+        "Details about this event on ECoNet.",
+      images: [eventImage],
     },
   };
 }
@@ -129,8 +151,8 @@ export default async function EventDetailsPage({
 }: {
   params: Promise<{ id: string }> | { id: string };
   searchParams:
-  | Promise<{ booked?: string; cancelled?: string; requestSent?: string }>
-  | { booked?: string; cancelled?: string; requestSent?: string };
+    | Promise<{ booked?: string; cancelled?: string; requestSent?: string }>
+    | { booked?: string; cancelled?: string; requestSent?: string };
 }) {
   const resolvedParams = await Promise.resolve(params);
   const resolvedSearchParams = await Promise.resolve(searchParams);
@@ -148,8 +170,8 @@ export default async function EventDetailsPage({
   const isFinished = event.endsAt
     ? new Date(event.endsAt) < new Date()
     : event.startsAt
-      ? new Date(event.startsAt) < new Date()
-      : false;
+    ? new Date(event.startsAt) < new Date()
+    : false;
 
   let userBooking = null;
   let hasFeedback = false;
@@ -168,7 +190,7 @@ export default async function EventDetailsPage({
           event: resolvedParams.id,
         });
         hasFeedback = feedbackCount > 0;
-      } catch (e) { }
+      } catch (e) {}
     }
   }
 
@@ -355,14 +377,15 @@ export default async function EventDetailsPage({
                     <div className="flex items-center gap-2 mb-1">
                       {item.type !== "session" && (
                         <span
-                          className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${item.type === "break"
-                            ? "bg-amber-100 text-amber-600"
-                            : item.type === "opening"
+                          className={`px-2 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${
+                            item.type === "break"
+                              ? "bg-amber-100 text-amber-600"
+                              : item.type === "opening"
                               ? "bg-green-100 text-green-600"
                               : item.type === "closing"
-                                ? "bg-red-100 text-red-600"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                            }`}
+                              ? "bg-red-100 text-red-600"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                          }`}
                         >
                           {item.type}
                         </span>
@@ -417,8 +440,9 @@ export default async function EventDetailsPage({
 
   return (
     <main
-      className={`min-h-screen relative overflow-hidden ${isFinished ? "grayscale-sm bg-slate-100 dark:bg-slate-900" : ""
-        }`}
+      className={`min-h-screen relative overflow-hidden ${
+        isFinished ? "grayscale-sm bg-slate-100 dark:bg-slate-900" : ""
+      }`}
     >
       <script
         type="application/ld+json"
@@ -436,17 +460,17 @@ export default async function EventDetailsPage({
               : "https://schema.org/OfflineEventAttendanceMode",
             location: event.isOnline
               ? {
-                "@type": "VirtualLocation",
-                url: event.meetingLink || "https://eventhub.com",
-              }
+                  "@type": "VirtualLocation",
+                  url: event.meetingLink || "https://eventhub.com",
+                }
               : {
-                "@type": "Place",
-                name: event.location,
-                address: {
-                  "@type": "PostalAddress",
-                  addressLocality: event.location, // Simplified, ideally split city/country
+                  "@type": "Place",
+                  name: event.location,
+                  address: {
+                    "@type": "PostalAddress",
+                    addressLocality: event.location, // Simplified, ideally split city/country
+                  },
                 },
-              },
             image: [
               event.coverImageUrl,
               `https://eventhub.com/og/${event._id}`,
@@ -463,10 +487,11 @@ export default async function EventDetailsPage({
               priceCurrency: "USD",
               availability: "https://schema.org/InStock",
             },
-            performer: event.speakers?.map(s => ({
-              "@type": "Person",
-              name: s.name
-            })) || []
+            performer:
+              event.speakers?.map((s) => ({
+                "@type": "Person",
+                name: s.name,
+              })) || [],
           }),
         }}
       />
@@ -509,10 +534,11 @@ export default async function EventDetailsPage({
           )}
           {event.coverImageUrl && (
             <div
-              className={`absolute inset-0 bg-linear-to-t pointer-events-none ${isFinished
-                ? "from-slate-900/90 via-slate-800/70"
-                : "from-purple-900/90 via-purple-800/70"
-                } to-transparent`}
+              className={`absolute inset-0 bg-linear-to-t pointer-events-none ${
+                isFinished
+                  ? "from-slate-900/90 via-slate-800/70"
+                  : "from-purple-900/90 via-purple-800/70"
+              } to-transparent`}
             ></div>
           )}
           <div className="absolute inset-0 flex items-end p-8 sm:p-12 pointer-events-none">
@@ -543,8 +569,9 @@ export default async function EventDetailsPage({
                   )}
                 </div>
                 <h1
-                  className={`text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg ${isFinished ? "opacity-80" : ""
-                    }`}
+                  className={`text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg ${
+                    isFinished ? "opacity-80" : ""
+                  }`}
                 >
                   {event.title}
                 </h1>
@@ -602,11 +629,11 @@ export default async function EventDetailsPage({
                 meetingLink: event.meetingLink,
                 organizer: organizer
                   ? {
-                    _id: organizer._id,
-                    name: organizer.name,
-                    email: organizer.email,
-                    imageUrl: organizer.imageUrl,
-                  }
+                      _id: organizer._id,
+                      name: organizer.name,
+                      email: organizer.email,
+                      imageUrl: organizer.imageUrl,
+                    }
                   : null,
               }}
               booking={{
@@ -859,22 +886,24 @@ export default async function EventDetailsPage({
             <div className="lg:col-span-1">
               <AnimatedCard delay={0.6}>
                 <div
-                  className={`sticky top-24 rounded-3xl border p-8 shadow-2xl transition-all ${isFinished
-                    ? "border-slate-200 bg-slate-50/50 shadow-slate-200/50"
-                    : "border-purple-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-purple-500/10 ring-1 ring-purple-50 dark:ring-slate-800"
-                    }`}
+                  className={`sticky top-24 rounded-3xl border p-8 shadow-2xl transition-all ${
+                    isFinished
+                      ? "border-slate-200 bg-slate-50/50 shadow-slate-200/50"
+                      : "border-purple-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-purple-500/10 ring-1 ring-purple-50 dark:ring-slate-800"
+                  }`}
                 >
                   <h3
-                    className={`text-xl font-black mb-8 uppercase tracking-widest ${isFinished
-                      ? "text-slate-400 dark:text-slate-600"
-                      : "text-slate-900 dark:text-white"
-                      }`}
+                    className={`text-xl font-black mb-8 uppercase tracking-widest ${
+                      isFinished
+                        ? "text-slate-400 dark:text-slate-600"
+                        : "text-slate-900 dark:text-white"
+                    }`}
                   >
                     {isFinished
                       ? "Event Status"
                       : userBooking
-                        ? "Your Booking"
-                        : "Reserve Spot"}
+                      ? "Your Booking"
+                      : "Reserve Spot"}
                   </h3>
 
                   <div className="space-y-6 mb-8">
@@ -883,18 +912,19 @@ export default async function EventDetailsPage({
                         Attendance
                       </span>
                       <span
-                        className={`text-[13px] font-black ${isFinished
-                          ? "text-slate-400 dark:text-slate-600"
-                          : event.isPaid
+                        className={`text-[13px] font-black ${
+                          isFinished
+                            ? "text-slate-400 dark:text-slate-600"
+                            : event.isPaid
                             ? "text-emerald-600"
                             : "text-indigo-600"
-                          }`}
+                        }`}
                       >
                         {isFinished
                           ? "Closed"
                           : event.isPaid
-                            ? `$${event.price}`
-                            : "Free Entry"}
+                          ? `$${event.price}`
+                          : "Free Entry"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -902,12 +932,13 @@ export default async function EventDetailsPage({
                         Total Booked
                       </span>
                       <span
-                        className={`text-[13px] font-black ${isFull
-                          ? "text-rose-600"
-                          : isFinished
+                        className={`text-[13px] font-black ${
+                          isFull
+                            ? "text-rose-600"
+                            : isFinished
                             ? "text-slate-500"
                             : "text-slate-900"
-                          }`}
+                        }`}
                       >
                         {event.capacity != null ? (
                           <>
@@ -1011,14 +1042,12 @@ export default async function EventDetailsPage({
             </div>
           </div>
         </div>
-      </AnimatedContent >
+      </AnimatedContent>
 
       {/* Feedback Section Overlay (Show after booking or via button) */}
-      {
-        userBooking && (
-          <FeedbackIntegration bookingId={userBooking?._id?.toString()} />
-        )
-      }
-    </main >
+      {userBooking && (
+        <FeedbackIntegration bookingId={userBooking?._id?.toString()} />
+      )}
+    </main>
   );
 }

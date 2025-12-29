@@ -116,7 +116,7 @@ export const Navbar = () => {
               href="/"
               className="flex items-center space-x-2 text-xl font-bold text-white transition-all duration-300"
             >
-              <img src="/logo.png" alt="EventHub Logo" className="w-40" />
+              <img src="/logo.png" alt="ECoNet Logo" className="w-40" />
             </Link>
           </div>
 

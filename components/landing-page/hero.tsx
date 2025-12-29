@@ -80,9 +80,7 @@ export function Hero() {
                     EH
                   </div>
                   <div>
-                    <div className="font-bold text-gray-900 dark:text-white">
-                      EventHub Dashboard
-                    </div>
+                    ECoNet Dashboard
                     <div className="text-xs text-muted-foreground">
                       Overview
                     </div>

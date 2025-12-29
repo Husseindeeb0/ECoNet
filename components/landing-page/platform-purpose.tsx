@@ -19,7 +19,7 @@ export function PlatformPurpose() {
             <div className="space-y-6">
               <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-gray-900 dark:text-white leading-tight">
                 Why We Built <br />
-                <span className="text-indigo-600">EventHub</span>
+                <span className="text-indigo-600">ECoNet</span>
               </h2>
               <div className="w-24 h-2 bg-linear-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-full" />
             </div>
@@ -31,10 +31,9 @@ export function PlatformPurpose() {
                 or too hard to use.
               </p>
               <p>
-                EventHub was born from a desire to create a space where
-                organizers can thrive and attendees can easily find their next
-                great memory. We focus on simplicity, transparency, and
-                community.
+                ECoNet was born from a desire to create a space where organizers
+                can thrive and attendees can easily find their next great
+                memory. We focus on simplicity, transparency, and community.
               </p>
             </div>
 

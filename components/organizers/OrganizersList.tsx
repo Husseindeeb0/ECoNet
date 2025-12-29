@@ -398,7 +398,7 @@ export default function OrganizersList({
 
                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center line-clamp-2 mb-6 font-medium leading-relaxed px-2">
                       {organizer.description ||
-                        "Bringing unique experiences and unforgettable moments to the EventHub community."}
+                        "Bringing unique experiences and unforgettable moments to the ECoNet community."}
                     </p>
 
                     <div className="mt-auto w-full space-y-4">

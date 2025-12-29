@@ -134,7 +134,7 @@ export default function SignupPage() {
               Create Account
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Join EventHub today
+              Join ECoNet today
             </p>
           </div>
 

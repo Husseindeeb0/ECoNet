@@ -1,14 +1,17 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = "https://eventhub.com"; // Replace with your actual domain
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://event-hub-pearl-alpha.vercel.app";
 
-    return {
-        rules: {
-            userAgent: "*",
-            allow: "/",
-            disallow: ["/api/", "/admin/"],
-        },
-        sitemap: `${baseUrl}/sitemap.xml`,
-    };
+  // This file generates the robots.txt file dynamically
+  return {
+    rules: {
+      userAgent: "*",
+      allow: ["/"],
+      disallow: ["/api/", "/admin/", "/private/"],
+    },
+    sitemap: `${baseUrl}/sitemap.xml`,
+  };
 }

@@ -34,7 +34,7 @@ export function CTA() {
           </h2>
 
           <p className="text-xl md:text-2xl text-indigo-100/80 max-w-2xl mx-auto font-light leading-relaxed">
-            Join thousands of event organizers who are already using EventHub to
+            join thousands of event organizers who are already using ECoNet to
             create unforgettable experiences.
           </p>
 

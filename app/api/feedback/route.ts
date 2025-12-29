@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
       });
 
       const mailOptions = {
-        from: `"EventHub Feedback" <${emailUser}>`,
+        from: `"ECoNet Feedback" <${emailUser}>`,
         to: emailUser, // Now sends to the website email (admin)
         replyTo: userEmail, // Makes it easy for the admin to reply to the user
         subject: `✨ New Feedback: ${
@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
                 <p style="margin-bottom: 5px;">Internal Tracking ID: ${
                   (feedback as any)._id || "N/A"
                 }</p>
-                <p>© 2024 EventHub System • Quality Assurance Team</p>
+                <p>© 2024 ECoNet System • Quality Assurance Team</p>
               </div>
             </div>
           </div>

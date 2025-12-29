@@ -1,5 +1,5 @@
 /**
- * Professional email templates for EventHub notifications
+ * Professional email templates for ECoNet notifications
  */
 
 interface NewEventEmailData {
@@ -195,10 +195,10 @@ export function generateNewEventEmailTemplate(data: NewEventEmailData): string {
                 <tr>
                   <td style="text-align: center;">
                     <p style="margin: 0 0 8px; color: #94a3b8; font-size: 12px;">
-                      You're receiving this email because you follow <strong>${organizerName}</strong> on EventHub.
+                      You're receiving this email because you follow <strong>${organizerName}</strong> on ECoNet.
                     </p>
                     <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                      © ${new Date().getFullYear()} EventHub. All rights reserved.
+                      © ${new Date().getFullYear()} ECoNet. All rights reserved.
                     </p>
                   </td>
                 </tr>

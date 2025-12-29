@@ -7,7 +7,7 @@ import { Quote } from "lucide-react";
 const testimonials = [
   {
     quote:
-      "EventHub transformed how we manage our annual tech conference. The analytics alone saved us countless hours of manual tracking.",
+      "ECoNet transformed how we manage our annual tech conference. The analytics alone saved us countless hours of manual tracking.",
     author: "Sarah Chen",
     role: "Event Director",
     company: "TechSummit Global",
@@ -15,7 +15,7 @@ const testimonials = [
   },
   {
     quote:
-      "We've hosted over 200 community meetups using EventHub. The platform is intuitive, reliable, and our attendees love the seamless experience.",
+      "We've hosted over 200 community meetups using ECoNet. The platform is intuitive, reliable, and our attendees love the seamless experience.",
     author: "Marcus Johnson",
     role: "Community Manager",
     company: "DevConnect",
@@ -23,7 +23,7 @@ const testimonials = [
   },
   {
     quote:
-      "The custom branding features let us maintain our identity while leveraging EventHub's powerful infrastructure. It's the best of both worlds.",
+      "The custom branding features let us maintain our identity while leveraging ECoNet's powerful infrastructure. It's the best of both worlds.",
     author: "Emily Rodriguez",
     role: "Marketing Lead",
     company: "Creative Workshops Inc",

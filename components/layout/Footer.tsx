@@ -17,18 +17,18 @@ const navigation = [
 ];
 
 const contact = [
-  { icon: Mail, text: "support@eventhub.com", type: "email" },
+  { icon: Mail, text: "support@econet.com", type: "email" },
   { icon: Phone, text: "+1 (555) 123-4567", type: "phone" },
 ];
 
 const social = [
-  { icon: Facebook, href: "https://facebook.com/eventhub", label: "Facebook" },
+  { icon: Facebook, href: "https://facebook.com/econet", label: "Facebook" },
   {
     icon: Instagram,
-    href: "https://instagram.com/eventhub",
+    href: "https://instagram.com/econet",
     label: "Instagram",
   },
-  { icon: FaXTwitter, href: "https://x.com/eventhub", label: "X" },
+  { icon: FaXTwitter, href: "https://x.com/econet", label: "X" },
 ];
 
 const legal = [
@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
         <div className="lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           {/* Section 1: Logo and Mission */}
           <div className="space-y-6 lg:col-span-1 lg:mb-0">
-            <img src="/logo.png" alt="EventHub Logo" className="w-44" />
+            <img src="/logo.png" alt="ECoNet Logo" className="w-44" />
             <p className="text-gray-300 text-sm max-w-xs">
               Your one-stop platform for finding and booking the best events.
               Never miss out on what's happening.
@@ -148,7 +148,7 @@ const Footer: React.FC = () => {
         <div className="mt-8 border-t border-purple-700/50 pt-4">
           <p className="text-sm text-gray-300 flex items-center justify-center">
             <Copyright className="h-4 w-4 mr-1" aria-hidden="true" />
-            {new Date().getFullYear()} EventHub. All rights reserved.
+            {new Date().getFullYear()} ECoNet. All rights reserved.
           </p>
         </div>
       </div>

@@ -56,14 +56,14 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt = `
-      You are "EventHub AI Assistant".
+      You are "ECoNet AI Assistant".
       USER: ${user.name}.
       ${currentEventInfo}
       UPCOMING EVENTS: ${JSON.stringify(upcomingEvents)}
       
       STRICT RULES:
-      1. ONLY talk about EventHub and events.
-      2. REJECT other topics with: "Sorry, I am designed to assist only with EventHub-related inquiries."
+      1. ONLY talk about ECoNet and events.
+      2. REJECT other topics with: "Sorry, I am designed to assist only with ECoNet-related inquiries."
     `;
 
     // 3. Clean History (Must start with User)

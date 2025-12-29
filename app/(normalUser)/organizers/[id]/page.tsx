@@ -18,6 +18,63 @@ import {
   AnimatedPageHeader,
   AnimatedCard,
 } from "@/components/animations/PageAnimations";
+import type { Metadata, ResolvingMetadata } from "next";
+
+export async function generateMetadata(
+  { params }: { params: { id: string } },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const resolvedParams = await Promise.resolve(params);
+  const organizer = await getOrganizerProfile(resolvedParams.id);
+
+  if (!organizer) {
+    return {
+      title: "Organizer Not Found | ECoNet",
+    };
+  }
+
+  const previousImages = (await parent).openGraph?.images || [];
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://event-hub-pearl-alpha.vercel.app";
+
+  return {
+    title: `${organizer.name} | Organizer Profile`,
+    description: organizer.description
+      ? organizer.description.slice(0, 160)
+      : `Check out ${organizer.name}'s profile on ECoNet.`,
+    openGraph: {
+      title: `${organizer.name} - Organizer on ECoNet`,
+      description: organizer.description
+        ? organizer.description.slice(0, 160)
+        : `See ${organizer.name}'s events and profile on ECoNet.`,
+      url: `${baseUrl}/organizers/${resolvedParams.id}`,
+      siteName: "ECoNet",
+      images: organizer.imageUrl
+        ? [
+            {
+              url: organizer.imageUrl,
+              width: 800,
+              height: 800,
+              alt: organizer.name,
+            },
+            ...previousImages,
+          ]
+        : previousImages,
+      locale: "en_US",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${organizer.name} | ECoNet Organizer`,
+      description: organizer.description
+        ? organizer.description.slice(0, 160)
+        : `Check out ${organizer.name}'s profile.`,
+      images: organizer.imageUrl ? [organizer.imageUrl] : [],
+    },
+  };
+}
 
 async function getOrganizerProfile(id: string) {
   try {

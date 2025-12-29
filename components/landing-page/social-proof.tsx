@@ -27,7 +27,7 @@ export function SocialProof() {
             Trusted by Leading Organizations
           </h2>
           <p className="text-muted-foreground font-light">
-            Join thousands of companies using EventHub
+            Join thousands of companies using ECoNet
           </p>
         </div>
 

@@ -101,8 +101,8 @@ export default function GeneralFeedbackPage() {
             </Link>
             <h1 className="text-3xl font-bold mb-4">Feedback Center</h1>
             <p className="text-purple-100 leading-relaxed">
-              Tell us what you think about EventHub! Your feedback helps us
-              build a better experience for everyone.
+              Tell us what you think about ECoNet! Your feedback helps us build
+              a better experience for everyone.
             </p>
           </div>
           <div className="hidden md:block mt-8 opacity-20">
@@ -128,7 +128,7 @@ export default function GeneralFeedbackPage() {
                   exit={{ opacity: 0, height: 0 }}
                   className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-700 text-sm"
                 >
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  <AlertCircle className="w-5 h-5 shrink-0" />
                   {errorMessage}
                 </motion.div>
               )}

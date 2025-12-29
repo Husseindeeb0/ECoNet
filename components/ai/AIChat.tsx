@@ -29,7 +29,7 @@ export default function AIChat() {
     {
       role: "ai",
       content:
-        "Hi! I'm your EventHub Assistant. Looking for something specific or need a recommendation?",
+        "Hi! I'm your ECoNet Assistant. Looking for something specific or need a recommendation?",
     },
   ]);
 
@@ -112,7 +112,7 @@ export default function AIChat() {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm tracking-tight">
-                    EventHub AI
+                    ECoNet AI
                   </h3>
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
@@ -212,7 +212,7 @@ export default function AIChat() {
                 </button>
               </div>
               <p className="mt-3 text-[9px] text-center text-slate-400 dark:text-slate-500 font-medium uppercase tracking-widest">
-                EventHub Intelligence Console
+                ECoNet Intelligence Console
               </p>
             </div>
           </motion.div>
