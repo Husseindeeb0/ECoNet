@@ -7,9 +7,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     process.env.NEXT_PUBLIC_APP_URL ||
     "https://event-hub-pearl-alpha.vercel.app";
 
-  // This file generates the sitemap.xml file dynamically
-  // Static routes
-
   const routes = ["", "/about", "/login", "/signup"].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
@@ -21,8 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let eventRoutes: MetadataRoute.Sitemap = [];
   try {
     await connectDb();
-    // Fetch last 100 active events to include in sitemap
-    // You might want to filter by future dates or limit the number
     const events = await Event.find({})
       .select("_id updatedAt")
       .sort({ createdAt: -1 })

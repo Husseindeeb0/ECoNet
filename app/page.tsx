@@ -14,14 +14,14 @@ export const metadata: Metadata = {
     title: "Welcome to ECoNet | Event Networking Redefined",
     description:
       "Join ECoNet today. The ultimate platform for discovering events, connecting with organizers, and building your professional network.",
-    images: ["/logo.png"],
+    images: ["/logoCover.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Welcome to ECoNet | Event Networking Redefined",
     description:
       "Start your journey with ECoNet. Join the revolution in event management and networking.",
-    images: ["/logo.png"],
+    images: ["/logoCover.png"],
   },
 };
 

@@ -8,14 +8,14 @@ export const metadata: Metadata = {
     title: "Discover Events | ECoNet",
     description:
       "Browse the latest popular events and experiences curated just for you.",
-    images: ["/logo.png"],
+    images: ["/logoCover.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Discover Events | ECoNet",
     description:
       "Browse the latest popular events and experiences curated just for you.",
-    images: ["/logo.png"],
+    images: ["/logoCover.png"],
   },
 };
 

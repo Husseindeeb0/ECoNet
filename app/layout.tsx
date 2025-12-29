@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo.png",
+        url: "/logoCover.png",
         width: 1200,
         height: 630,
         alt: "ECoNet Logo",
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     description:
       "Discover premier events and build your network with ECoNet. Your next great experience awaits.",
     creator: "@ECoNet",
-    images: ["/logo.png"],
+    images: ["/logoCover.png"],
   },
   icons: {
     icon: "/favicon.ico",
