@@ -36,18 +36,6 @@ export default function BookingForm({
 
   const [copied, setCopied] = useState(false);
 
-  const handleWhishPay = () => {
-    // Attempt to open the app directly via custom scheme
-    // Note: This requires the Whish App to support this specific scheme
-    const appUrl = `whish://pay?phone=${whishNumber}&amount=${price}`;
-    const webFallback = `https://whish.money/download`; // Fallback if they don't have the app
-
-    window.location.href = appUrl;
-    setTimeout(() => {
-      window.open(webFallback, "_blank");
-    }, 2000);
-  };
-
   const copyToClipboard = () => {
     if (whishNumber) {
       navigator.clipboard.writeText(whishNumber);
@@ -264,20 +252,22 @@ export default function BookingForm({
         {isPaid && (
           <>
             <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleWhishPay}
-                className="w-full rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-6 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-orange-600 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-              >
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86l-2.04-1.2c-.19-.11-.42-.11-.61 0l-2.04 1.2c-.19.11-.31.31-.31.53v2.4c0 .22.12.42.31.53l2.04 1.2c.19.11.42.11.61 0l2.04-1.2c.19-.11.31-.31.31-.53v-2.4c0-.22-.12-.42-.31-.53z" />
-                </svg>
-                Step 1: Pay via Whish
-              </button>
+              <div className="rounded-2xl bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border-2 border-amber-100 dark:border-amber-900/20 p-5 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-full bg-amber-500 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <span className="font-black text-sm">1</span>
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-black text-amber-900 dark:text-amber-200 uppercase tracking-tight">
+                      Pay via Whish
+                    </h4>
+                    <p className="text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed">
+                      Open your Whish app and send the payment to the number
+                      below.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <div className="flex-1">
@@ -305,8 +295,7 @@ export default function BookingForm({
             <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3">
               <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold text-center leading-tight">
                 ⚠️ IMPORTANT: Send a request only AFTER you have completed the
-                payment. The organizer will verify your transfer using the
-                number provided.
+                payment.
               </p>
             </div>
           </>

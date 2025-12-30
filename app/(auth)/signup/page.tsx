@@ -11,20 +11,16 @@ import { useEffect } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [signup, { isLoading: loading, error: signupError }] =
     useSignupMutation();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      if (user?.role === "organizer") {
-        router.replace("/myEvents");
-      } else {
-        router.replace("/home");
-      }
+      router.replace("/home");
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, router]);
 
   // Form state
   const [formData, setFormData] = useState({

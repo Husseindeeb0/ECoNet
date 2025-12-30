@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
         <div className="lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           {/* Section 1: Logo and Mission */}
           <div className="space-y-6 lg:col-span-1 lg:mb-0">
-            <img src="/logo.png" alt="ECoNet Logo" className="w-44" />
+            <img src="/logo.png" alt="ECoNet Logo" className="w-36 h-20" />
             <p className="text-gray-300 text-sm max-w-xs">
               Your one-stop platform for finding and booking the best events.
               Never miss out on what's happening.

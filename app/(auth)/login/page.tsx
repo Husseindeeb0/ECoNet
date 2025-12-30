@@ -15,19 +15,15 @@ import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [login, { isLoading: loading, error: loginError }] = useLoginMutation();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      if (user?.role === "organizer") {
-        router.replace("/myEvents");
-      } else {
-        router.replace("/home");
-      }
+      router.replace("/home");
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, router]);
 
   // Form state
   const [formData, setFormData] = useState({
