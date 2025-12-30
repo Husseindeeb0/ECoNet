@@ -37,12 +37,15 @@ export default function BookingForm({
   const [copied, setCopied] = useState(false);
 
   const handleWhishPay = () => {
-    // Many Whish payments are handled via deep links or their app.
-    // We'll use a more standard web link or just the number.
-    const whishUrl = `https://whish.money/pay?id=${encodeURIComponent(
-      whishNumber || ""
-    )}&amount=${price}`;
-    window.open(whishUrl, "_blank");
+    // Attempt to open the app directly via custom scheme
+    // Note: This requires the Whish App to support this specific scheme
+    const appUrl = `whish://pay?phone=${whishNumber}&amount=${price}`;
+    const webFallback = `https://whish.money/download`; // Fallback if they don't have the app
+
+    window.location.href = appUrl;
+    setTimeout(() => {
+      window.open(webFallback, "_blank");
+    }, 2000);
   };
 
   const copyToClipboard = () => {

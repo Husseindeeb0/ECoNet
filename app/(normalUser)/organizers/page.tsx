@@ -49,7 +49,7 @@ export default async function OrganizersPage() {
   const currentUser = await getCurrentUser();
 
   return (
-    <main className="min-h-[calc(100vh-56px)] bg-slate-50 dark:bg-transparent relative overflow-hidden pb-20">
+    <main className="min-h-[calc(100vh-56px)] relative overflow-hidden pb-20">
       {/* Subtle Background Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-linear-to-b from-indigo-50/50 via-transparent to-transparent dark:hidden -z-10" />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 relative z-10">

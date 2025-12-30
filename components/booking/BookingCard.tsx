@@ -51,16 +51,16 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
 
   return (
     <div
-      className={`group relative flex flex-col md:flex-row overflow-hidden rounded-3xl border transition-all duration-500 ${
+      className={`group relative flex flex-col md:flex-row overflow-hidden rounded-3xl border transition-all duration-500 h-auto md:h-60 ${
         isFinished
           ? "border-slate-100 bg-white dark:bg-slate-900 dark:border-slate-800"
           : "border-indigo-100 bg-white dark:bg-slate-900 dark:border-slate-800 hover:border-purple-200 dark:hover:border-purple-800 hover:shadow-2xl hover:shadow-purple-500/10"
       }`}
     >
       {/* Left: Image Section */}
-      <div className="relative w-full md:w-64 lg:w-80 h-48 md:h-auto overflow-hidden bg-indigo-50 dark:bg-slate-800 shrink-0">
+      <div className="relative w-full md:w-64 lg:w-80 h-48 md:h-full overflow-hidden bg-indigo-50 dark:bg-slate-800 shrink-0">
         {coverImageUrl ? (
-          <div className="h-full w-full">
+          <div className="absolute inset-0 h-full w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={coverImageUrl}
@@ -69,7 +69,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
             />
           </div>
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-linear-to-br from-indigo-100 to-purple-100 uppercase">
+          <div className="absolute inset-0 h-full w-full flex items-center justify-center bg-linear-to-br from-indigo-100 to-purple-100 uppercase">
             <div className="text-center p-4">
               <Ticket className="h-8 w-8 mx-auto text-indigo-400 mb-2 opacity-50" />
               <p className="text-[10px] font-black tracking-widest text-indigo-400">
