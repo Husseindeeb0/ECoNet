@@ -87,10 +87,15 @@ export default function EventChat({
   const [newMessage, setNewMessage] = useState("");
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
-    messagesEndRef.current?.scrollIntoView({ behavior });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior,
+      });
+    }
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -101,10 +106,25 @@ export default function EventChat({
   }, [comments.length]);
 
   const handleScrollToReply = (replyId?: string) => {
-    if (!replyId) return;
+    if (!replyId || !scrollRef.current) return;
     const element = document.getElementById(`msg-${replyId}`);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      const container = scrollRef.current;
+      const rect = element.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      const top =
+        rect.top -
+        containerRect.top +
+        container.scrollTop -
+        container.clientHeight / 2 +
+        element.clientHeight / 2;
+
+      container.scrollTo({
+        top,
+        behavior: "smooth",
+      });
+
       setHighlightedId(replyId);
       setTimeout(() => setHighlightedId(null), 2000);
     }
@@ -217,7 +237,10 @@ export default function EventChat({
       )}
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/50 dark:bg-slate-900/20">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50/50 dark:bg-slate-900/20 relative"
+      >
         {isLoading ? (
           <div className="flex justify-center items-center h-full text-slate-400">
             Loading messages...
@@ -442,7 +465,6 @@ export default function EventChat({
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Reply Indicator */}
