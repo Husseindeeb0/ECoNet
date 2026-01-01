@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   Send,
   MessageCircle,
@@ -317,13 +318,14 @@ export default function EventChat({
                   } ${isMe ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {/* Avatar */}
-                  <div className="shrink-0">
+                  <div className="shrink-0 relative w-10 h-10">
                     {user.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={user.imageUrl}
                         alt={user.name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm"
+                        fill
+                        sizes="40px"
+                        className="rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm text-purple-600 dark:text-purple-400">

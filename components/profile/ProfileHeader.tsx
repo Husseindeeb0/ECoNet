@@ -26,7 +26,7 @@ export default function ProfileHeader({ onEditClick }: ProfileHeaderProps) {
       <div className="relative mb-8">
         {/* Cover Image */}
         <div
-          className="relative h-48 w-full overflow-hidden rounded-xl bg-gradient-to-br from-purple-200 via-blue-200 to-indigo-200 group cursor-pointer"
+          className="relative h-48 w-full overflow-hidden rounded-xl bg-linear-to-br from-purple-200 via-blue-200 to-indigo-200 group cursor-pointer"
           onClick={() =>
             user.coverImageUrl && setViewingImage(user.coverImageUrl)
           }
@@ -39,7 +39,7 @@ export default function ProfileHeader({ onEditClick }: ProfileHeaderProps) {
             priority
           />
           {/* Gradient overlay for better text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
 
           {/* Hover Overlay with Eye Icon */}
           {user.coverImageUrl && (
@@ -54,7 +54,7 @@ export default function ProfileHeader({ onEditClick }: ProfileHeaderProps) {
           <div className="relative flex items-end -mt-16 mb-4">
             {/* Avatar */}
             <div
-              className="relative h-32 w-32 rounded-full border-4 border-white dark:border-slate-900 overflow-hidden bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg group cursor-pointer"
+              className="relative h-32 w-32 rounded-full border-4 border-white dark:border-slate-900 overflow-hidden bg-linear-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg group cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 user.imageUrl && setViewingImage(user.imageUrl);
@@ -110,7 +110,7 @@ export default function ProfileHeader({ onEditClick }: ProfileHeaderProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-100 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm"
             onClick={() => setViewingImage(null)}
           >
             <button
@@ -124,14 +124,15 @@ export default function ProfileHeader({ onEditClick }: ProfileHeaderProps) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-5xl max-h-[90vh] flex items-center justify-center"
+              className="relative w-full max-w-5xl h-[90vh] flex items-center justify-center"
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image wrapper
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={viewingImage}
                 alt="Full View"
-                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                fill
+                className="object-contain rounded-lg shadow-2xl"
+                sizes="95vw"
               />
             </motion.div>
           </motion.div>

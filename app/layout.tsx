@@ -5,9 +5,8 @@ import Footer from "@/components/layout/Footer";
 import StoreProvider from "@/redux/StoreProvider";
 import AuthInitializer from "@/components/auth/AuthInitializer";
 import SocketInitializer from "@/components/socket/SocketInitializer";
-import AIChat from "@/components/ai/AIChat";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import VantaBackground from "@/components/ui/VantaBackground";
+import { DynamicComponents } from "@/components/layout/DynamicComponents";
 
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
@@ -85,7 +84,7 @@ export default function RootLayout({
       <body suppressHydrationWarning={true}>
         <StoreProvider>
           <ThemeProvider defaultTheme="light" storageKey="eventhub-theme">
-            <VantaBackground />
+            <DynamicComponents />
             <AuthInitializer />
             <SocketInitializer />
             <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
@@ -93,7 +92,6 @@ export default function RootLayout({
             <Navbar />
             <main>{children}</main>
             <Footer />
-            <AIChat />
           </ThemeProvider>
         </StoreProvider>
       </body>

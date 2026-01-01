@@ -6,6 +6,7 @@ import User from "@/models/User";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import BookingForm from "./BookingForm";
+import dynamic from "next/dynamic";
 import {
   AnimatedHero,
   AnimatedContent,
@@ -13,7 +14,9 @@ import {
   AnimatedSuccessMessage,
 } from "./AnimatedEventContent";
 import EventImage from "./EventImage";
-import EventChat from "@/components/chat/EventChat";
+import Image from "next/image";
+
+import DynamicChat from "./DynamicChat";
 import EventTabs from "@/components/events/EventTabs";
 import { getCurrentUser } from "@/lib/serverAuth";
 import FollowButton from "@/components/follow/FollowButton";
@@ -224,114 +227,160 @@ export default async function EventDetailsPage(props: {
         </div>
       </AnimatedCard>
 
-      {/* Speakers Section */}
-      {event.speakers && event.speakers.length > 0 && (
+      {/* Live Stream Embed */}
+      {event.liveStreamUrl && (
         <AnimatedCard delay={0.45}>
-          <div className="rounded-3xl border border-purple-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-purple-500/5">
-            <h2 className="text-2xl font-black bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 uppercase tracking-tight flex items-center gap-2">
-              <svg
-                className="h-6 w-6 text-purple-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              Speakers & Presenters
+          <div className="rounded-3xl border border-red-100 dark:border-red-900/20 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-red-500/5">
+            <h2 className="text-2xl font-black bg-linear-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mb-6 uppercase tracking-tight flex items-center gap-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+              </span>
+              Live Stream
             </h2>
-            <div className="grid gap-6 md:grid-cols-2">
-              {event.speakers.map((speaker, index) => (
-                <div
-                  key={index}
-                  className="flex gap-4 items-start p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 transition-all hover:bg-white dark:hover:bg-slate-700 hover:shadow-md"
-                >
-                  {speaker.profileImageUrl ? (
-                    <img
-                      src={speaker.profileImageUrl}
-                      alt={speaker.name}
-                      className="w-16 h-16 rounded-full object-cover ring-2 ring-purple-200 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 font-bold text-xl shrink-0">
-                      {speaker.name.charAt(0)}
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">
-                      {speaker.name}
-                    </h3>
-                    {speaker.title && (
-                      <p className="text-sm font-medium text-purple-600 mb-1">
-                        {speaker.title}
-                      </p>
-                    )}
-                    {speaker.bio && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-2">
-                        {speaker.bio}
-                      </p>
-                    )}
-                    <div className="flex gap-2">
-                      {speaker.linkedinLink && (
-                        <a
-                          href={speaker.linkedinLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-blue-600"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                          </svg>
-                        </a>
-                      )}
-                      {speaker.instagramLink && (
-                        <a
-                          href={speaker.instagramLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-pink-600"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.226-.149-4.771-1.664-4.919-4.919-.058-1.265-.069-1.644-.069-4.849 0-3.204.012-3.584.069-4.849.149-3.225 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                          </svg>
-                        </a>
-                      )}
-                      {speaker.twitterLink && (
-                        <a
-                          href={speaker.twitterLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-sky-500"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                          </svg>
-                        </a>
-                      )}
-                    </div>
+            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner">
+              {event.liveStreamUrl.includes("youtube.com") ||
+              event.liveStreamUrl.includes("youtu.be") ? (
+                <iframe
+                  src={event.liveStreamUrl
+                    .replace("watch?v=", "embed/")
+                    .replace("youtu.be/", "youtube.com/embed/")}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white text-center p-8">
+                  <div className="space-y-4">
+                    <p className="font-bold text-lg">External Live Stream</p>
+                    <a
+                      href={event.liveStreamUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 transition-colors font-bold uppercase tracking-widest text-xs text-white"
+                    >
+                      Watch on Platform
+                    </a>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </AnimatedCard>
       )}
+    </div>
+  );
+
+  const SpeakersContent = (
+    <div className="space-y-8">
+      <AnimatedCard delay={0.2}>
+        <div className="rounded-3xl border border-purple-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-purple-500/5">
+          <h2 className="text-2xl font-black bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-8 uppercase tracking-tight flex items-center gap-2">
+            <svg
+              className="h-6 w-6 text-purple-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            Speakers & Presenters
+          </h2>
+          <div className="grid gap-8 md:grid-cols-2">
+            {event.speakers?.map((speaker, index) => (
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row gap-5 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:shadow-purple-500/5 group"
+              >
+                {speaker.profileImageUrl ? (
+                  <div className="relative h-20 w-20 shrink-0 mx-auto sm:mx-0">
+                    <Image
+                      src={speaker.profileImageUrl}
+                      alt={speaker.name}
+                      fill
+                      className="rounded-2xl object-cover ring-4 ring-purple-100 dark:ring-purple-900/20 transition-transform group-hover:scale-105"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 font-black text-2xl shrink-0 mx-auto sm:mx-0">
+                    {speaker.name.charAt(0)}
+                  </div>
+                )}
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                    {speaker.name}
+                  </h3>
+                  {speaker.title && (
+                    <p className="text-xs font-black uppercase tracking-widest text-purple-600 dark:text-purple-400 mb-3">
+                      {speaker.title}
+                    </p>
+                  )}
+                  {speaker.bio && (
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4 font-medium leading-relaxed">
+                      {speaker.bio}
+                    </p>
+                  )}
+                  <div className="flex gap-3 justify-center sm:justify-start">
+                    {speaker.linkedinLink && (
+                      <a
+                        href={speaker.linkedinLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 text-slate-400 hover:text-blue-600 hover:shadow-md transition-all"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                        </svg>
+                      </a>
+                    )}
+                    {speaker.instagramLink && (
+                      <a
+                        href={speaker.instagramLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 text-slate-400 hover:text-pink-600 hover:shadow-md transition-all"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.226-.149-4.771-1.664-4.919-4.919-.058-1.265-.069-1.644-.069-4.849 0-3.204.012-3.584.069-4.849.149-3.225-1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
+                      </a>
+                    )}
+                    {speaker.twitterLink && (
+                      <a
+                        href={speaker.twitterLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 text-slate-400 hover:text-sky-500 hover:shadow-md transition-all"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimatedCard>
     </div>
   );
 
@@ -432,7 +481,7 @@ export default async function EventDetailsPage(props: {
   const ChatContent = (
     <AnimatedCard delay={0.2}>
       <div className="mt-2 h-[600px] flex flex-col">
-        <EventChat
+        <DynamicChat
           eventId={event._id}
           organizerId={event.organizerId}
           currentUserId={currentUser?.userId}
@@ -744,6 +793,21 @@ export default async function EventDetailsPage(props: {
                       </p>
                       <p className="font-semibold text-slate-800 dark:text-slate-200">
                         {formatEventDate(event.startsAt)}
+                        {event.endsAt && (
+                          <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">
+                            Until{" "}
+                            {new Date(event.endsAt).toLocaleTimeString(
+                              "en-US",
+                              {
+                                weekday: "long",
+                                month: "long",
+                                day: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -836,13 +900,15 @@ export default async function EventDetailsPage(props: {
                           className="shrink-0 group"
                         >
                           {organizer.imageUrl ? (
-                            <img
+                            <Image
                               src={organizer.imageUrl}
                               alt={organizer.name}
-                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm group-hover:scale-105 transition-transform"
+                              width={48}
+                              height={48}
+                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white dark:ring-slate-700 shadow-sm group-hover:scale-105 transition-transform"
                             />
                           ) : (
-                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-105 transition-transform text-lg">
+                            <div className="h-12 w-12 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black shadow-sm group-hover:scale-105 transition-transform text-lg">
                               {organizer.name.charAt(0)}
                             </div>
                           )}
@@ -879,6 +945,7 @@ export default async function EventDetailsPage(props: {
               <EventTabs
                 overviewContent={OverviewContent}
                 scheduleContent={ScheduleContent}
+                speakersContent={SpeakersContent}
                 chatContent={ChatContent}
                 hasSchedule={!!(event.schedule && event.schedule.length > 0)}
                 hasSpeakers={!!(event.speakers && event.speakers.length > 0)}

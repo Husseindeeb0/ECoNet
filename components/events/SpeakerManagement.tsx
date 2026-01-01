@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import ImageKitUpload from "@/components/imageKit/ImageKitUpload";
 import { ISpeaker as Speaker } from "@/types/event";
@@ -232,9 +233,11 @@ export default function SpeakerManagement({
               >
                 <div className="flex items-center gap-3">
                   {speaker.profileImageUrl ? (
-                    <img
+                    <Image
                       src={speaker.profileImageUrl}
                       alt={speaker.name}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-200"
                     />
                   ) : (

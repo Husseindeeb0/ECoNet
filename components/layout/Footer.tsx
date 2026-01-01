@@ -4,6 +4,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FaXTwitter } from "react-icons/fa6";
 import { Facebook, Instagram, Mail, Phone, Copyright } from "lucide-react";
 
@@ -44,7 +45,13 @@ const Footer: React.FC = () => {
         <div className="lg:grid lg:grid-cols-3 lg:gap-8 xl:gap-12">
           {/* Section 1: Logo and Mission */}
           <div className="space-y-6 lg:col-span-1 lg:mb-0">
-            <img src="/logo.png" alt="ECoNet Logo" className="w-36 h-20" />
+            <Image
+              src="/logo.png"
+              alt="ECoNet Logo"
+              width={144}
+              height={80}
+              className="w-36 h-20 object-contain"
+            />
             <p className="text-gray-300 text-sm max-w-xs">
               Your one-stop platform for finding and booking the best events.
               Never miss out on what's happening.

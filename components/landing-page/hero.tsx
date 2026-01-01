@@ -185,7 +185,8 @@ export function Hero() {
                   <Image
                     src="/images/avatars/avatar1.png"
                     alt="User"
-                    fill
+                    width={40}
+                    height={40}
                     className="object-cover"
                   />
                 </div>
@@ -193,7 +194,8 @@ export function Hero() {
                   <Image
                     src="/images/avatars/avatar2.png"
                     alt="User"
-                    fill
+                    width={40}
+                    height={40}
                     className="object-cover"
                   />
                 </div>
@@ -201,7 +203,8 @@ export function Hero() {
                   <Image
                     src="/images/avatars/avatar3.png"
                     alt="User"
-                    fill
+                    width={40}
+                    height={40}
                     className="object-cover"
                   />
                 </div>

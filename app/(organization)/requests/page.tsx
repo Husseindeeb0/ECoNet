@@ -7,6 +7,7 @@ import {
 } from "@/redux/features/requests/requestsApi";
 import { Check, X, Loader2, Calendar, User, Phone, Mail } from "lucide-react";
 import { format } from "date-fns";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedPageHeader } from "@/components/animations/PageAnimations";
 
@@ -91,11 +92,13 @@ export default function RequestsPage() {
                     {/* User Info */}
                     <div className="flex-1 p-6">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-slate-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 overflow-hidden shadow-inner border-2 border-white dark:border-slate-700">
+                        <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-slate-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 overflow-hidden shadow-inner border-2 border-white dark:border-slate-700 relative">
                           {request.userImage ? (
-                            <img
+                            <Image
                               src={request.userImage}
                               alt=""
+                              fill
+                              sizes="48px"
                               className="h-full w-full object-cover"
                             />
                           ) : (

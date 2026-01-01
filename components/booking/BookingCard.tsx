@@ -2,6 +2,7 @@
 
 import { MapPin, Ticket, Clock, Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import DownloadTicketButton from "../ticket/DownloadTicketButton";
 import { BookingDetails } from "@/types";
 
@@ -61,10 +62,11 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onRate }) => {
       <div className="relative w-full md:w-64 lg:w-80 h-48 md:h-full overflow-hidden bg-indigo-50 dark:bg-slate-800 shrink-0">
         {coverImageUrl ? (
           <div className="absolute inset-0 h-full w-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={coverImageUrl}
-              alt={title}
+            <Image
+              src={coverImageUrl as string}
+              alt={title || "Event Cover Image"}
+              fill
+              sizes="(max-width: 768px) 100vw, 320px"
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           </div>

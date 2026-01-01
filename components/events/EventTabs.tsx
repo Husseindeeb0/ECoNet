@@ -20,14 +20,17 @@ export default function EventTabs({
   hasSchedule,
   hasSpeakers,
 }: EventTabsProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "schedule" | "chat">(
-    "overview"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "schedule" | "speakers" | "chat"
+  >("overview");
 
   const tabs = [
     { id: "overview", label: "Overview", icon: OverviewIcon },
     ...(hasSchedule
       ? [{ id: "schedule", label: "Schedule", icon: ScheduleIcon }]
+      : []),
+    ...(hasSpeakers
+      ? [{ id: "speakers", label: "Speakers", icon: SpeakersIcon }]
       : []),
     { id: "chat", label: "Discussion", icon: ChatIcon },
   ] as const;
@@ -77,16 +80,12 @@ export default function EventTabs({
             transition={{ duration: 0.3 }}
           >
             {activeTab === "overview" && (
-              <div className="space-y-8">
-                {overviewContent}
-                {/* Show speakers in overview if no dedicated tab/or just show them here regardless? 
-                    Let's show speakers in overview as requested by "display all details"
-                    But we also have dedicated variable if we want.
-                */}
-                {speakersContent}
-              </div>
+              <div className="space-y-8">{overviewContent}</div>
             )}
             {activeTab === "schedule" && scheduleContent}
+            {activeTab === "speakers" && (
+              <div className="space-y-8">{speakersContent}</div>
+            )}
             {activeTab === "chat" && chatContent}
           </motion.div>
         </AnimatePresence>
@@ -116,6 +115,19 @@ function ScheduleIcon(props: any) {
         strokeLinejoin="round"
         strokeWidth={2}
         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+      />
+    </svg>
+  );
+}
+
+function SpeakersIcon(props: any) {
+  return (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
       />
     </svg>
   );

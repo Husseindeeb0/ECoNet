@@ -136,9 +136,11 @@ const Wave = ({ color, d, duration, delay }: any) => (
 
 export const AnimatedBackground = () => {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
   if (!mounted) return null;
@@ -153,31 +155,70 @@ export const AnimatedBackground = () => {
         {/* Left Side (Most visible) */}
         <Shape x={5} y={15} size={45} delay={0} duration={14} iconIndex={0} />
         <Shape x={15} y={45} size={35} delay={2} duration={18} iconIndex={2} />
-        <Shape x={8} y={75} size={50} delay={4} duration={22} iconIndex={3} />
-        <Shape x={25} y={10} size={40} delay={1} duration={16} iconIndex={5} />
-        <Shape x={20} y={60} size={30} delay={3} duration={19} iconIndex={1} />
+        {!isMobile && (
+          <>
+            <Shape
+              x={8}
+              y={75}
+              size={50}
+              delay={4}
+              duration={22}
+              iconIndex={3}
+            />
+            <Shape
+              x={25}
+              y={10}
+              size={40}
+              delay={1}
+              duration={16}
+              iconIndex={5}
+            />
+            <Shape
+              x={20}
+              y={60}
+              size={30}
+              delay={3}
+              duration={19}
+              iconIndex={1}
+            />
 
-        {/* Middle/Center */}
-        <Shape x={45} y={25} size={40} delay={5} duration={20} iconIndex={4} />
-        <Shape
-          x={50}
-          y={80}
-          size={45}
-          delay={2.5}
-          duration={15}
-          iconIndex={0}
-        />
-        <Shape
-          x={35}
-          y={50}
-          size={35}
-          delay={1.5}
-          duration={21}
-          iconIndex={2}
-        />
-        <Shape x={55} y={5} size={30} delay={4} duration={17} iconIndex={3} />
+            {/* Middle/Center */}
+            <Shape
+              x={45}
+              y={25}
+              size={40}
+              delay={5}
+              duration={20}
+              iconIndex={4}
+            />
+            <Shape
+              x={50}
+              y={80}
+              size={45}
+              delay={2.5}
+              duration={15}
+              iconIndex={0}
+            />
+            <Shape
+              x={35}
+              y={50}
+              size={35}
+              delay={1.5}
+              duration={21}
+              iconIndex={2}
+            />
+            <Shape
+              x={55}
+              y={5}
+              size={30}
+              delay={4}
+              duration={17}
+              iconIndex={3}
+            />
+          </>
+        )}
 
-        {/* Right Side (Peeking from behind the component) */}
+        {/* Right Side */}
         <Shape x={85} y={10} size={35} delay={3} duration={14} iconIndex={5} />
         <Shape
           x={75}
@@ -187,27 +228,50 @@ export const AnimatedBackground = () => {
           duration={18}
           iconIndex={1}
         />
-        <Shape x={90} y={85} size={50} delay={2} duration={20} iconIndex={4} />
-        <Shape
-          x={70}
-          y={20}
-          size={30}
-          delay={1.5}
-          duration={23}
-          iconIndex={0}
-        />
-        <Shape x={80} y={70} size={35} delay={4} duration={16} iconIndex={2} />
-
-        {/* Extra Bottom Row */}
-        <Shape
-          x={30}
-          y={90}
-          size={40}
-          delay={3.5}
-          duration={18}
-          iconIndex={5}
-        />
-        <Shape x={65} y={95} size={35} delay={1} duration={21} iconIndex={1} />
+        {!isMobile && (
+          <>
+            <Shape
+              x={90}
+              y={85}
+              size={50}
+              delay={2}
+              duration={20}
+              iconIndex={4}
+            />
+            <Shape
+              x={70}
+              y={20}
+              size={30}
+              delay={1.5}
+              duration={23}
+              iconIndex={0}
+            />
+            <Shape
+              x={80}
+              y={70}
+              size={35}
+              delay={4}
+              duration={16}
+              iconIndex={2}
+            />
+            <Shape
+              x={30}
+              y={90}
+              size={40}
+              delay={3.5}
+              duration={18}
+              iconIndex={5}
+            />
+            <Shape
+              x={65}
+              y={95}
+              size={35}
+              delay={1}
+              duration={21}
+              iconIndex={1}
+            />
+          </>
+        )}
       </div>
 
       {/* Animated Waves */}

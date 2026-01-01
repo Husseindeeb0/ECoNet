@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   Menu,
   X,
@@ -115,7 +116,14 @@ export const Navbar = () => {
               href="/"
               className="flex items-center space-x-2 text-xl font-bold text-white transition-all duration-300"
             >
-              <img src="/logo.png" alt="ECoNet Logo" className="w-24 md:w-36 h-16" />
+              <Image
+                src="/logo.png"
+                alt="ECoNet Logo"
+                width={144}
+                height={64}
+                priority
+                className="w-24 md:w-36 h-20 object-contain"
+              />
             </Link>
           </div>
 
@@ -156,10 +164,11 @@ export const Navbar = () => {
                     title="Profile"
                   >
                     {user?.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={user.imageUrl}
                         alt={user.name || "User"}
+                        width={44}
+                        height={44}
                         className="h-full w-full object-cover"
                       />
                     ) : (
