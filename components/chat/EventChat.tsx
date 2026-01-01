@@ -13,6 +13,7 @@ import {
   Reply,
   X,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import {
   useGetCommentsQuery,
@@ -160,13 +161,52 @@ export default function EventChat({
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm("Are you sure you want to delete this message?")) return;
-    try {
-      await deleteComment({ commentId, eventId }).unwrap();
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      alert("Failed to delete message");
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 min-w-[280px]">
+          <div className="flex items-center gap-2 text-rose-600">
+            <Trash2 size={18} />
+            <h4 className="font-bold">Delete Message?</h4>
+          </div>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            Are you sure you want to delete this message? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await deleteComment({ commentId, eventId }).unwrap();
+                  toast.success("Message deleted");
+                } catch (error) {
+                  toast.error("Failed to delete message");
+                }
+              }}
+              className="px-4 py-2 text-xs font-bold bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors shadow-lg shadow-rose-200 dark:shadow-rose-900/20 cursor-pointer active:scale-95"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 4000,
+        position: "bottom-right",
+        style: {
+          padding: "16px",
+          borderRadius: "24px",
+          background: "var(--background)",
+          border: "1px solid #fee2e2",
+        },
+      }
+    );
   };
 
   const handlePin = async (commentId: string) => {

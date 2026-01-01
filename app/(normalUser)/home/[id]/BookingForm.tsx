@@ -71,16 +71,57 @@ export default function BookingForm({
 
   const handleCancel = async () => {
     if (!initialBooking?._id) return;
-    if (!confirm("Are you sure you want to cancel this booking?")) return;
 
-    try {
-      await cancelBooking(initialBooking._id).unwrap();
-      toast.success("Booking cancelled successfully");
-      router.push(`?cancelled=true`);
-      router.refresh();
-    } catch (error: any) {
-      toast.error(error.data?.message || "Failed to cancel booking");
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 min-w-[280px]">
+          <div className="flex items-center gap-2 text-rose-600">
+            <XCircle size={18} />
+            <h4 className="font-bold">Cancel Booking?</h4>
+          </div>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            Are you sure you want to cancel your booking? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            >
+              No, Keep it
+            </button>
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await cancelBooking(initialBooking._id).unwrap();
+                  toast.success("Booking cancelled successfully");
+                  router.push(`?cancelled=true`);
+                  router.refresh();
+                } catch (error: any) {
+                  toast.error(
+                    error.data?.message || "Failed to cancel booking"
+                  );
+                }
+              }}
+              className="px-4 py-2 text-xs font-bold bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors shadow-lg shadow-rose-200 dark:shadow-rose-900/20 cursor-pointer active:scale-95"
+            >
+              Yes, Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          padding: "16px",
+          borderRadius: "24px",
+          background: "var(--background)",
+          border: "1px solid #fee2e2",
+        },
+      }
+    );
   };
 
   if (initialBooking && !isResubmitting) {

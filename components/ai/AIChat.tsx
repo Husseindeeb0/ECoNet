@@ -92,7 +92,7 @@ export default function AIChat() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-2xl hover:scale-110 transition-transform duration-300 shadow-indigo-500/40 cursor-pointer"
+        className="fixed bottom-6 right-6 z-100 p-4 rounded-full bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-2xl hover:scale-110 transition-transform duration-300 shadow-indigo-500/40 cursor-pointer"
       >
         {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
       </button>
@@ -103,7 +103,7 @@ export default function AIChat() {
             initial={{ opacity: 0, y: 100, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            className="fixed bottom-24 right-6 z-50 w-[350px] sm:w-[400px] h-[min(580px,calc(100vh-120px))] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-indigo-100 dark:border-slate-800 flex flex-col overflow-hidden premium-shadow"
+            className="fixed bottom-24 right-6 z-100 w-[350px] sm:w-[400px] h-[min(580px,calc(100vh-120px))] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-indigo-100 dark:border-slate-800 flex flex-col overflow-hidden premium-shadow"
           >
             <div className="p-4 bg-linear-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between shadow-lg">
               <div className="flex items-center gap-3">

@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedPageHeader } from "@/components/animations/PageAnimations";
+import toast from "react-hot-toast";
 
 export default function RequestsPage() {
   const { data, isLoading, refetch } = useGetRequestsQuery({});
@@ -21,18 +22,59 @@ export default function RequestsPage() {
   const handleApprove = async (id: string) => {
     try {
       await approveRequest(id).unwrap();
+      toast.success("Request approved successfully!");
     } catch (err: any) {
-      alert(err.data?.message || "Failed to approve request");
+      toast.error(err.data?.message || "Failed to approve request");
     }
   };
 
   const handleReject = async (id: string) => {
-    if (!confirm("Are you sure you want to reject this request?")) return;
-    try {
-      await rejectRequest(id).unwrap();
-    } catch (err: any) {
-      alert(err.data?.message || "Failed to reject request");
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 min-w-[280px]">
+          <div className="flex items-center gap-2 text-rose-600">
+            <X size={18} />
+            <h4 className="font-bold">Reject Request?</h4>
+          </div>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            Are you sure you want to reject this booking request? This action
+            cannot be undone.
+          </p>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await rejectRequest(id).unwrap();
+                  toast.success("Request rejected successfully");
+                } catch (err: any) {
+                  toast.error(err.data?.message || "Failed to reject request");
+                }
+              }}
+              className="px-4 py-2 text-xs font-bold bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-colors shadow-lg shadow-rose-200 dark:shadow-rose-900/20 cursor-pointer active:scale-95"
+            >
+              Reject Request
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          padding: "16px",
+          borderRadius: "24px",
+          background: "var(--background)",
+          border: "1px solid #fee2e2",
+        },
+      }
+    );
   };
 
   if (isLoading) {

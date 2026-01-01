@@ -28,6 +28,8 @@ import {
   Trash,
 } from "lucide-react";
 import { deleteEventAction } from "@/app/actions";
+import toast from "react-hot-toast";
+import { useRef } from "react";
 
 interface EventFormProps {
   initialData?: any;
@@ -112,6 +114,57 @@ export default function EventForm({
       ? "Other"
       : DEFAULT_CATEGORIES[0]
   );
+
+  const deleteFormRef = useRef<HTMLFormElement>(null);
+
+  const handleDeleteConfirm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 min-w-[280px]">
+          <div className="flex items-center gap-2">
+            <Trash className="h-5 w-5 text-red-600" />
+            <p className="font-bold text-slate-800 dark:text-white">
+              Delete this event?
+            </p>
+          </div>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            This action is permanent and cannot be reversed. All data associated
+            with this event will be lost.
+          </p>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            >
+              Keep Event
+            </button>
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                if (deleteFormRef.current) {
+                  deleteFormRef.current.requestSubmit();
+                }
+              }}
+              className="px-4 py-2 text-xs font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg shadow-red-200 dark:shadow-red-900/20 cursor-pointer active:scale-95"
+            >
+              Delete Permanently
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 6000,
+        position: "top-center",
+        style: {
+          padding: "16px",
+          borderRadius: "24px",
+          backgroundColor: "var(--background)",
+          border: "1px solid #fee2e2",
+        },
+      }
+    );
+  };
   const [customCategory, setCustomCategory] = useState(
     isDefaultCategory ? "" : initialData?.category || ""
   );
@@ -674,6 +727,7 @@ export default function EventForm({
       </form>
       {mode === "edit" && (
         <form
+          ref={deleteFormRef}
           action={deleteEventAction}
           className="mt-10 pt-10 border-t border-slate-100 dark:border-slate-800"
         >
@@ -693,15 +747,7 @@ export default function EventForm({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              onClick={(e) => {
-                if (
-                  !confirm(
-                    "Are you sure you want to delete this event? This action cannot be undone."
-                  )
-                ) {
-                  e.preventDefault();
-                }
-              }}
+              onClick={handleDeleteConfirm}
               className="px-6 py-3 rounded-xl bg-white dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold border-2 border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors whitespace-nowrap"
             >
               Delete Event
