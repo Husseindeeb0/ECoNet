@@ -95,7 +95,7 @@ const authSlice = createSlice({
       )
       .addMatcher(authApi.endpoints.checkSession.matchRejected, (state) => {
         state.loading = false;
-        // Only set to false if we weren't already authenticated (to avoid race conditions with login)
+        // Only reset if we weren't already authenticated (avoid race conditions with login)
         if (!state.isAuthenticated) {
           state.isAuthenticated = false;
           state.user = null;

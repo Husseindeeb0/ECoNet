@@ -20,16 +20,24 @@ export default function AuthInitializer() {
     isError,
     isSuccess,
   } = useCheckSessionQuery(undefined, {
-    // If we're already authenticated from a previous action (like login), we can skip
+    // We only skip if we are ALREADY authenticated.
+    // This is useful right after login mutation succeeds.
     skip: isAuthenticated,
   });
 
   // Handle errors or success to stop global loading state
   useEffect(() => {
+    // If we're already authenticated (e.g. from login), we can stop loading immediately
+    if (isAuthenticated) {
+      dispatch(stopLoading());
+      return;
+    }
+
+    // Otherwise wait for the session check to complete
     if (isError || isSuccess) {
       dispatch(stopLoading());
     }
-  }, [isError, isSuccess, dispatch]);
+  }, [isError, isSuccess, isAuthenticated, dispatch]);
 
   // Migration logic
   const [migrateEvents, { isLoading: isMigrating, isUninitialized }] =

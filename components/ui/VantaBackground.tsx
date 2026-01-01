@@ -42,9 +42,6 @@ export default function VantaBackground({
     const loadVanta = async () => {
       if (typeof window === "undefined") return;
 
-      // Skip Vanta on mobile for performance
-      if (window.innerWidth < 768) return;
-
       if (!window.THREE) {
         const THREE = await import("three");
         window.THREE = THREE;

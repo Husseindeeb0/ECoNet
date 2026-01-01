@@ -83,16 +83,15 @@ export default function LoginPage() {
 
       if (result.success) {
         localStorage.setItem("isLoggedIn", "true");
-        // Navigation is handled by the useEffect above once state updates
+        // Force navigation to home immediately
+        router.push("/home");
       }
     } catch (err: any) {
       // Improved error logging
       console.error("Login failed:", err);
-      if (err instanceof Error) {
-        console.error("Error message:", err.message);
-      } else {
-        console.error("Error details:", JSON.stringify(err, null, 2));
-      }
+      toast.error(
+        err?.data?.message || err?.message || "Login failed. Please try again."
+      );
     }
   };
 
