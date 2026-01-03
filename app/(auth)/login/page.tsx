@@ -31,6 +31,9 @@ export default function LoginPage() {
     password: "",
   });
 
+  // Track when we're redirecting after successful auth
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
   // Local validation errors
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
@@ -82,9 +85,11 @@ export default function LoginPage() {
       const result = await login({ email, password }).unwrap();
 
       if (result.success) {
-        localStorage.setItem("isLoggedIn", "true");
-        // Force navigation to home immediately
-        router.push("/home");
+        // Show loading state during redirect
+        setIsRedirecting(true);
+        // Use replace instead of push to avoid back button issues
+        // The login mutation automatically updates Redux state
+        router.replace("/home");
       }
     } catch (err: any) {
       // Improved error logging
@@ -111,8 +116,33 @@ export default function LoginPage() {
   const isVerificationError =
     loginError && "status" in loginError && (loginError as any).status === 403;
 
+  // Show loading overlay while logging in or redirecting
+  if (loading || isRedirecting) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="inline-block p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl mb-4">
+            <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+            {isRedirecting ? "Redirecting to home..." : "Signing you in..."}
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {isRedirecting
+              ? "Taking you to your dashboard"
+              : "Please wait while we authenticate your account"}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -127,7 +157,7 @@ export default function LoginPage() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-block p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mb-4"
+              className="inline-block p-3 bg-linear-to-br from-blue-500 to-purple-500 rounded-full mb-4"
             >
               <LogIn className="w-8 h-8 text-white" />
             </motion.div>
@@ -235,7 +265,7 @@ export default function LoginPage() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+              className="w-full bg-linear-to-r from-blue-500 to-purple-500 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

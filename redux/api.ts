@@ -34,11 +34,7 @@ const baseQueryWithReauth: BaseQueryFn<
       // Retry original request
       result = await baseQuery(args, api, extraOptions);
     } else {
-      // Refresh failed - clean up state
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("isLoggedIn");
-      }
-      // Import and dispatch logout to sync state
+      // Refresh failed - dispatch logout to clean up state
       const { logout } = await import("./features/auth/authSlice");
       api.dispatch(logout());
     }

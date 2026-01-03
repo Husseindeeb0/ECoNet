@@ -15,13 +15,12 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Wait for auth initialization to complete
+    // Only redirect if we're done loading AND definitely not authenticated
     if (!loading) {
-      setIsChecking(false);
-
       if (!isAuthenticated) {
-        router.push("/login");
+        router.replace("/login");
       }
+      setIsChecking(false);
     }
   }, [isAuthenticated, loading, router]);
 

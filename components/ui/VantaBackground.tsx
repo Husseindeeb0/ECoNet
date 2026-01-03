@@ -97,17 +97,6 @@ export default function VantaBackground({
     };
   }, [vantaEffect]);
 
-  // Return a simple div on server/initial render to avoid mismatch
-  // The background gradient will be set via style prop only after mount to match the theme
-  // OR set a safe default.
-  // To strictly fix hydration mismatch, we render the structure but avoid different attributes.
-  // However, for the background color/gradient which changes significantly,
-  // it's best to rely on CSS classes or render nothing until mounted if acceptable,
-  // OR use a neutral default that doesn't cause a jarring shift if possible.
-  // Given the user wants "professional and elegant", a flash of white might be bad if dark mode.
-  // But a hydration mismatch error is worse.
-  // Let's use the `mounted` check to render the specific background style.
-
   if (!mounted) {
     return <div className={`fixed inset-0 -z-50 ${className}`} />;
   }

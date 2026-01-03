@@ -62,14 +62,8 @@ export const Navbar = () => {
     setIsClient(true);
   }, []);
 
-  // Check if we expect the user to be logged in (from localStorage)
-  // This helps prevent "flash of unauthenticated content"
-  const isLoggedInLocally =
-    typeof window !== "undefined"
-      ? localStorage.getItem("isLoggedIn") === "true"
-      : false;
-
-  const showLoadingState = loading || (isLoggedInLocally && !isAuthenticated);
+  // Show loading state only while auth is initializing
+  const showLoadingState = loading;
 
   const filteredLinks = navLinks.filter((link) => {
     // If not authenticated (or still loading), only show public links
@@ -101,7 +95,6 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     await logout().unwrap();
-    localStorage.removeItem("isLoggedIn");
     setShowProfileMenu(false);
     router.push("/login");
   };

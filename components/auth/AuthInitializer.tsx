@@ -25,16 +25,9 @@ export default function AuthInitializer() {
     skip: isAuthenticated,
   });
 
-  // Handle errors or success to stop global loading state
+  // Handle loading state - stop as soon as we have a definitive answer
   useEffect(() => {
-    // If we're already authenticated (e.g. from login), we can stop loading immediately
-    if (isAuthenticated) {
-      dispatch(stopLoading());
-      return;
-    }
-
-    // Otherwise wait for the session check to complete
-    if (isError || isSuccess) {
+    if (isAuthenticated || isError || isSuccess) {
       dispatch(stopLoading());
     }
   }, [isError, isSuccess, isAuthenticated, dispatch]);

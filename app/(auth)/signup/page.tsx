@@ -32,6 +32,9 @@ export default function SignupPage() {
     description: "",
   });
 
+  // Track when we're redirecting after successful auth
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
   // Local validation errors
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
@@ -98,13 +101,39 @@ export default function SignupPage() {
       const result = await signup(signupData);
 
       if (result.data?.success) {
-        localStorage.setItem("isLoggedIn", "true");
+        setIsRedirecting(true);
         // Navigation is handled by the useEffect above once state updates
       }
     } catch {
       // Error is handled by the mutation state (signupError)
     }
   };
+
+  if (loading || isRedirecting) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-purple-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="inline-block p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl mb-4">
+            <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+            {isRedirecting
+              ? "Setting up your account..."
+              : "Creating your account..."}
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {isRedirecting
+              ? "Redirecting you to the dashboard"
+              : "Please wait while we register specific details"}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-purple-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
