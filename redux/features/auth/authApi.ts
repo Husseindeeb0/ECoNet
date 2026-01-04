@@ -113,6 +113,7 @@ export const {
   useSignupMutation,
   useLogoutMutation,
   useCheckSessionQuery,
+  useLazyCheckSessionQuery,
   useRefreshTokenMutation,
   useUpdateProfileMutation,
   useMigrateEventsMutation,

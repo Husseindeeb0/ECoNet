@@ -54,14 +54,10 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addMatcher(
-        authApi.endpoints.signup.matchFulfilled,
-        (state, { payload }) => {
-          state.loading = false;
-          state.isAuthenticated = true;
-          state.user = payload.user || null;
-        }
-      )
+      .addMatcher(authApi.endpoints.signup.matchFulfilled, (state) => {
+        state.loading = false;
+        // Do not set isAuthenticated true here, wait for verification
+      })
       .addMatcher(
         authApi.endpoints.signup.matchRejected,
         (state, { payload, error }) => {

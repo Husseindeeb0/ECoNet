@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/connectDb";
 import User from "@/models/User";
-import {
-  hashPassword,
-  generateAccessToken,
-  generateRefreshToken,
-  setTokenCookies,
-} from "@/lib/auth";
+import { hashPassword } from "@/lib/auth";
 import crypto from "crypto";
 import { sendEmail } from "@/lib/sendEmail";
 
@@ -96,19 +91,12 @@ export async function POST(req: NextRequest) {
       console.error("Unexpected error sending verification email", emailError);
     }
 
-    // Generate tokens for auto-login
-    const accessToken = generateAccessToken({
-      userId: newUser._id.toString(),
-      email: newUser.email,
-      role: newUser.role,
-    });
-
-    const refreshToken = generateRefreshToken(newUser._id.toString());
-
-    newUser.refreshToken = refreshToken;
-    await newUser.save();
-
-    await setTokenCookies(accessToken, refreshToken);
+    // Tokens will be generated after email verification in the verify-email route
+    // const accessToken = generateAccessToken({ ... });
+    // const refreshToken = generateRefreshToken(newUser._id.toString());
+    // newUser.refreshToken = refreshToken;
+    // await newUser.save();
+    // await setTokenCookies(accessToken, refreshToken);
 
     return NextResponse.json(
       {

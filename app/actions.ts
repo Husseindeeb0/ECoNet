@@ -11,7 +11,7 @@ import imagekit from "@/lib/imagekit";
 import Review from "@/models/Review";
 import mongoose from "mongoose";
 import Feedback from "@/models/Feedback";
-import { IEvent, IBooking, IUser } from "@/types";
+import { IEvent } from "@/types";
 
 export async function createEventAction(formData: FormData) {
   const currentUser = await requireOrganizer();
