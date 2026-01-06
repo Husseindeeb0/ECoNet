@@ -1,6 +1,5 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import ImageKitUpload from "@/components/imageKit/ImageKitUpload";
@@ -27,28 +26,30 @@ import {
   Globe,
   Trash,
 } from "lucide-react";
-import { deleteEventAction } from "@/app/actions";
-import toast from "react-hot-toast";
 import { useRef } from "react";
+import toast from "react-hot-toast";
 
 interface EventFormProps {
   initialData?: any;
-  action: (formData: FormData) => Promise<void>;
   mode: "create" | "edit";
 }
 
-function SubmitButton({ mode }: { mode: "create" | "edit" }) {
-  const { pending } = useFormStatus();
-
+function SubmitButton({
+  mode,
+  isLoading,
+}: {
+  mode: "create" | "edit";
+  isLoading: boolean;
+}) {
   return (
     <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       type="submit"
-      disabled={pending}
+      disabled={isLoading}
       className="inline-flex w-full items-center justify-center rounded-xl bg-linear-to-r from-purple-600 to-blue-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-purple-500/30 transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto premium-button-purple min-w-[160px]"
     >
-      {pending ? (
+      {isLoading ? (
         <>
           <svg
             className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -80,14 +81,27 @@ function SubmitButton({ mode }: { mode: "create" | "edit" }) {
   );
 }
 
-export default function EventForm({
-  initialData,
-  action,
-  mode,
-}: EventFormProps) {
+import {
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  useDeleteEventMutation,
+} from "@/redux/features/events/eventsApi";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+
+export default function EventForm({ initialData, mode }: EventFormProps) {
+  const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
+  const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
+  const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
+
   const [coverImageUrl, setCoverImageUrl] = useState(
     initialData?.coverImageUrl || ""
   );
+  // ... (rest of state definitions)
   const [coverImageFileId, setCoverImageFileId] = useState(
     initialData?.coverImageFileId || ""
   );
@@ -115,59 +129,144 @@ export default function EventForm({
       : DEFAULT_CATEGORIES[0]
   );
 
-  const deleteFormRef = useRef<HTMLFormElement>(null);
-
-  const handleDeleteConfirm = (e: React.MouseEvent) => {
-    e.preventDefault();
-    toast(
-      (t) => (
-        <div className="flex flex-col gap-3 min-w-[280px]">
-          <div className="flex items-center gap-2">
-            <Trash className="h-5 w-5 text-red-600" />
-            <p className="font-bold text-slate-800 dark:text-white">
-              Delete this event?
-            </p>
-          </div>
-          <p className="text-xs text-slate-500 font-medium leading-relaxed">
-            This action is permanent and cannot be reversed. All data associated
-            with this event will be lost.
-          </p>
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-            >
-              Keep Event
-            </button>
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                if (deleteFormRef.current) {
-                  deleteFormRef.current.requestSubmit();
-                }
-              }}
-              className="px-4 py-2 text-xs font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-lg shadow-red-200 dark:shadow-red-900/20 cursor-pointer active:scale-95"
-            >
-              Delete Permanently
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        duration: 6000,
-        position: "top-center",
-        style: {
-          padding: "16px",
-          borderRadius: "24px",
-          backgroundColor: "var(--background)",
-          border: "1px solid #fee2e2",
-        },
-      }
-    );
-  };
   const [customCategory, setCustomCategory] = useState(
     isDefaultCategory ? "" : initialData?.category || ""
   );
+
+  const deleteFormRef = useRef<HTMLFormElement>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get("title") as string;
+    const location = formData.get("location") as string;
+    const meetingLink = formData.get("meetingLink") as string;
+    const startsAt = formData.get("startsAt") as string;
+    const endsAt = formData.get("endsAt") as string;
+    const capacityStr = formData.get("capacity") as string;
+    const description = formData.get("description") as string;
+    const liveStreamUrl = formData.get("liveStreamUrl") as string;
+
+    const category =
+      selectedCategory === "Other" ? customCategory : selectedCategory;
+
+    const capacity =
+      capacityStr && capacityStr.trim() !== ""
+        ? parseInt(capacityStr, 10)
+        : undefined;
+
+    const eventData = {
+      title,
+      location: isOnline ? "Online" : location,
+      isOnline,
+      meetingLink: isOnline ? meetingLink : undefined,
+      startsAt,
+      endsAt: endsAt || undefined,
+      capacity,
+      description,
+      category,
+      coverImageUrl,
+      coverImageFileId,
+      organizerId: (user as any)?.userId || (user as any)?._id || "",
+      speakers: speakers.length > 0 ? speakers : undefined,
+      schedule: schedule.length > 0 ? schedule : undefined,
+      isPaid,
+      price: isPaid ? parseFloat(price) || 0 : 0,
+      whishNumber: isPaid ? whishNumber : undefined,
+      liveStreamUrl: liveStreamUrl || undefined,
+    };
+
+    try {
+      if (mode === "create") {
+        const result = await createEvent(eventData as any).unwrap();
+        if (result.success) {
+          toast.success("Event created successfully!");
+          router.push(`/myEvents/${result.event._id}/success?type=create`);
+        }
+      } else {
+        const result = await updateEvent({
+          id: initialData._id,
+          ...eventData,
+        } as any).unwrap();
+        if (result) {
+          toast.success("Event updated successfully!");
+          router.push(`/myEvents/${initialData._id}/success?type=edit`);
+        }
+      }
+    } catch (error: any) {
+      console.error("Failed to save event:", error);
+      toast.error(error?.data?.message || "Failed to save event");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteEvent(initialData._id).unwrap();
+      toast.success("Event deleted successfully");
+      router.push("/myEvents");
+    } catch (error: any) {
+      console.error("Failed to delete event:", error);
+      toast.error(error?.data?.message || "Failed to delete event");
+    }
+  };
+
+  const handleDeleteConfirm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toast.custom(
+      (t) => (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className={`
+              w-full max-w-md pointer-events-auto
+              flex flex-col gap-4 p-6 rounded-3xl shadow-2xl
+              bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl
+              border border-red-100 dark:border-red-900/30
+            `}
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <Trash className="w-6 h-6 text-red-600 dark:text-red-500" />
+              </div>
+              <div className="flex-1 pt-1">
+                <h3 className="text-lg font-black text-slate-900 dark:text-white mb-1">
+                  Delete Event?
+                </h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                  This action cannot be undone. All data will be permanently
+                  lost.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-2">
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  handleDelete();
+                }}
+                className="px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20 transition-all active:scale-95"
+              >
+                Yes, Delete it
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      ),
+      {
+        duration: Infinity, // User must interact
+        position: "top-center",
+      }
+    );
+  };
 
   const formatDateForInput = (date: any) => {
     if (!date) return "";
@@ -177,7 +276,7 @@ export default function EventForm({
 
   return (
     <div className="p-8 sm:p-12">
-      <form action={action} className="flex flex-col gap-10">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-10">
         {mode === "edit" && (
           <input type="hidden" name="eventId" value={initialData?._id} />
         )}
@@ -716,7 +815,7 @@ export default function EventForm({
           transition={{ delay: 0.5 }}
           className="mt-12 flex flex-col gap-6 sm:flex-row-reverse items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-10"
         >
-          <SubmitButton mode={mode} />
+          <SubmitButton mode={mode} isLoading={isCreating || isUpdating} />
           <Link
             href="/myEvents"
             className="text-sm font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-[0.2em]"
@@ -726,11 +825,7 @@ export default function EventForm({
         </motion.div>
       </form>
       {mode === "edit" && (
-        <form
-          ref={deleteFormRef}
-          action={deleteEventAction}
-          className="mt-10 pt-10 border-t border-slate-100 dark:border-slate-800"
-        >
+        <div className="mt-10 pt-10 border-t border-slate-100 dark:border-slate-800">
           <input type="hidden" name="eventId" value={initialData?._id} />
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-red-50 dark:bg-red-900/10 border-2 border-red-100 dark:border-red-900/20">
             <div className="space-y-1">
@@ -746,14 +841,15 @@ export default function EventForm({
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              type="submit"
+              type="button"
+              disabled={isDeleting}
               onClick={handleDeleteConfirm}
-              className="px-6 py-3 rounded-xl bg-white dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold border-2 border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors whitespace-nowrap"
+              className="px-6 py-3 rounded-xl bg-white dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold border-2 border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Delete Event
+              {isDeleting ? "Deleting..." : "Delete Event"}
             </motion.button>
           </div>
-        </form>
+        </div>
       )}
     </div>
   );

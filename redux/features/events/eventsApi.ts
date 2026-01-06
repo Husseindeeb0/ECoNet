@@ -167,6 +167,19 @@ export const eventsApi = api.injectEndpoints({
     >({
       query: () => "/categories",
     }),
+    rateEvent: builder.mutation<
+      { success: boolean; message: string },
+      { eventId: string; rating: number }
+    >({
+      query: ({ eventId, rating }) => ({
+        url: `/events/${eventId}/rate`,
+        method: "POST",
+        body: { rating },
+      }),
+      invalidatesTags: (result, error, { eventId }) => [
+        { type: "Event", id: eventId },
+      ],
+    }),
   }),
 });
 
@@ -182,4 +195,5 @@ export const {
   useDeleteCommentMutation,
   usePinCommentMutation,
   useGetCategoriesQuery,
+  useRateEventMutation,
 } = eventsApi;

@@ -21,7 +21,7 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/home");
+      window.location.href = "/home";
     }
   }, [isAuthenticated, router]);
 
@@ -87,9 +87,8 @@ export default function LoginPage() {
       if (result.success) {
         // Show loading state during redirect
         setIsRedirecting(true);
-        // Use replace instead of push to avoid back button issues
-        // The login mutation automatically updates Redux state
-        router.replace("/home");
+        // Force full page reload to ensure clean state and avoid potential routing lags
+        window.location.href = "/home";
       }
     } catch (err: any) {
       // Improved error logging

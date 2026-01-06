@@ -1,6 +1,5 @@
 "use client";
 
-import { createEventAction } from "@/app/actions";
 import { motion } from "framer-motion";
 import EventForm from "@/components/events/EventForm";
 
@@ -65,7 +64,7 @@ export default function CreateEventPage() {
           className="overflow-hidden rounded-[3rem] border border-slate-100 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl shadow-2xl premium-shadow"
         >
           <div className="h-2 bg-linear-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
-          <EventForm action={createEventAction} mode="create" />
+          <EventForm mode="create" />
         </motion.div>
       </motion.div>
     </main>

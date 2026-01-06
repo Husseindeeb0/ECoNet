@@ -190,6 +190,8 @@ export async function POST(req: Request) {
       price,
       whishNumber,
       liveStreamUrl,
+      speakers,
+      schedule,
     } = body;
 
     // Basic validation
@@ -236,6 +238,8 @@ export async function POST(req: Request) {
       price: isPaid ? price : 0,
       whishNumber: isPaid ? whishNumber : undefined,
       liveStreamUrl: liveStreamUrl || undefined,
+      speakers: speakers && speakers.length > 0 ? speakers : undefined,
+      schedule: schedule && schedule.length > 0 ? schedule : undefined,
     });
 
     // Add event to user's createdEvents array

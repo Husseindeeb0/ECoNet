@@ -54,14 +54,14 @@ function ResetPasswordForm() {
 
   if (status === "success") {
     return (
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <KeyRound className="w-8 h-8 text-green-600" />
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl text-center">
+        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <KeyRound className="w-8 h-8 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Password Reset!
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Your password has been successfully updated. Redirecting to login...
         </p>
       </div>
@@ -69,20 +69,22 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+    <div className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl">
       <div className="text-center mb-8">
-        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <KeyRound className="w-6 h-6 text-blue-600" />
+        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <KeyRound className="w-6 h-6 text-blue-600 dark:text-blue-400" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
-        <p className="text-gray-500 mt-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Reset Password
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-2">
           Enter the code sent to your email and your new password.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Email
           </label>
           <div className="relative">
@@ -93,8 +95,10 @@ function ResetPasswordForm() {
                 setFormData({ ...formData, email: e.target.value })
               }
               readOnly={!!initialEmail} // Read only if prefilled, otherwise editable
-              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                initialEmail ? "bg-gray-100 text-gray-500" : "border-gray-300"
+              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-800 dark:text-white ${
+                initialEmail
+                  ? "bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400"
+                  : "border-gray-300 dark:border-slate-700"
               }`}
               placeholder="name@example.com"
               required
@@ -104,7 +108,7 @@ function ResetPasswordForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Verification Code
           </label>
           <div className="relative">
@@ -114,7 +118,7 @@ function ResetPasswordForm() {
               onChange={(e) =>
                 setFormData({ ...formData, code: e.target.value })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-800 dark:text-white"
               placeholder="123456"
               maxLength={6}
               required
@@ -124,7 +128,7 @@ function ResetPasswordForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             New Password
           </label>
           <div className="relative">
@@ -134,7 +138,7 @@ function ResetPasswordForm() {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-800 dark:text-white"
               placeholder="••••••••"
               required
               minLength={6}
@@ -144,7 +148,7 @@ function ResetPasswordForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Confirm Password
           </label>
           <div className="relative">
@@ -154,7 +158,7 @@ function ResetPasswordForm() {
               onChange={(e) =>
                 setFormData({ ...formData, confirmPassword: e.target.value })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-800 dark:text-white"
               placeholder="••••••••"
               required
               minLength={6}
@@ -167,7 +171,7 @@ function ResetPasswordForm() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center"
+            className="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm text-center"
           >
             {message}
           </motion.div>
@@ -176,7 +180,7 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
         >
           {status === "loading" ? (
             <>
@@ -192,7 +196,7 @@ function ResetPasswordForm() {
       <div className="mt-6 text-center">
         <Link
           href="/login"
-          className="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1"
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center justify-center gap-1"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Login
         </Link>
@@ -203,7 +207,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center p-4">
       <Suspense fallback={<div>Loading...</div>}>
         <ResetPasswordForm />
       </Suspense>

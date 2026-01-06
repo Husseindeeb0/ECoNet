@@ -9,8 +9,8 @@ import ScrollToTop from "@/components/layout/ScrollToTop";
 import { DynamicComponents } from "@/components/layout/DynamicComponents";
 
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
-
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: {
@@ -92,6 +92,7 @@ export default function RootLayout({
             <Navbar />
             <main>{children}</main>
             <Footer />
+            <Analytics />
           </ThemeProvider>
         </StoreProvider>
       </body>

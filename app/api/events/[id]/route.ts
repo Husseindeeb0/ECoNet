@@ -57,100 +57,181 @@ export async function GET(_req: Request, { params }: Params) {
   }
 }
 
-export async function PUT(request: Request, { params }: Params) {
+export async function PUT(req: Request, { params }: Params) {
   try {
+    const authResult = await import("@/middleware/authMiddleware").then((m) =>
+      m.authMiddleware(req as any)
+    );
+    if (authResult.error) return authResult.response;
+
+    const { userId, role } = authResult.user!;
+    const { id } = await params;
+
     await connectDb();
 
-    const { id } = await params;
-    const body = await request.json();
-
-    // Build update object only with allowed keys
-    const update: Record<string, unknown> = {};
-    if (typeof body.title === "string") update.title = body.title.trim();
-    if (typeof body.description === "string")
-      update.description = body.description.trim();
-    if (body.date) update.date = new Date(body.date);
-    if (typeof body.time === "string") update.time = body.time;
-    if (typeof body.location === "string")
-      update.location = body.location.trim();
-    if (typeof body.isOnline === "boolean") {
-      update.isOnline = body.isOnline;
-      if (body.isOnline) {
-        update.location = "Online";
-      }
+    const event = await EventModel.findById(id);
+    if (!event) {
+      return NextResponse.json(
+        { success: false, message: "Event not found" },
+        { status: 404 }
+      );
     }
-    if (typeof body.meetingLink === "string")
-      update.meetingLink = body.meetingLink.trim();
-    if (typeof body.category === "string")
-      update.category = body.category.trim();
-    if (typeof body.posterUrl === "string") update.posterUrl = body.posterUrl;
-    if (typeof body.isPaid === "boolean") update.isPaid = body.isPaid;
-    if (typeof body.price === "number") update.price = body.price;
-    if (typeof body.whishNumber === "string")
-      update.whishNumber = body.whishNumber.trim();
-    if (typeof body.liveStreamUrl === "string")
-      update.liveStreamUrl = body.liveStreamUrl.trim();
 
-    // capacity handling (number)
-    if (typeof body.capacity === "number") {
-      update.capacity = body.capacity;
+    // Authorization check
+    if (event.organizerId !== userId && (role as string) !== "admin") {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 403 }
+      );
+    }
 
-      // If availableSeats provided explicitly, use it; otherwise adjust relative to old capacity
-      if (typeof body.availableSeats === "number") {
-        update.availableSeats = body.availableSeats;
-      } else {
-        // fetch current event to compute new availableSeats
-        const current = await EventModel.findById(id).lean();
-        if (current) {
-          // determine used seats = capacity - availableSeats (old)
-          const oldCapacity =
-            typeof current.capacity === "number" ? current.capacity : 0;
-          const oldAvailable =
-            typeof current.availableSeats === "number"
-              ? current.availableSeats
-              : 0;
-          const usedSeats = Math.max(0, oldCapacity - oldAvailable);
+    const body = await req.json();
 
-          // compute new available seats = newCapacity - usedSeats (not negative)
-          const computedAvailable = Math.max(0, body.capacity - usedSeats);
-          update.availableSeats = computedAvailable;
-        } else {
-          update.availableSeats = body.capacity;
+    const {
+      title,
+      description,
+      location,
+      isOnline,
+      meetingLink,
+      startsAt,
+      endsAt,
+      category,
+      coverImageUrl,
+      coverImageFileId,
+      isPaid,
+      price,
+      whishNumber,
+      liveStreamUrl,
+      speakers,
+      schedule,
+      capacity,
+    } = body;
+
+    // Handle Image Replacement
+    if (coverImageUrl && coverImageUrl !== event.coverImageUrl) {
+      if (event.coverImageFileId) {
+        try {
+          const imagekit = await import("@/lib/imagekit").then(
+            (m) => m.default
+          );
+          if (imagekit) {
+            await imagekit.deleteFile(event.coverImageFileId);
+          }
+        } catch (error) {
+          console.error("Failed to delete old event cover:", error);
         }
       }
-    } else if (typeof body.availableSeats === "number") {
-      // explicit availableSeats update without changing capacity
-      update.availableSeats = body.availableSeats;
     }
 
-    const updated = await EventModel.findByIdAndUpdate(id, update, {
+    // Update object
+    const updateData: any = {
+      title,
+      description,
+      location: isOnline ? "Online" : location,
+      isOnline,
+      meetingLink: isOnline ? meetingLink : undefined,
+      startsAt: new Date(startsAt),
+      endsAt: endsAt ? new Date(endsAt) : undefined,
+      category,
+      coverImageUrl,
+      coverImageFileId,
+      isPaid,
+      price: isPaid ? price : 0,
+      whishNumber: isPaid ? whishNumber : undefined,
+      liveStreamUrl: liveStreamUrl || undefined,
+      speakers: speakers && speakers.length > 0 ? speakers : undefined,
+      schedule: schedule && schedule.length > 0 ? schedule : undefined,
+    };
+
+    // Capacity logic
+    if (capacity !== undefined) {
+      updateData.capacity = capacity;
+
+      // Calculate new available seats based on change
+      const oldCapacity = event.capacity || 0;
+      const oldAvailable = event.availableSeats || 0;
+      const usedSeats = Math.max(0, oldCapacity - oldAvailable);
+
+      const newAvailable = Math.max(0, capacity - usedSeats);
+      updateData.availableSeats = newAvailable;
+    }
+
+    const updatedEvent = await EventModel.findByIdAndUpdate(id, updateData, {
       new: true,
-    }).lean();
-    if (!updated) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
-    }
+    });
 
-    return NextResponse.json({ event: updated });
+    // Update attendedEvents for users if event status changed (active <-> finished)
+    // This part is complex to port 1:1 statelessly, but we can check if it just finished
+    // For now, focusing on the data update. The 'finish' logic usually runs via cron or on-access checks.
+    // The server action had some logic to update 'attendedEvents' immediately upon edit if dates changed.
+    // We will omit the expensive bulk User update here for performance unless critical.
+    // It's better handled when users access the event or via a background job.
+
+    return NextResponse.json({ success: true, event: updatedEvent });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown server error";
     console.error("PUT /api/events/[id] error:", message, err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(req: Request, { params }: Params) {
   try {
+    const authResult = await import("@/middleware/authMiddleware").then((m) =>
+      m.authMiddleware(req as any)
+    );
+    if (authResult.error) return authResult.response;
+
+    const { userId, role } = authResult.user!;
+    const { id } = await params;
+
     await connectDb();
 
-    const { id } = await params;
-    const deleted = await EventModel.findByIdAndDelete(id).lean();
-    if (!deleted) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    const event = await EventModel.findById(id);
+    if (!event) {
+      return NextResponse.json(
+        { success: false, message: "Event not found" },
+        { status: 404 }
+      );
     }
-    return NextResponse.json({ message: "Event deleted successfully" });
+
+    if (event.organizerId !== userId && (role as string) !== "admin") {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 403 }
+      );
+    }
+
+    // Clean up Image
+    if (event.coverImageFileId) {
+      try {
+        const imagekit = await import("@/lib/imagekit").then((m) => m.default);
+        if (imagekit) await imagekit.deleteFile(event.coverImageFileId);
+      } catch (error) {
+        console.error("Failed to delete event cover:", error);
+      }
+    }
+
+    // Delete Event
+    await EventModel.findByIdAndDelete(id);
+
+    // Delete Bookings
+    const Booking = await import("@/models/Booking").then((m) => m.default);
+    await Booking.deleteMany({ event: id });
+
+    // Update Organizer
+    const User = await import("@/models/User").then((m) => m.default);
+    await User.findByIdAndUpdate(event.organizerId, {
+      $pull: { createdEvents: id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Event deleted successfully",
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown server error";
     console.error("DELETE /api/events/[id] error:", message, err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }

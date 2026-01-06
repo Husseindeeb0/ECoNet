@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, X } from "lucide-react";
-import { rateEventAction } from "@/app/actions";
+import { useRateEventMutation } from "@/redux/features/events/eventsApi";
 import toast from "react-hot-toast";
 
 interface RatingModalProps {
@@ -21,16 +21,12 @@ export default function RatingModal({
 }: RatingModalProps) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rateEvent, { isLoading: isSubmitting }] = useRateEventMutation();
 
   const handleSubmit = async () => {
     if (rating === 0) return;
-    setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("eventId", eventId);
-      formData.append("rating", rating.toString());
-      await rateEventAction(formData);
+      await rateEvent({ eventId, rating }).unwrap();
       toast.success("Rating submitted successfully!");
       onClose();
     } catch (error) {
@@ -38,8 +34,6 @@ export default function RatingModal({
       toast.error(
         "Failed to submit rating. You may have already rated this event."
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
